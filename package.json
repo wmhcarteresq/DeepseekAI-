@@ -1,11 +1,15 @@
 {
-  "name": "AI Assistant",
+  "name": "ai-assistant",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "build:zip": "webpack && cd dist && zip -r ../extension.zip *",
+    "build:chrome": "npm run build:zip && mv extension.zip chrome-submission.zip",
+    "build:edge": "npm run build:zip && mv extension.zip edge-submission.zip",
+    "build:all": "npm run build:chrome && npm run build:edge"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +25,9 @@
     "interactjs": "^1.10.27",
     "markdown-it": "^14.1.0",
     "markdown-it-highlightjs": "^4.1.0",
+    "markdown-it-mathjax3": "^4.3.2",
     "marked": "^13.0.3",
+    "mathjax": "^3.2.2",
     "overlayscrollbars": "^2.10.0",
     "perfect-scrollbar": "^1.5.5",
     "pnpm": "^9.7.0",

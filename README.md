@@ -23,15 +23,14 @@
 
 ## 安装步骤
 
-按照以下步骤安装该扩展插件：
+1. **通过 Chrome Web Store 安装**：访问 [Chrome Web Store](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap) 并点击"添加到 Chrome"按钮进行安装。
 
-1. **通过 Chrome Web Store 安装**：访问 [Chrome Web Store](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap) 并点击“添加到 Chrome”按钮进行安装。
-2. **克隆仓库**：`git clone https://github.com/DeepLifeStudio/DeepSeekAI.git`
-3. **安装依赖**：`npm install`
-4. **构建扩展程序**：`npm run build`
-5. **将扩展程序加载到您的浏览器中**：
-   - 对于 Chrome/Edge：导航到 `chrome://extensions/`（或 `edge://extensions/`）、启用"开发者模式"并单击"加载已解压的扩展程序"选择 `dist` 文件夹。
-   - 对于 Firefox：导航到 `about:debugging#/runtime/this-firefox`、单击"加载临时加载项"并选择 `dist/manifest.json` 文件。
+2. **通过 Edge Add-ons 安装**：访问 [Microsoft Edge Add-ons](您的Edge商店链接) 并点击"获取"按钮进行安装。
+
+3. **手动安装**：
+   - 克隆仓库：`git clone https://github.com/DeepLifeStudio/DeepSeekAI.git`
+   - 安装依赖：`npm install`
+   - 构建扩展程序：`npm run build`
 
 ## 配置
 

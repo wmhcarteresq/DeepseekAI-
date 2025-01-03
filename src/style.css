@@ -1,144 +1,570 @@
-pre.hljs {
-  position: relative;
+/* 日间模式样式 */
+.theme-adaptive {
+  /* 基础颜色 */
+  --bg-primary: rgba(255, 255, 255, 0.85);
+  --bg-secondary: rgba(242, 242, 247, 0.8);
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+
+  /* 交互元素 */
+  --accent-color: #0066ff;
+  --accent-hover: #0256d9;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --divider-color: rgba(60, 60, 67, 0.1);
+
+  /* 组件特定颜色 */
+  --header-bg: rgba(239, 239, 244, 0.85);
+  --input-bg: rgba(242, 242, 247, 0.8);
+  --ai-answer-bg: rgba(242, 242, 247, 0.7);
+  --user-question-bg: var(--accent-color);
+  --code-block-bg: rgba(242, 242, 247, 0.6);
+
+  /* 滚动条 */
+  --scrollbar-bg: rgba(0, 0, 0, 0.05);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+
+  /* 阴影效果 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* 应用基础样式 */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-pre.hljs button {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  z-index: 1001;
+/* 暗色模式样式 */
+.theme-adaptive.dark-mode {
+  /* 基础颜色 */
+  --bg-primary: rgba(28, 28, 30, 0.85);
+  --bg-secondary: rgba(44, 44, 46, 0.8);
+  --text-primary: #f5f5f7;
+  --text-secondary: #98989d;
+
+  /* 交互元素 */
+  --accent-color: #0a84ff;
+  --accent-hover: #409cff;
+  --border-color: rgba(255, 255, 255, 0.15);
+  --divider-color: rgba(84, 84, 88, 0.65);
+
+  /* 组件特定颜色 */
+  --header-bg: rgba(44, 44, 46, 0.85);
+  --input-bg: rgba(58, 58, 60, 0.8);
+  --ai-answer-bg: rgba(44, 44, 46, 0.7);
+  --user-question-bg: var(--accent-color);
+  --code-block-bg: rgba(44, 44, 46, 0.6);
+
+  /* 滚动条 */
+  --scrollbar-bg: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+
+  /* 阴影效果 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* 应用基础样式 */
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 组件样式 */
+.theme-adaptive #ai-popup {
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.theme-adaptive .drag-handle {
+  background-color: var(--header-bg);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--divider-color);
+}
+
+.theme-adaptive #ai-response-container {
+  background-color: var(--bg-primary);
+  padding-bottom: 60px;
+}
+
+.theme-adaptive .user-question {
+  background-color: var(--user-question-bg);
   color: white;
-  border: none;
-  padding: 2px 5px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 85%;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-adaptive .ai-answer {
+  background-color: var(--ai-answer-bg);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 85%;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1em;
+}
+
+.theme-adaptive .expandable-textarea {
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+.theme-adaptive .expandable-textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(var(--accent-color), 0.1);
+}
+
+/* 代码块基础样式 */
+.theme-adaptive pre.hljs {
+  background-color: var(--code-block-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin: 1em 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 明亮模式代码高亮 */
+.theme-adaptive .hljs {
+  color: #383a42;
+  background: transparent;
+  font-family: "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.theme-adaptive .hljs-comment,
+.theme-adaptive .hljs-quote {
+  color: #a0a1a7;
+  font-style: italic;
+}
+
+.theme-adaptive .hljs-doctag,
+.theme-adaptive .hljs-keyword,
+.theme-adaptive .hljs-formula {
+  color: #a626a4;
+}
+
+.theme-adaptive .hljs-section,
+.theme-adaptive .hljs-name,
+.theme-adaptive .hljs-selector-tag,
+.theme-adaptive .hljs-deletion,
+.theme-adaptive .hljs-subst {
+  color: #e45649;
+}
+
+.theme-adaptive .hljs-literal {
+  color: #0184bb;
+}
+
+.theme-adaptive .hljs-string,
+.theme-adaptive .hljs-regexp,
+.theme-adaptive .hljs-addition,
+.theme-adaptive .hljs-attribute,
+.theme-adaptive .hljs-meta .hljs-string {
+  color: #50a14f;
+}
+
+.theme-adaptive .hljs-attr,
+.theme-adaptive .hljs-variable,
+.theme-adaptive .hljs-template-variable,
+.theme-adaptive .hljs-type,
+.theme-adaptive .hljs-selector-class,
+.theme-adaptive .hljs-selector-attr,
+.theme-adaptive .hljs-selector-pseudo,
+.theme-adaptive .hljs-number {
+  color: #986801;
+}
+
+.theme-adaptive .hljs-symbol,
+.theme-adaptive .hljs-bullet,
+.theme-adaptive .hljs-link,
+.theme-adaptive .hljs-meta,
+.theme-adaptive .hljs-selector-id,
+.theme-adaptive .hljs-title {
+  color: #4078f2;
+}
+
+.theme-adaptive .hljs-built_in,
+.theme-adaptive .hljs-title.class_,
+.theme-adaptive .hljs-class .hljs-title {
+  color: #c18401;
+}
+
+.theme-adaptive .hljs-emphasis {
+  font-style: italic;
+}
+
+.theme-adaptive .hljs-strong {
+  font-weight: bold;
+}
+
+/* 暗色模式代码高亮 */
+.theme-adaptive.dark-mode .hljs {
+  color: var(--text-primary);
+}
+
+.theme-adaptive.dark-mode .hljs-comment,
+.theme-adaptive.dark-mode .hljs-quote {
+  color: #7ec699;
+  font-style: italic;
+}
+
+.theme-adaptive.dark-mode .hljs-keyword,
+.theme-adaptive.dark-mode .hljs-selector-tag,
+.theme-adaptive.dark-mode .hljs-subst {
+  color: #4aa8ff;
+  font-weight: bold;
+}
+
+.theme-adaptive.dark-mode .hljs-number,
+.theme-adaptive.dark-mode .hljs-literal,
+.theme-adaptive.dark-mode .hljs-variable,
+.theme-adaptive.dark-mode .hljs-template-variable,
+.theme-adaptive.dark-mode .hljs-built_in,
+.theme-adaptive.dark-mode .hljs-type {
+  color: #bd93f9;
+}
+
+.theme-adaptive.dark-mode .hljs-string,
+.theme-adaptive.dark-mode .hljs-doctag,
+.theme-adaptive.dark-mode .hljs-addition,
+.theme-adaptive.dark-mode .hljs-title,
+.theme-adaptive.dark-mode .hljs-section,
+.theme-adaptive.dark-mode .hljs-selector-id,
+.theme-adaptive.dark-mode .hljs-selector-class,
+.theme-adaptive.dark-mode .hljs-regexp,
+.theme-adaptive.dark-mode .hljs-attribute {
+  color: #ff7b72;
+}
+
+.theme-adaptive.dark-mode .hljs-symbol,
+.theme-adaptive.dark-mode .hljs-bullet,
+.theme-adaptive.dark-mode .hljs-link {
+  color: #bd93f9;
+}
+
+.theme-adaptive.dark-mode .hljs-deletion,
+.theme-adaptive.dark-mode .hljs-meta {
+  color: #8b949e;
+}
+
+.theme-adaptive.dark-mode .hljs-function {
+  color: #4aa8ff;
+}
+
+/* 代码块工具栏 */
+.theme-adaptive .code-block-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin: 1em 0;
+  border-radius: 8px;
+}
+
+.theme-adaptive .code-block-wrapper pre {
+  position: relative;
+  margin: 0;
+  padding: 16px;
+  padding-bottom: 24px;
+}
+
+/* 复制按钮样式 */
+.theme-adaptive .code-block-wrapper .copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 4px;
   cursor: pointer;
-  border-radius: 4px;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
 }
-pre code.hljs {
-  display: block;
-  overflow-x: auto;
-  padding: 1em;
+
+.theme-adaptive .code-block-wrapper:hover .copy-button {
+  opacity: 1;
 }
-code {
-  color: #000;
-  font-family: "Fira Code", "Fira Mono", Menlo, Consolas, "DejaVu Sans Mono",
-    monospace;
+
+.theme-adaptive .code-block-wrapper .copy-button:hover {
+  background-color: var(--hover-bg);
+  transform: scale(1.05);
 }
-code.hljs {
-  padding: 3px 5px;
+
+.theme-adaptive .code-block-wrapper .copy-button:active {
+  transform: scale(0.95);
 }
-.hljs {
-  background: #ffffffe3;
-  color: #000;
-  font-family: "Fira Code", "Fira Mono", Menlo, Consolas, "DejaVu Sans Mono",
-    monospace;
-  font-size: 16px;
+
+.theme-adaptive .code-block-wrapper .copy-button img {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
 }
-.xml .hljs-meta {
-  color: silver;
+
+/* 滚动条样式 */
+.theme-adaptive .ps {
+  position: relative;
+  overflow: hidden !important;
 }
-.hljs-comment,
-.hljs-quote {
-  color: #007400;
-}
-.hljs-attribute,
-.hljs-keyword,
-.hljs-literal,
-.hljs-name,
-.hljs-selector-tag,
-.hljs-tag {
-  color: #aa0d91;
-}
-.hljs-template-variable,
-.hljs-variable {
-  color: #3f6e74;
-}
-.hljs-code,
-.hljs-meta .hljs-string,
-.hljs-string {
-  color: #c41a16;
-}
-.hljs-link,
-.hljs-regexp {
-  color: #0e0eff;
-}
-.hljs-bullet,
-.hljs-number,
-.hljs-symbol,
-.hljs-title {
-  color: #1c00cf;
-}
-.hljs-meta,
-.hljs-section {
-  color: #643820;
-}
-.hljs-built_in,
-.hljs-class .hljs-title,
-.hljs-params,
-.hljs-title.class_,
-.hljs-type {
-  color: #5c2699;
-}
-.hljs-attr {
-  color: #836c28;
-}
-.hljs-subst {
-  color: #000;
-}
-.hljs-formula {
-  background-color: #eee;
-  font-style: italic;
-}
-.hljs-addition {
-  background-color: #baeeba;
-}
-.hljs-deletion {
-  background-color: #ffc8bd;
-}
-.hljs-selector-class,
-.hljs-selector-id {
-  color: #9b703f;
-}
-.hljs-doctag,
-.hljs-strong {
-  font-weight: 700;
-}
-.hljs-emphasis {
-  font-style: italic;
-}
-.os-scrollbar-handle {
-  max-width: 10px;
-}
-.ps__rail-y {
+
+.theme-adaptive .ps__rail-y {
+  width: 6px !important;
   right: 0 !important;
   left: auto !important;
-}
-.icon-wrapper .tooltip {
-  position: relative;
+  background-color: transparent !important;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease !important;
 }
 
-.icon-wrapper .tooltip:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px 10px;
+.theme-adaptive .ps__thumb-y {
+  width: 6px !important;
+  right: 0 !important;
+  left: auto !important;
+  background-color: var(--scrollbar-thumb) !important;
+  border-radius: 3px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.theme-adaptive .ps:hover > .ps__rail-y {
+  opacity: 1;
+  width: 6px !important;
+  background-color: var(--scrollbar-bg) !important;
+}
+
+.theme-adaptive .ps__rail-y:hover,
+.theme-adaptive .ps__rail-y:focus,
+.theme-adaptive .ps__rail-y.ps--clicking {
+  width: 12px !important;
+  background-color: var(--scrollbar-bg) !important;
+}
+
+.theme-adaptive .ps__rail-y:hover > .ps__thumb-y,
+.theme-adaptive .ps__rail-y:focus > .ps__thumb-y,
+.theme-adaptive .ps__rail-y.ps--clicking > .ps__thumb-y {
+  width: 12px !important;
+  right: 0 !important;
+}
+
+/* 保持其他滚动条样式不变 */
+.theme-adaptive pre::-webkit-scrollbar {
+  height: 8px;
+  background-color: var(--scrollbar-bg);
+}
+
+.theme-adaptive pre::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
   border-radius: 4px;
-  font-size: 14px;
-  white-space: nowrap;
-  z-index: 1000;
-  pointer-events: none;
 }
 
-.icon-wrapper .tooltip:hover::before {
-  content: "";
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.8);
-  pointer-events: none;
+/* 图标适配 */
+.theme-adaptive.dark-mode .send-icon path {
+  stroke: var(--text-primary);
 }
+
+.theme-adaptive.dark-mode img[src*="copy.svg"],
+.theme-adaptive.dark-mode img[src*="redo.svg"],
+.theme-adaptive.dark-mode img[src*="close.svg"] {
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+/* 工具提示样式 */
+.theme-adaptive .tooltip .tooltiptext {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 动画效果 */
+.theme-adaptive .expandable-textarea,
+.theme-adaptive .user-question,
+.theme-adaptive .ai-answer {
+  transition: all 0.2s ease;
+}
+
+/* 交互状态 */
+.theme-adaptive .expandable-textarea:hover {
+  border-color: var(--accent-hover);
+}
+
+.theme-adaptive button:hover {
+  opacity: 0.8;
+}
+
+/* 底部输入区域容器样式 */
+.theme-adaptive .input-container-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px 10px;
+  box-sizing: border-box;
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--divider-color);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 修改输入框样式 */
+.theme-adaptive .expandable-textarea {
+  width: 100%;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 10px 40px 10px 16px;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+}
+
+/* 输入框焦点状态 */
+.theme-adaptive .expandable-textarea:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--accent-color), 0.1);
+}
+
+/* 确保发送按钮颜色也跟随主题 */
+.theme-adaptive .send-icon {
+  color: var(--text-secondary);
+}
+
+/* 发送按钮样式优化 */
+.theme-adaptive .send-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.theme-adaptive .send-icon:hover {
+  opacity: 1;
+}
+
+/* 调整文本框样式 */
+.theme-adaptive .expandable-textarea {
+  width: 100%;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 10px 40px 10px 16px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: none;
+  overflow-y: auto;
+}
+
+/* 暗色模式下的发送按钮 */
+.theme-adaptive.dark-mode .send-icon path {
+  stroke: var(--text-secondary);
+}
+
+/* 自定义滚动条样式 */
+.ps__rail-y {
+  background-color: transparent !important;
+}
+
+.ps__thumb-y {
+  background-color: var(--scrollbar-thumb) !important;
+}
+
+.ps__rail-y:hover > .ps__thumb-y {
+  background-color: var(--scrollbar-thumb) !important;
+}
+
+/* 添加主题切换时的过渡效果 */
+.theme-adaptive,
+.theme-adaptive * {
+  transition: background-color 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* 确保滚动条样式也随主题切换 */
+.theme-adaptive .ps__rail-y,
+.theme-adaptive .ps__thumb-y {
+  transition: background-color 0.3s ease;
+}
+
+/* 自定义滚动条样式 */
+.ps__rail-x {
+  z-index: 10;
+  bottom: 0 !important;
+  height: 6px !important;
+  background-color: transparent !important;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease !important;
+}
+
+.ps__thumb-x {
+  height: 6px !important;
+  bottom: 0 !important;
+  background-color: var(--scrollbar-thumb) !important;
+  border-radius: 3px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* 容器悬浮时显示滚动条 */
+.code-block-wrapper:hover .ps__rail-x {
+  opacity: 1;
+  height: 6px !important;
+  background-color: var(--scrollbar-bg) !important;
+}
+
+/* 滚动条悬浮和激活状态 */
+.ps__rail-x:hover,
+.ps__rail-x:focus,
+.ps__rail-x.ps--clicking {
+  height: 12px !important;
+  background-color: var(--scrollbar-bg) !important;
+}
+
+.ps__rail-x:hover > .ps__thumb-x,
+.ps__rail-x:focus > .ps__thumb-x,
+.ps__rail-x.ps--clicking > .ps__thumb-x {
+  height: 12px !important;
+  bottom: 0 !important;
+}
+
+/* 调整代码块容器样式 */
+.code-block-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin: 1em 0;
+  border-radius: 8px;
+}
+
+.code-block-wrapper pre {
+  position: relative;
+  margin: 0;
+  padding: 16px;
+  padding-bottom: 20px;
+  overflow: hidden;
+}
+

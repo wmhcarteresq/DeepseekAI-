@@ -4,9 +4,39 @@ import { dragMoveListener, resizeMoveListener } from "./drag";
 import interact from "interactjs";
 import { getAIResponse } from "./api";
 import { setAllowAutoScroll, updateAllowAutoScroll } from "./scrollControl";
+import { isDarkMode, watchThemeChanges, applyTheme } from './theme';
 
 export function createPopup(text, rect) {
   const popup = document.createElement("div");
+  popup.classList.add('theme-adaptive');
+
+  // 初始化主题并立即输出状态
+  const currentTheme = isDarkMode();
+  applyTheme(popup, currentTheme);
+  console.log('[Popup Created]', {
+    'Initial Theme': currentTheme ? 'Dark' : 'Light'
+  });
+
+  // 设置主题监听
+  const removeThemeListener = watchThemeChanges((isDark) => {
+    applyTheme(popup, isDark);
+    console.log('[Theme Changed]', {
+      'New Theme': isDark ? 'Dark' : 'Light',
+      'Timestamp': new Date().toISOString()
+    });
+  });
+
+  // 在popup关闭时移除监听器
+  const closeButton = popup.querySelector('.close-button');
+  if (closeButton) {
+    const originalClickHandler = closeButton.onclick;
+    closeButton.onclick = () => {
+      removeThemeListener();
+      if (originalClickHandler) {
+        originalClickHandler();
+      }
+    };
+  }
 
   stylePopup(popup, rect);
   const aiResponseElement = document.createElement("div");
@@ -220,21 +250,14 @@ export function createPopup(text, rect) {
 
 function createQuestionInputContainer(aiResponseContainer) {
   const container = document.createElement("div");
-  Object.assign(container.style, {
-    position: "absolute",
-    bottom: "8px",
-    left: "0",
-    width: "100%",
-    padding: "0 10px",
-    boxSizing: "border-box",
-  });
+  container.className = "input-container-wrapper";
 
   container.innerHTML = `
     <div class="input-container">
       <textarea class="expandable-textarea" placeholder="输入您的问题..."></textarea>
       <svg class="send-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22 2L11 13" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
   `;
@@ -334,6 +357,9 @@ export function stylePopup(popup, rect) {
   const { adjustedX, adjustedY } = adjustPopupPosition(rect, popup);
   popup.style.left = `${adjustedX}px`;
   popup.style.top = `${adjustedY}px`;
+
+  // 添加主题相关的样式类
+  popup.classList.add('theme-adaptive');
 }
 
 export function styleResponseContainer(container) {
@@ -382,7 +408,6 @@ function createDragHandle() {
     left: "0",
     width: "100%",
     height: "40px",
-    backgroundColor: "#F2F2F7",
     cursor: "move",
     display: "flex",
     alignItems: "center",
@@ -390,6 +415,9 @@ function createDragHandle() {
     padding: "0 10px",
     boxSizing: "border-box",
   });
+
+  // 移除固定的背景色,改用CSS变量
+  dragHandle.classList.add('drag-handle');
 
   const titleContainer = document.createElement("div");
   titleContainer.style.display = "flex";
@@ -424,7 +452,6 @@ function createDragHandle() {
   closeIcon.style.height = "20px";
 
   closeButton.appendChild(closeIcon);
-
   dragHandle.appendChild(titleContainer);
   dragHandle.appendChild(closeButton);
 
