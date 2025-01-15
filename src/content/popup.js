@@ -418,6 +418,57 @@ export function stylePopup(popup, rect) {
       window.getSelection().removeAllRanges();
     }
   });
+
+  // 添加自动滚动功能
+  let autoScrollInterval = null;
+  const scrollSpeed = 5; // 滚动速度
+  const scrollThreshold = 30; // 触发滚动的边缘距离
+
+  popup.addEventListener('mousemove', function(e) {
+    const responseContainer = document.getElementById('ai-response-container');
+    if (!responseContainer) return;
+
+    // 只在选择文本时启用自动滚动
+    if (window.getSelection().toString()) {
+      const popupRect = popup.getBoundingClientRect();
+      const mouseY = e.clientY;
+      const relativeY = mouseY - popupRect.top;
+
+      // 清除之前的滚动间隔
+      if (autoScrollInterval) {
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
+      }
+
+      // 检查鼠标是否在弹窗的上边缘或下边缘
+      if (relativeY < scrollThreshold) {
+        // 向上滚动
+        autoScrollInterval = setInterval(() => {
+          responseContainer.scrollTop -= scrollSpeed;
+        }, 16);
+      } else if (relativeY > popup.offsetHeight - scrollThreshold) {
+        // 向下滚动
+        autoScrollInterval = setInterval(() => {
+          responseContainer.scrollTop += scrollSpeed;
+        }, 16);
+      }
+    }
+  });
+
+  // 当鼠标离开弹窗或松开鼠标时停止滚动
+  popup.addEventListener('mouseleave', () => {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+      autoScrollInterval = null;
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (autoScrollInterval) {
+      clearInterval(autoScrollInterval);
+      autoScrollInterval = null;
+    }
+  });
 }
 
 export function styleResponseContainer(container) {
