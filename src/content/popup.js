@@ -264,6 +264,9 @@ function createQuestionInputContainer(aiResponseContainer) {
         <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
+      <svg class="loading-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="7" y="7" width="10" height="10" rx="1" stroke="currentColor" stroke-width="2" fill="none" />
+      </svg>
     </div>
   `;
 
@@ -306,17 +309,18 @@ function createQuestionInputContainer(aiResponseContainer) {
 
   function updateSendButtonState() {
     const sendIcon = container.querySelector(".send-icon");
+    const loadingIcon = container.querySelector(".loading-icon");
     const textarea = container.querySelector(".expandable-textarea");
 
     if (getIsGenerating()) {
-      sendIcon.style.opacity = "0.5";
-      sendIcon.style.cursor = "not-allowed";
+      sendIcon.style.display = "none";
+      loadingIcon.classList.add("active");
       textarea.style.cursor = "not-allowed";
       textarea.setAttribute("disabled", "disabled");
       textarea.setAttribute("placeholder", "AI正在回答中...");
     } else {
-      sendIcon.style.opacity = "1";
-      sendIcon.style.cursor = "pointer";
+      sendIcon.style.display = "block";
+      loadingIcon.classList.remove("active");
       textarea.style.cursor = "text";
       textarea.removeAttribute("disabled");
       textarea.setAttribute("placeholder", "输入您的问题...");
@@ -861,7 +865,7 @@ const styles = `
 
   .send-icon {
     position: absolute;
-    right: 40px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     width: 22px;
@@ -869,7 +873,15 @@ const styles = `
     cursor: pointer;
     opacity: 0.6;
     transition: all 0.3s ease;
-    color: #0A84FF;
+    color: currentColor;
+  }
+
+  .theme-adaptive.light-mode .send-icon {
+    color: #666666;
+  }
+
+  .theme-adaptive.dark-mode .send-icon {
+    color: #a1a1a6;
   }
 
   .send-icon:hover {
@@ -903,6 +915,66 @@ const styles = `
 
   .theme-adaptive.dark-mode .ps__thumb-y {
     background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* 加载动画样式 */
+  .loading-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    display: none;
+    color: currentColor;
+  }
+
+  .theme-adaptive.light-mode .loading-icon rect {
+    fill: #666666;
+    animation: loading-breathe-light 2s ease-in-out infinite;
+  }
+
+  .theme-adaptive.dark-mode .loading-icon rect {
+    fill: #a1a1a6;
+    animation: loading-breathe-dark 2s ease-in-out infinite;
+  }
+
+  @keyframes loading-breathe-light {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(0.95);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes loading-breathe-dark {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(0.95);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+  }
+
+  .loading-icon.active {
+    display: block;
+    animation: loading-breathe 2s ease-in-out infinite;
+  }
+
+  @keyframes loading-breathe {
+    0%, 100% {
+      opacity: 0.6;
+      transform: translateY(-50%) scale(0.95);
+    }
+    50% {
+      opacity: 0.9;
+      transform: translateY(-50%) scale(1);
+    }
   }
 `;
 
