@@ -1047,14 +1047,35 @@ const styles = `
   /* 滚动条样式 */
   .ps__rail-y {
     background-color: transparent !important;
+    width: 10px !important;
+    opacity: 1 !important;
+  }
+
+  .ps__rail-y:hover {
+    background-color: transparent !important;
+  }
+
+  .ps__thumb-y {
+    width: 6px !important;
+    right: 2px !important;
+    border-radius: 3px !important;
+    transition: background-color 0.3s ease !important;
   }
 
   .theme-adaptive.light-mode .ps__thumb-y {
     background-color: rgba(0, 0, 0, 0.2) !important;
   }
 
+  .theme-adaptive.light-mode .ps__rail-y:hover .ps__thumb-y {
+    background-color: rgba(0, 0, 0, 0.35) !important;
+  }
+
   .theme-adaptive.dark-mode .ps__thumb-y {
     background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .theme-adaptive.dark-mode .ps__rail-y:hover .ps__thumb-y {
+    background-color: rgba(255, 255, 255, 0.35) !important;
   }
 
   /* 加载动画样式 */
