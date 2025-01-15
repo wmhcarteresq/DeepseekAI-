@@ -409,6 +409,15 @@ export function stylePopup(popup, rect) {
       e.preventDefault();
     }
   });
+
+  // 添加mouseout事件处理器来阻止文本选择扩展到弹窗外部
+  popup.addEventListener('mouseout', function(e) {
+    // 检查鼠标是否真的离开了弹窗（不是移动到子元素）
+    if (!e.relatedTarget || !popup.contains(e.relatedTarget)) {
+      // 清除当前选择
+      window.getSelection().removeAllRanges();
+    }
+  });
 }
 
 export function styleResponseContainer(container) {
