@@ -61,14 +61,14 @@ md.renderer.rules.fence = function (tokens, idx, options, env, self) {
       // 初始化 PerfectScrollbar
       if (!scrollbars.has(pre)) {
         const ps = new PerfectScrollbar(pre, {
-          suppressScrollY: true,
+          suppressScrollY: false,
           wheelSpeed: 1,
           wheelPropagation: false,
           minScrollbarLength: 30,
           maxScrollbarLength: 150,
           swipeEasing: true,
           scrollXMarginOffset: 0,
-          handlers: ['click-rail', 'drag-thumb', 'keyboard', 'wheel', 'touch'],
+          handlers: ['click-rail', 'drag-thumb', 'keyboard'],
         });
         scrollbars.set(pre, ps);
 
