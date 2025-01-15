@@ -17,13 +17,7 @@ export function createIcon(x, y) {
     pointerEvents: "auto"
   });
 
-  icon.addEventListener("mouseenter", () => {
-    console.log("鼠标进入图标");
-  });
 
-  icon.addEventListener("mouseleave", () => {
-    console.log("鼠标离开图标");
-  });
 
   return icon;
 }

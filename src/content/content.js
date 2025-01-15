@@ -19,33 +19,26 @@ function removeIcon() {
 }
 
 function handlePopupCreation(selectedText, rect, hideQuestion = false) {
-  console.log('开始创建弹窗', { selectedText, rect });
 
   if (isCreatingPopup) {
-    console.log('已经在创建弹窗中，返回');
     return;
   }
 
   isCreatingPopup = true;
-  console.log('设置创建标志');
 
   const existingPopup = document.querySelector('#ai-popup');
   if (existingPopup) {
-    console.log('移除已存在的弹窗');
     document.body.removeChild(existingPopup);
   }
 
-  console.log('调用createPopup');
   createPopup(selectedText, rect, hideQuestion);
 
   setTimeout(() => {
-    console.log('重置创建标志');
     isCreatingPopup = false;
   }, 100);
 }
 
 function handleIconClick(e, selectedText, rect, selection) {
-  console.log('处理图标点击');
   e.stopPropagation();
   e.preventDefault();
 
@@ -66,7 +59,6 @@ document.addEventListener("mouseup", function (event) {
   const selectedText = selection.toString().trim();
 
   if (selectedText && event.button === 0) {
-    console.log('选中文本，创建图标', { selectedText });
     removeIcon();
 
     const range = selection.getRangeAt(0);
@@ -77,21 +69,17 @@ document.addEventListener("mouseup", function (event) {
     currentIcon = createIcon(x + 5, y - 25);
 
     currentIcon.addEventListener("mousedown", function(e) {
-      console.log('图标被点击 - mousedown');
       handleIconClick(e, selectedText, rect, selection);
     });
 
     document.body.appendChild(currentIcon);
-    console.log('图标已添加到页面');
   }
 });
 
 document.addEventListener("mousedown", function(e) {
   if (isHandlingIconClick) return;
 
-  console.log('全局mousedown事件', e.target.tagName);
   if (currentIcon && !currentIcon.contains(e.target)) {
-    console.log('点击了图标以外的区域');
     removeIcon();
     if (e.button === 0) {
       window.getSelection().removeAllRanges();

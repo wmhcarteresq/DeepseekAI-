@@ -1,5 +1,4 @@
 // 在文件开头添加调试日志
-console.log('[DeepSeek AI] Background script loaded');
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getApiKeyAndLanguage") {
@@ -32,6 +31,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // 全局注册命令监听器
 chrome.commands.onCommand.addListener(async (command) => {
+  console.log('command', command);
   if (command === "toggle-popup") {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab || tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
@@ -70,3 +70,12 @@ function getGreeting() {
     return "晚上好 👋";
   }
 }
+
+// 检查快捷键是否已设置
+chrome.runtime.onInstalled.addListener((reason) => {
+  if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.tabs.create({
+      url: 'chrome://extensions/shortcuts',
+    });
+  }
+});

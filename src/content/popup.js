@@ -13,17 +13,11 @@ export function createPopup(text, rect, hideQuestion = false) {
   // 初始化主题并立即输出状态
   const currentTheme = isDarkMode();
   applyTheme(popup, currentTheme);
-  console.log('[Popup Created]', {
-    'Initial Theme': currentTheme ? 'Dark' : 'Light'
-  });
+
 
   // 设置主题监听
   const removeThemeListener = watchThemeChanges((isDark) => {
     applyTheme(popup, isDark);
-    console.log('[Theme Changed]', {
-      'New Theme': isDark ? 'Dark' : 'Light',
-      'Timestamp': new Date().toISOString()
-    });
   });
 
   // 在popup关闭时移除监听器

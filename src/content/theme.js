@@ -23,28 +23,19 @@ export function isDarkMode() {
   const bodyColor = parseColor(bodyBg);
   const htmlColor = parseColor(htmlBg);
 
-  console.log('[Color Analysis]', {
-    bodyColor: bodyBg,
-    htmlColor: htmlBg,
-    bodyParsed: bodyColor,
-    htmlParsed: htmlColor
-  });
+
 
   // 如果body背景是透明的，使用html背景
   const effectiveColor = bodyColor?.isTransparent ? htmlColor : bodyColor;
 
   // 如果两个背景都是透明的，默认使用亮色模式
   if (!effectiveColor || effectiveColor.isTransparent) {
-    console.log('[Theme Decision]', 'Both backgrounds transparent, defaulting to light mode');
     return false;
   }
 
   const isDark = effectiveColor.brightness < 128;
 
-  console.log('[Theme Detection]', {
-    effectiveBackground: effectiveColor,
-    isDarkMode: isDark
-  });
+
 
   return isDark;
 }
@@ -80,10 +71,7 @@ export function watchThemeChanges(callback) {
 
 // 应用主题到popup
 export function applyTheme(popup, isDark) {
-  console.log('[Theme Application]', {
-    currentTheme: popup.classList.contains('dark-mode') ? 'Dark' : 'Light',
-    settingTo: isDark ? 'Dark' : 'Light'
-  });
+
 
   if (isDark) {
     popup.classList.add('dark-mode');
