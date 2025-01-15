@@ -241,12 +241,13 @@ export function createPopup(text, rect, hideQuestion = false) {
       modifiers: [
         interact.modifiers.restrictSize({
           min: { width: 100, height: 100 },
-          max: { width: 600, height: 600 },
+          max: { width: 900, height: 700 },
         }),
       ],
       listeners: { move: resizeMoveListener },
-    })
-    .ignoreFrom(".ps__rail-y");
+      inertia: true,
+      preventPropagation: true
+    });
 
   const questionInputContainer = createQuestionInputContainer(aiResponseContainer);
   popup.appendChild(questionInputContainer);
@@ -389,6 +390,10 @@ export function stylePopup(popup, rect) {
     zIndex: "1000",
     fontFamily: "Arial, sans-serif",
     overflow: "hidden",
+    userSelect: "none",
+    "-webkit-user-select": "none",
+    "-moz-user-select": "none",
+    "-ms-user-select": "none",
   });
 
   const { adjustedX, adjustedY } = adjustPopupPosition(rect, popup);
@@ -397,6 +402,13 @@ export function stylePopup(popup, rect) {
 
   // 添加主题相关的样式类
   popup.classList.add('theme-adaptive');
+
+  // 添加事件监听器来防止文本选择
+  popup.addEventListener('mousedown', function(e) {
+    if (e.target.closest('.resizable')) {
+      e.preventDefault();
+    }
+  });
 }
 
 export function styleResponseContainer(container) {
@@ -406,6 +418,10 @@ export function styleResponseContainer(container) {
     height: "calc(100% - 60px)",
     marginTop: "20px",
     overflow: "auto",
+    userSelect: "text",  // 允许选择文本内容
+    "-webkit-user-select": "text",
+    "-moz-user-select": "text",
+    "-ms-user-select": "text",
   });
   container.id = "ai-response-container";
 }
@@ -652,6 +668,22 @@ const styles = `
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+  }
+
+  #ai-popup .resizable {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  #ai-popup .resizable-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .theme-adaptive.light-mode #ai-popup {
