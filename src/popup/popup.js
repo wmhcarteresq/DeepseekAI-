@@ -85,13 +85,9 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
     // 打开扩展管理页面
     chrome.tabs.create({
-      url: "chrome://extensions/?id=" + chrome.runtime.id
-    }, function(tab) {
-      // 延迟一段时间后打开快捷键设置
-      setTimeout(function() {
-        chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
-      }, 100);
-    });
+      url: "chrome://extensions/shortcuts"
+    }
+    );
   });
 
   // 处理快捷键设置链接点击

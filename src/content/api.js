@@ -2,6 +2,11 @@ import { md } from "./markdown";
 import { getAllowAutoScroll } from "./scrollControl";
 
 let conversation = [];
+let isGenerating = false;
+
+export function getIsGenerating() {
+  return isGenerating;
+}
 
 export async function getAIResponse(
   text,
@@ -28,6 +33,7 @@ export async function getAIResponse(
   }
 
   try {
+    isGenerating = true;
     if(isRefresh){
       conversation = conversation.slice(0, -1);
     }else{
@@ -102,9 +108,11 @@ export async function getAIResponse(
     conversation.push({ role: "assistant", content: aiResponse });
     responseElement.appendChild(iconContainer);
     iconContainer.dataset.ready = "true";
+    isGenerating = false;
   } catch (error) {
     console.error("Fetch error:", error);
     responseElement.innerHTML = "Request failed. Please try again later.";
+    isGenerating = false;
   }
 }
 

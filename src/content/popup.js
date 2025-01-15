@@ -2,7 +2,7 @@ import PerfectScrollbar from "perfect-scrollbar";
 import { createSvgIcon } from "./icon";
 import { dragMoveListener, resizeMoveListener } from "./drag";
 import interact from "interactjs";
-import { getAIResponse } from "./api";
+import { getAIResponse, getIsGenerating } from "./api";
 import { setAllowAutoScroll, updateAllowAutoScroll } from "./scrollControl";
 import { isDarkMode, watchThemeChanges, applyTheme } from './theme';
 
@@ -289,6 +289,11 @@ function createQuestionInputContainer(aiResponseContainer) {
   });
 
   function sendQuestion() {
+    // 如果正在生成回答，则不允许发送
+    if (getIsGenerating()) {
+      return;
+    }
+
     const question = textarea.value.trim();
     if (question) {
       sendQuestionToAI(question);
@@ -298,14 +303,42 @@ function createQuestionInputContainer(aiResponseContainer) {
     }
   }
 
+  function updateSendButtonState() {
+    const sendIcon = container.querySelector(".send-icon");
+    const textarea = container.querySelector(".expandable-textarea");
+
+    if (getIsGenerating()) {
+      sendIcon.style.opacity = "0.5";
+      sendIcon.style.cursor = "not-allowed";
+      textarea.style.cursor = "not-allowed";
+      textarea.setAttribute("disabled", "disabled");
+      textarea.setAttribute("placeholder", "AI正在回答中...");
+    } else {
+      sendIcon.style.opacity = "1";
+      sendIcon.style.cursor = "pointer";
+      textarea.style.cursor = "text";
+      textarea.removeAttribute("disabled");
+      textarea.setAttribute("placeholder", "输入您的问题...");
+    }
+  }
+
+  // 添加状态检查的定时器
+  setInterval(updateSendButtonState, 100);
+
   textarea.addEventListener("keydown", function (event) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      sendQuestion();
+      if (!getIsGenerating()) {
+        sendQuestion();
+      }
     }
   });
 
-  sendIcon.addEventListener("click", sendQuestion);
+  sendIcon.addEventListener("click", function() {
+    if (!getIsGenerating()) {
+      sendQuestion();
+    }
+  });
 
   return container;
 }
