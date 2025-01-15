@@ -244,7 +244,33 @@ export function createPopup(text, rect, hideQuestion = false) {
           max: { width: 900, height: 700 },
         }),
       ],
-      listeners: { move: resizeMoveListener },
+      listeners: {
+        move: (event) => {
+          resizeMoveListener(event);
+
+          // 获取内部容器和滚动条实例
+          const aiResponseContainer = document.getElementById('ai-response-container');
+          if (aiResponseContainer) {
+            // 更新容器高度
+            aiResponseContainer.style.height = `calc(${event.rect.height}px - 60px)`;
+
+            // 更新滚动条
+            const ps = new PerfectScrollbar(aiResponseContainer, {
+              suppressScrollX: true,
+              wheelPropagation: false,
+            });
+            ps.update();
+          }
+
+          // 更新输入框容器位置
+          const inputContainer = popup.querySelector('.input-container-wrapper');
+          if (inputContainer) {
+            inputContainer.style.position = 'absolute';
+            inputContainer.style.bottom = '0';
+            inputContainer.style.width = '100%';
+          }
+        }
+      },
       inertia: true,
       preventPropagation: true
     });
@@ -732,6 +758,28 @@ const styles = `
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  #ai-response-container {
+    flex: 1;
+    min-height: 0;
+    position: relative;
+    margin-bottom: 60px;
+  }
+
+  .input-container-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    background: inherit;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 2;
   }
 
   #ai-popup .resizable {
