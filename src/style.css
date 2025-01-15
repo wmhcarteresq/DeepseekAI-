@@ -110,17 +110,46 @@
   margin-bottom: 1em;
 }
 
+/* 输入框样式 */
 .theme-adaptive .expandable-textarea {
+  /* 基础样式 */
+  width: 100%;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 10px 40px 10px 16px;
+  margin: 0;
+
+  /* 重置样式，确保在不同网站下保持一致 */
+  box-sizing: border-box !important;
+  font: inherit;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+
+  /* 外观样式 */
   background-color: var(--input-bg);
-  border: 1px solid var(--border-color);
   color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
+
+  /* 功能样式 */
+  resize: none;
+  overflow-y: auto;
+  -webkit-appearance: none;
+  appearance: none;
+
+  /* 动画效果 */
   transition: all 0.2s ease;
 }
 
+/* 输入框焦点和悬停状态 */
 .theme-adaptive .expandable-textarea:focus {
   border-color: var(--accent-color);
+  outline: none;
   box-shadow: 0 0 0 2px rgba(var(--accent-color), 0.1);
+}
+
+.theme-adaptive .expandable-textarea:hover {
+  border-color: var(--accent-hover);
 }
 
 /* 代码块基础样式 */
@@ -399,10 +428,6 @@
 }
 
 /* 交互状态 */
-.theme-adaptive .expandable-textarea:hover {
-  border-color: var(--accent-hover);
-}
-
 .theme-adaptive button:hover {
   opacity: 0.8;
 }
@@ -419,29 +444,6 @@
   border-top: 1px solid var(--divider-color);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-}
-
-/* 修改输入框样式 */
-.theme-adaptive .expandable-textarea {
-  width: 100%;
-  min-height: 40px;
-  max-height: 120px;
-  padding: 10px 40px 10px 16px;
-  background-color: var(--input-bg);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  resize: none;
-  font-size: 14px;
-  line-height: 1.4;
-  transition: all 0.2s ease;
-}
-
-/* 输入框焦点状态 */
-.theme-adaptive .expandable-textarea:focus {
-  border-color: var(--accent-color);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--accent-color), 0.1);
 }
 
 /* 确保发送按钮颜色也跟随主题 */
@@ -464,19 +466,6 @@
 
 .theme-adaptive .send-icon:hover {
   opacity: 1;
-}
-
-/* 调整文本框样式 */
-.theme-adaptive .expandable-textarea {
-  width: 100%;
-  min-height: 40px;
-  max-height: 120px;
-  padding: 10px 40px 10px 16px;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.4;
-  resize: none;
-  overflow-y: auto;
 }
 
 /* 暗色模式下的发送按钮 */
