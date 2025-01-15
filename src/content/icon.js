@@ -2,11 +2,29 @@ export function createIcon(x, y) {
   const icon = document.createElement("img");
   icon.src = chrome.runtime.getURL("icons/icon24.png");
   Object.assign(icon.style, {
-    position: "absolute",
+    position: "fixed",
     cursor: "pointer",
     left: `${x}px`,
     top: `${y}px`,
+    width: "30px",
+    height: "30px",
+    zIndex: "2147483646",
+    padding: "4px",
+    backgroundColor: "transparent",
+    border: "none",
+    outline: "none",
+    userSelect: "none",
+    pointerEvents: "auto"
   });
+
+  icon.addEventListener("mouseenter", () => {
+    console.log("鼠标进入图标");
+  });
+
+  icon.addEventListener("mouseleave", () => {
+    console.log("鼠标离开图标");
+  });
+
   return icon;
 }
 

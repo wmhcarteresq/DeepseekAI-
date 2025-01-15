@@ -80,4 +80,25 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+  document.getElementById('shortcutSettings').addEventListener('click', (e) => {
+    e.preventDefault();
+    // 打开扩展管理页面
+    chrome.tabs.create({
+      url: "chrome://extensions/?id=" + chrome.runtime.id
+    }, function(tab) {
+      // 延迟一段时间后打开快捷键设置
+      setTimeout(function() {
+        chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+      }, 100);
+    });
+  });
+
+  // 处理快捷键设置链接点击
+  document.getElementById('shortcutSettingsLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    chrome.tabs.create({
+      url: 'chrome://extensions/shortcuts'
+    });
+  });
 });
