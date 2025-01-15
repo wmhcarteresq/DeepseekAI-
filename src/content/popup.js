@@ -292,25 +292,132 @@ function createQuestionInputContainer(aiResponseContainer) {
 
   const textarea = container.querySelector(".expandable-textarea");
   const sendIcon = container.querySelector(".send-icon");
-  const ps = new PerfectScrollbar(textarea, {
-    suppressScrollX: true,
-    wheelPropagation: false,
-  });
-  textarea.addEventListener("input", function () {
-    this.style.height = "auto";
-    this.style.height = this.scrollHeight + "px";
-  });
 
-  textarea.addEventListener("focus", function () {
-    this.style.minHeight = "60px";
-  });
+  // 移除直接设置 style
+  textarea.removeAttribute("style");
 
-  textarea.addEventListener("blur", function () {
-    if (this.value.trim() === "") {
-      this.style.height = "40px";
-      this.style.minHeight = "40px";
+  // 使用 CSS 类来控制样式
+  textarea.classList.add("textarea-default");
+
+  // 添加 passive 选项到事件监听器
+  textarea.addEventListener("compositionstart", function(e) {
+    isComposing = true;
+  }, { passive: true });
+
+  textarea.addEventListener("compositionend", function(e) {
+    isComposing = false;
+    requestAnimationFrame(() => adjustHeight(this));
+  }, { passive: true });
+
+  function adjustHeight(element) {
+    requestAnimationFrame(() => {
+      element.style.height = "auto";
+      element.style.height = element.scrollHeight + "px";
+    });
+  }
+
+  textarea.addEventListener("input", function(e) {
+    if (!isComposing) {
+      requestAnimationFrame(() => adjustHeight(this));
+    }
+  }, { passive: true });
+
+  // 处理键盘事件
+  textarea.addEventListener("keydown", function(e) {
+    if (e.metaKey || e.ctrlKey || isComposing) {
+      return;
+    }
+
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!getIsGenerating()) {
+        sendQuestion();
+      }
     }
   });
+
+  // 添加触摸事件的 passive 监听
+  textarea.addEventListener("touchstart", function(e) {
+    // 触摸事件的处理
+  }, { passive: true });
+
+  textarea.addEventListener("wheel", function(e) {
+    // 滚轮事件的处理
+  }, { passive: true });
+
+  // 使用 CSS 类替代内联样式
+  const style = document.createElement('style');
+  style.textContent = `
+    .textarea-default {
+      height: 60px;
+      min-height: 60px;
+      max-height: 120px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // 标记是否正在进行中文输入
+  let isComposing = false;
+
+  textarea.addEventListener("compositionstart", function(e) {
+    isComposing = true;
+  });
+
+  textarea.addEventListener("compositionend", function(e) {
+    isComposing = false;
+    adjustHeight(this);
+  });
+
+  // 添加一个独立的高度调整函数
+  function adjustHeight(element) {
+    element.style.height = "auto";
+    element.style.height = element.scrollHeight + "px";
+  }
+
+  textarea.addEventListener("input", function(e) {
+    if (!isComposing) {
+      adjustHeight(this);
+    }
+  });
+
+  // 处理键盘事件
+  textarea.addEventListener("keydown", function(e) {
+    // 如果是组合键（如 Command+A），不要阻止默认行为
+    if (e.metaKey || e.ctrlKey) {
+      return;
+    }
+
+    // 如果正在输入中文，不要处理 Enter 键
+    if (isComposing) {
+      return;
+    }
+
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!getIsGenerating()) {
+        sendQuestion();
+      }
+    }
+  });
+
+  // 设置固定高度
+  textarea.style.height = "60px";
+  textarea.style.minHeight = "60px";
+  textarea.style.maxHeight = "120px";
+
+  // 注释掉这些事件监听器，看是否是它们导致的问题
+  // textarea.addEventListener("focus", function () {
+  //   this.style.minHeight = "60px";
+  // });
+
+  // textarea.addEventListener("blur", function () {
+  //   if (this.value.trim() === "") {
+  //     this.style.height = "40px";
+  //     this.style.minHeight = "40px";
+  //   }
+  // });
 
   function sendQuestion() {
     // 如果正在生成回答，则不允许发送
@@ -349,15 +456,6 @@ function createQuestionInputContainer(aiResponseContainer) {
 
   // 添加状态检查的定时器
   setInterval(updateSendButtonState, 100);
-
-  textarea.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      if (!getIsGenerating()) {
-        sendQuestion();
-      }
-    }
-  });
 
   sendIcon.addEventListener("click", function() {
     if (!getIsGenerating()) {
