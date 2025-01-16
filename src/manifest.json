@@ -35,11 +35,9 @@
         "icons/icon24.png",
         "style.css",
         "icons/copy.svg",
-        "icons/redo.svg",
-        "icons/redoClicked.svg",
-        "icons/copyClicked.svg",
         "icons/close.svg",
         "icons/closeClicked.svg",
+        "icons/regenerate.svg",
         "fonts/*"
       ],
 

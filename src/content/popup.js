@@ -6,6 +6,136 @@ import { getAIResponse, getIsGenerating } from "./api";
 import { setAllowAutoScroll, updateAllowAutoScroll } from "./scrollControl";
 import { isDarkMode, watchThemeChanges, applyTheme } from './theme';
 
+function updateLastAnswerIcons() {
+  const aiResponseElement = document.getElementById("ai-response");
+  const answers = aiResponseElement.getElementsByClassName("ai-answer");
+  const aiResponseContainer = document.getElementById("ai-response-container");
+
+  // 先移除所有重答图标
+  Array.from(answers).forEach(answer => {
+    const iconContainer = answer.querySelector('.icon-container');
+    if (iconContainer) {
+      const regenerateIcon = iconContainer.querySelector('img[src*="regenerate"]');
+      if (regenerateIcon) {
+        regenerateIcon.remove();
+      }
+    }
+  });
+
+  // 为最后一个回答添加重答图标
+  if (answers.length > 0) {
+    const lastAnswer = answers[answers.length - 1];
+    const iconContainer = lastAnswer.querySelector('.icon-container');
+    if (iconContainer && !iconContainer.querySelector('img[src*="regenerate"]')) {
+      const regenerateIcon = document.createElement("img");
+      regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
+      regenerateIcon.style.width = "18px";
+      regenerateIcon.style.height = "18px";
+      regenerateIcon.style.cursor = "pointer";
+      regenerateIcon.title = "重新回答";
+      regenerateIcon.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const userQuestion = lastAnswer.previousElementSibling;
+        if (userQuestion && userQuestion.classList.contains("user-question")) {
+          const questionText = userQuestion.textContent;
+          lastAnswer.textContent = "";
+          const abortController = new AbortController();
+
+          // 获取或创建 PerfectScrollbar 实例
+          let ps = aiResponseContainer.ps;
+          if (!ps) {
+            ps = new PerfectScrollbar(aiResponseContainer, {
+              suppressScrollX: true,
+              wheelPropagation: false,
+            });
+            aiResponseContainer.ps = ps;
+          }
+
+          getAIResponse(
+            questionText,
+            lastAnswer,
+            abortController.signal,
+            ps,
+            null,
+            aiResponseContainer,
+            true
+          );
+        }
+      });
+      iconContainer.appendChild(regenerateIcon);
+    }
+  }
+}
+
+// 添加到 window 对象
+window.updateLastAnswerIcons = updateLastAnswerIcons;
+
+export function addIconsToElement(element) {
+  // 如果已经有图标容器，先移除它
+  const existingContainer = element.querySelector('.icon-container');
+  if (existingContainer) {
+    existingContainer.remove();
+  }
+
+  const iconContainer = document.createElement("div");
+  iconContainer.className = "icon-container";
+
+  // 设置图标容器的样式
+  Object.assign(iconContainer.style, {
+    position: "absolute",
+    bottom: "2px",
+    right: "6px",
+    display: "none",
+    gap: "5px",
+    alignItems: "center",
+    zIndex: "1"
+  });
+
+  // 添加复制图标
+  const copyIcon = document.createElement("img");
+  copyIcon.src = chrome.runtime.getURL("icons/copy.svg");
+  copyIcon.style.width = "18px";
+  copyIcon.style.height = "18px";
+  copyIcon.style.cursor = "pointer";
+  copyIcon.title = "复制";
+  copyIcon.addEventListener("click", (event) => {
+    event.stopPropagation();
+    navigator.clipboard.writeText(element.textContent);
+    setTimeout(() => {
+      copyIcon.src = chrome.runtime.getURL("icons/copy.svg");
+    }, 200);
+  });
+  iconContainer.appendChild(copyIcon);
+
+  // 设置父元素样式
+  Object.assign(element.style, {
+    position: "relative",
+    paddingRight: "50px"  // 为图标预留空间
+  });
+
+  // 添加鼠标悬浮事件
+  element.addEventListener("mouseenter", () => {
+    iconContainer.style.display = "flex";
+  });
+
+  element.addEventListener("mouseleave", () => {
+    iconContainer.style.display = "none";
+  });
+
+  element.appendChild(iconContainer);
+
+  // 如果是 AI 回答，可能需要添加重答图标
+  if (element.classList.contains("ai-answer")) {
+    // 延迟一帧执行更新，确保 DOM 已经更新
+    requestAnimationFrame(() => {
+      updateLastAnswerIcons();
+    });
+  }
+}
+
+// 添加到 window 对象
+window.addIconsToElement = addIconsToElement;
+
 export function createPopup(text, rect, hideQuestion = false) {
   const popup = document.createElement("div");
   popup.classList.add('theme-adaptive');
@@ -13,7 +143,6 @@ export function createPopup(text, rect, hideQuestion = false) {
   // 初始化主题并立即输出状态
   const currentTheme = isDarkMode();
   applyTheme(popup, currentTheme);
-
 
   // 设置主题监听
   const removeThemeListener = watchThemeChanges((isDark) => {
@@ -43,63 +172,26 @@ export function createPopup(text, rect, hideQuestion = false) {
 
   // 只在不隐藏问题时添加问题元素
   if (!hideQuestion) {
-    const initialQuestionElement = document.createElement("div");
-    initialQuestionElement.className = "user-question";
-    initialQuestionElement.textContent = text;
-    addCopyIcon(initialQuestionElement);
-    aiResponseElement.appendChild(initialQuestionElement);
+    const userQuestionDiv = document.createElement('div');
+    userQuestionDiv.className = 'user-question';
+    const userQuestionP = document.createElement('p');
+    userQuestionP.textContent = text;
+    userQuestionDiv.appendChild(userQuestionP);
+    addIconsToElement(userQuestionDiv);
+    aiResponseElement.appendChild(userQuestionDiv);
   }
 
   // 添加初始的 AI 回答
   const initialAnswerElement = document.createElement("div");
   initialAnswerElement.className = "ai-answer";
-  initialAnswerElement.textContent = "AI正在思考...";
+  initialAnswerElement.textContent = "";
+  addIconsToElement(initialAnswerElement);
   aiResponseElement.appendChild(initialAnswerElement);
-  addCopyIcon(initialAnswerElement);
-  addRefreshIcon(initialAnswerElement, aiResponseElement);
+
   aiResponseContainer.style.paddingBottom = "10px";
-  const iconContainer = document.createElement("div");
-  iconContainer.className = "icon-wrapper";
-  Object.assign(iconContainer.style, {
-    gap: "10px",
-    position: "absolute",
-    display: "none",
-    bottom: "5px",
-    right:"5px"
-  });
-  const copyIcon = createSvgIcon("copy", "复制");
-  const refreshIcon = createSvgIcon("redo", "重答");
-
-  copyIcon.addEventListener("click", () => {
-    const aiResponse = document.getElementById("ai-response");
-    const tempElement = document.createElement("div");
-    tempElement.innerHTML = aiResponse.innerHTML;
-    const iconContainer = tempElement.querySelector(".icon-wrapper");
-    if (iconContainer) {
-      iconContainer.remove();
-    }
-
-    const textToCopy = tempElement.innerText;
-    navigator.clipboard.writeText(textToCopy);
-  });
-
-  iconContainer.appendChild(copyIcon);
-  iconContainer.appendChild(refreshIcon);
-
   aiResponseContainer.appendChild(aiResponseElement);
-  aiResponseElement.addEventListener("mouseenter", () => {
-    if (iconContainer.dataset.ready === "true") {
-      iconContainer.style.display = "flex";
-    }
-  });
+  popup.appendChild(aiResponseContainer);  // 先添加到 DOM 中
 
-  aiResponseElement.addEventListener("mouseleave", () => {
-    if (iconContainer.dataset.ready === "true") {
-      iconContainer.style.display = "none";
-    }
-  });
-
-  popup.appendChild(aiResponseContainer);
   const ps = new PerfectScrollbar(aiResponseContainer, {
     suppressScrollX: true,
     wheelPropagation: false,
@@ -113,105 +205,9 @@ export function createPopup(text, rect, hideQuestion = false) {
     initialAnswerElement,
     abortController.signal,
     ps,
-    iconContainer,
+    null,
     aiResponseContainer
   );
-
-  function addCopyIcon(element) {
-    const copyIcon = document.createElement("img");
-    copyIcon.src = chrome.runtime.getURL("icons/copy.svg");
-    copyIcon.style.position = "absolute";
-    copyIcon.style.top = "5px";
-    copyIcon.style.right = "5px";
-    copyIcon.style.width = "15px";
-    copyIcon.style.height = "15px";
-    copyIcon.style.cursor = "pointer";
-    copyIcon.style.display = "none"; // 初始隐藏图标
-
-    // 鼠标悬停时显示复制图标
-    element.addEventListener("mouseenter", () => {
-      copyIcon.style.display = "block";
-    });
-    element.addEventListener("mouseleave", () => {
-      copyIcon.style.display = "none";
-    });
-
-    // 点击复制图标时复制内容
-    copyIcon.addEventListener("click", () => {
-      const textToCopy = element.textContent;
-      navigator.clipboard.writeText(textToCopy);
-    });
-
-    element.style.position = "relative"; // 使图标在元素内绝对定位
-    element.appendChild(copyIcon);
-  }
-  function addRefreshIcon(answerElement, aiResponseElement) {
-    const refreshIcon = document.createElement("img");
-    refreshIcon.src = chrome.runtime.getURL("icons/redo.svg");
-    refreshIcon.style.position = "absolute";
-    refreshIcon.style.top = "5px";
-    refreshIcon.style.right = "25px"; // 和复制图标保持距离
-    refreshIcon.style.width = "15px";
-    refreshIcon.style.height = "15px";
-    refreshIcon.style.cursor = "pointer";
-    refreshIcon.style.display = "none"; // 初始隐藏图标
-
-    // 只有在最后一个 ai-answer 区域显示重答图标
-    answerElement.addEventListener("mouseenter", () => {
-      refreshIcon.style.display = "block";
-    });
-    answerElement.addEventListener("mouseleave", () => {
-      refreshIcon.style.display = "none";
-    });
-
-    // 点击重答图标时执行重答逻辑
-    refreshIcon.addEventListener("click", () => {
-      const lastUserQuestion = aiResponseElement.querySelector(
-        ".user-question:last-child"
-      );
-      if (lastUserQuestion) {
-        const questionText = lastUserQuestion.textContent;
-        answerElement.textContent = "AI正在思考...";
-        getAIResponse(
-          questionText,
-          answerElement,
-          new AbortController().signal,
-          null,
-          null,
-          true
-        );
-      }
-    });
-
-    answerElement.style.position = "relative"; // 使图标在元素内绝对定位
-    answerElement.appendChild(refreshIcon);
-  }
-  refreshIcon.addEventListener("click", (event) => {
-    event.stopPropagation();
-    abortController.abort();
-    abortController = new AbortController();
-
-    const aiAnswers = aiResponseElement.getElementsByClassName("ai-answer");
-    const lastAiAnswer = aiAnswers[aiAnswers.length - 1];
-    let userQuestion = lastAiAnswer.previousElementSibling;
-    while (userQuestion && !userQuestion.classList.contains("user-question")) {
-      userQuestion = userQuestion.previousElementSibling;
-    }
-
-    if (userQuestion && lastAiAnswer) {
-      const questionText = userQuestion.textContent;
-      lastAiAnswer.textContent = "AI正在思考...";
-      getAIResponse(
-        questionText,
-        lastAiAnswer,
-        abortController.signal,
-        ps,
-        iconContainer,
-        aiResponseContainer,
-        true
-      );
-    }
-  });
 
   aiResponseContainer.addEventListener("wheel", () => {
     setAllowAutoScroll(false);
@@ -469,31 +465,42 @@ function createQuestionInputContainer(aiResponseContainer) {
 function sendQuestionToAI(question) {
   const aiResponseElement = document.getElementById("ai-response");
   const aiResponseContainer = document.getElementById("ai-response-container");
-  const iconContainer = document.querySelector(".icon-wrapper");
-  const ps = new PerfectScrollbar(aiResponseContainer, {
-    suppressScrollX: true,
-    wheelPropagation: false,
-  });
 
-  const questionElement = document.createElement("div");
-  questionElement.className = "user-question";
-  questionElement.textContent = `${question}`;
-  aiResponseElement.appendChild(questionElement);
+  const userQuestionDiv = document.createElement('div');
+  userQuestionDiv.className = 'user-question';
+  const userQuestionP = document.createElement('p');
+  userQuestionP.textContent = question;
+  userQuestionDiv.appendChild(userQuestionP);
+  addIconsToElement(userQuestionDiv);
+  aiResponseElement.appendChild(userQuestionDiv);
 
   const answerElement = document.createElement("div");
   answerElement.className = "ai-answer";
-  answerElement.textContent = "AI正在思考...";
+  answerElement.textContent = "";
+  addIconsToElement(answerElement);
   aiResponseElement.appendChild(answerElement);
 
   aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
 
-  let abortController = new AbortController();
+  // 获取已存在的 PerfectScrollbar 实例或创建新的
+  let ps = aiResponseContainer.ps;
+  if (!ps) {
+    ps = new PerfectScrollbar(aiResponseContainer, {
+      suppressScrollX: true,
+      wheelPropagation: false,
+    });
+    aiResponseContainer.ps = ps;  // 保存实例以供后续使用
+  } else {
+    ps.update();  // 更新已存在的实例
+  }
+
+  const abortController = new AbortController();
   getAIResponse(
     question,
     answerElement,
     abortController.signal,
     ps,
-    iconContainer,
+    null,
     aiResponseContainer
   );
 }

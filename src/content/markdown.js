@@ -80,9 +80,7 @@ md.renderer.rules.fence = function (tokens, idx, options, env, self) {
       const copyButton = block.querySelector(".copy-button");
       copyButton.addEventListener("click", () => {
         navigator.clipboard.writeText(code.textContent).then(() => {
-          copyButton.querySelector("img").src = chrome.runtime.getURL(
-            "icons/copyClicked.svg"
-          );
+
           setTimeout(() => {
             copyButton.querySelector("img").src = chrome.runtime.getURL(
               "icons/copy.svg"

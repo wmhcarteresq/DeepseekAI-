@@ -99,6 +99,10 @@
   max-width: 85%;
   box-shadow: var(--shadow-sm);
 }
+.user-question p{
+  margin-block-start: 0.5em;
+  margin-block-end: 0.5em;
+}
 
 .theme-adaptive .ai-answer {
   background-color: var(--ai-answer-bg);
@@ -555,5 +559,104 @@
   padding: 16px;
   padding-bottom: 20px;
   overflow: hidden;
+}
+
+.icon-container {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: none;
+  gap: 8px;
+  align-items: center;
+  z-index: 1;
+}
+
+.user-question, .ai-answer {
+  position: relative;
+  padding-right: 15px !important;
+  /* padding-bottom: 35px !important; */
+  margin: 5px 0;
+}
+
+.icon-wrapper {
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.icon-wrapper:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* 确保图标容器不会影响文本内容的布局 */
+.user-question .icon-container,
+.ai-answer .icon-container {
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* 工具提示样式 */
+.tooltip .tooltiptext {
+  font-size: 12px;
+  visibility: hidden;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 5px;
+  position: absolute;
+  z-index: 2;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* 图标样式 */
+.icon-container img {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+/* 日间模式图标样式 */
+.theme-adaptive.light-mode .icon-container img {
+  filter: brightness(0.3);
+}
+
+/* 夜间模式图标样式 */
+.theme-adaptive.dark-mode .icon-container img {
+  filter: invert(1) brightness(0.9);
+}
+
+/* 用户问题中的图标样式 */
+.user-question .icon-container img {
+  filter: brightness(10) !important;  /* 确保在蓝色背景上显示白色图标 */
+  opacity: 0.8;
+}
+
+/* 图标悬浮效果 */
+.icon-container img:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+/* 图标点击效果 */
+.icon-container img:active {
+  transform: scale(0.7);  /* 增大缩放效果 */
+  opacity: 0.5;  /* 增强透明度变化 */
+  transition: all 0.1s ease;  /* 加快动画速度 */
 }
 

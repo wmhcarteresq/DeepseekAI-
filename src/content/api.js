@@ -17,18 +17,29 @@ export async function getAIResponse(
   aiResponseContainer,
   isRefresh = false
 ) {
-  responseElement.innerHTML = "";
+  const existingIconContainer = responseElement.querySelector('.icon-container');
+  const originalClassName = responseElement.className;
+
+  responseElement.textContent = "";
+  if (existingIconContainer) {
+    responseElement.appendChild(existingIconContainer);
+  }
+
+  responseElement.className = originalClassName;
+
   let allowAutoScroll = true;
-  iconContainer.style.display = "none";
-  iconContainer.dataset.ready = "false";
 
   const { apiKey, language } = await new Promise((resolve) => {
     chrome.runtime.sendMessage({ action: "getApiKeyAndLanguage" }, resolve);
   });
 
   if (!apiKey) {
-    responseElement.innerHTML =
-      "Please set your API key in the extension popup.";
+    const textNode = document.createTextNode("Please set your API key in the extension popup.");
+    responseElement.textContent = "";
+    responseElement.appendChild(textNode);
+    if (existingIconContainer) {
+      responseElement.appendChild(existingIconContainer);
+    }
     return;
   }
 
@@ -92,11 +103,25 @@ export async function getAIResponse(
               data.choices[0].delta.content
             ) {
               aiResponse += data.choices[0].delta.content;
-              responseElement.innerHTML = md.render(aiResponse);
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = md.render(aiResponse);
+
+              const className = responseElement.className;
+              const iconContainer = responseElement.querySelector('.icon-container');
+
+              responseElement.textContent = "";
+              while (tempDiv.firstChild) {
+                responseElement.appendChild(tempDiv.firstChild);
+              }
+
+              responseElement.className = className;
+              if (iconContainer) {
+                responseElement.appendChild(iconContainer);
+              }
+
               ps.update();
               if (getAllowAutoScroll()) {
-                aiResponseContainer.scrollTop =
-                  aiResponseContainer.scrollHeight;
+                aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
               }
             }
           } catch (e) {
@@ -106,12 +131,24 @@ export async function getAIResponse(
       }
     }
     conversation.push({ role: "assistant", content: aiResponse });
-    responseElement.appendChild(iconContainer);
-    iconContainer.dataset.ready = "true";
     isGenerating = false;
+
+    requestAnimationFrame(() => {
+      if (window.addIconsToElement) {
+        window.addIconsToElement(responseElement);
+      }
+      if (window.updateLastAnswerIcons) {
+        window.updateLastAnswerIcons();
+      }
+    });
   } catch (error) {
     console.error("Fetch error:", error);
-    responseElement.innerHTML = "Request failed. Please try again later.";
+    const textNode = document.createTextNode("Request failed. Please try again later.");
+    responseElement.textContent = "";
+    responseElement.appendChild(textNode);
+    if (existingIconContainer) {
+      responseElement.appendChild(existingIconContainer);
+    }
     isGenerating = false;
   }
 }
@@ -126,5 +163,7 @@ function handleError(status, responseElement) {
     500: "服务器内部故障，请稍后重试。",
     503: "服务器负载过高，请稍后重试。",
   };
-  responseElement.innerHTML = errorMessages[status] || "请求失败，请稍后重试。";
+  const textNode = document.createTextNode(errorMessages[status] || "请求失败，请稍后重试。");
+  responseElement.textContent = "";
+  responseElement.appendChild(textNode);
 }
