@@ -144,27 +144,15 @@ export function createPopup(text, rect, hideQuestion = false) {
   const currentTheme = isDarkMode();
   applyTheme(popup, currentTheme);
 
-  // 设置主题监听
-  const removeThemeListener = watchThemeChanges((isDark) => {
-    applyTheme(popup, isDark);
-  });
-
-  // 在popup关闭时移除监听器
-  const closeButton = popup.querySelector('.close-button');
-  if (closeButton) {
-    const originalClickHandler = closeButton.onclick;
-    closeButton.onclick = () => {
-      removeThemeListener();
-      if (originalClickHandler) {
-        originalClickHandler();
-      }
-    };
-  }
-
   stylePopup(popup, rect);
   const aiResponseElement = document.createElement("div");
   const aiResponseContainer = document.createElement("div");
   styleResponseContainer(aiResponseContainer);
+
+  // 添加 resize 手柄
+  const resizeHandle = document.createElement('div');
+  resizeHandle.className = 'resize-handle';
+  popup.appendChild(resizeHandle);
 
   aiResponseElement.id = "ai-response";
   aiResponseElement.style.padding = "10px 40px 0";
@@ -195,6 +183,21 @@ export function createPopup(text, rect, hideQuestion = false) {
   const ps = new PerfectScrollbar(aiResponseContainer, {
     suppressScrollX: true,
     wheelPropagation: false,
+    touchStartThreshold: 0,
+    wheelEventTarget: aiResponseContainer,
+    minScrollbarLength: 40,
+    maxScrollbarLength: 300,
+    swipeEasing: true,
+    scrollingThreshold: 1000,
+    wheelSpeed: 1
+  });
+
+  // 保存实例到容器上
+  aiResponseContainer.perfectScrollbar = ps;
+
+  // 设置主题监听
+  const removeThemeListener = watchThemeChanges((isDark) => {
+    applyTheme(popup, isDark);
   });
 
   document.body.appendChild(popup);
@@ -209,64 +212,95 @@ export function createPopup(text, rect, hideQuestion = false) {
     aiResponseContainer
   );
 
-  aiResponseContainer.addEventListener("wheel", () => {
-    setAllowAutoScroll(false);
-    updateAllowAutoScroll(aiResponseContainer);
-  });
+  aiResponseContainer.addEventListener('wheel', () => {
+    requestAnimationFrame(() => {
+      ps.update();
+      setAllowAutoScroll(false);
+      updateAllowAutoScroll(aiResponseContainer);
+    });
+  }, { passive: true });
+
+  aiResponseContainer.addEventListener('touchstart', () => {
+    requestAnimationFrame(() => ps.update());
+  }, { passive: true });
 
   const dragHandle = createDragHandle();
   popup.appendChild(dragHandle);
 
+  // 设置拖拽和调整大小的功能
+  setupInteractions(popup, dragHandle, aiResponseContainer);
+
+  // 创建并设置关闭按钮
+  const closeButton = popup.querySelector('.close-button');
+  if (closeButton) {
+    closeButton.onclick = () => {
+      removeThemeListener();
+      if (aiResponseContainer.perfectScrollbar) {
+        aiResponseContainer.perfectScrollbar.destroy();
+        delete aiResponseContainer.perfectScrollbar;
+      }
+      const popup = document.getElementById("ai-popup");
+      if (popup) {
+        document.body.removeChild(popup);
+      }
+    };
+  }
+
+  const questionInputContainer = createQuestionInputContainer(aiResponseContainer);
+  popup.appendChild(questionInputContainer);
+}
+
+// 设置交互功能
+function setupInteractions(popup, dragHandle, aiResponseContainer) {
   interact(dragHandle).draggable({
     inertia: true,
     modifiers: [
       interact.modifiers.restrictRect({ restriction: "body", endOnly: true }),
     ],
     listeners: { move: dragMoveListener },
+    autoScroll: false,
+    allowFrom: '.drag-handle',
+    ignoreFrom: '.no-drag'
   });
 
   interact(popup)
     .resizable({
       edges: { left: true, right: true, bottom: true, top: true },
+      margin: 5,
       modifiers: [
         interact.modifiers.restrictSize({
-          min: { width: 100, height: 100 },
-          max: { width: 900, height: 700 },
+          min: { width: 300, height: 200 },
+          max: { width: 900, height: 800 },
         }),
       ],
       listeners: {
         move: (event) => {
           resizeMoveListener(event);
 
-          // 获取内部容器和滚动条实例
-          const aiResponseContainer = document.getElementById('ai-response-container');
-          if (aiResponseContainer) {
-            // 更新容器高度
-            aiResponseContainer.style.height = `calc(${event.rect.height}px - 60px)`;
+          requestAnimationFrame(() => {
+            if (aiResponseContainer) {
+              // 更新容器高度
+              aiResponseContainer.style.height = `calc(${event.rect.height}px - 60px)`;
 
-            // 更新滚动条
-            const ps = new PerfectScrollbar(aiResponseContainer, {
-              suppressScrollX: true,
-              wheelPropagation: false,
-            });
-            ps.update();
-          }
+              // 使用已存在的 PerfectScrollbar 实例
+              if (aiResponseContainer.perfectScrollbar) {
+                aiResponseContainer.perfectScrollbar.update();
+              }
+            }
 
-          // 更新输入框容器位置
-          const inputContainer = popup.querySelector('.input-container-wrapper');
-          if (inputContainer) {
-            inputContainer.style.position = 'absolute';
-            inputContainer.style.bottom = '0';
-            inputContainer.style.width = '100%';
-          }
+            // 更新输入框容器位置
+            const inputContainer = popup.querySelector('.input-container-wrapper');
+            if (inputContainer) {
+              inputContainer.style.position = 'absolute';
+              inputContainer.style.bottom = '0';
+              inputContainer.style.width = '100%';
+            }
+          });
         }
       },
       inertia: true,
-      preventPropagation: true
+      autoScroll: false
     });
-
-  const questionInputContainer = createQuestionInputContainer(aiResponseContainer);
-  popup.appendChild(questionInputContainer);
 }
 
 function createQuestionInputContainer(aiResponseContainer) {
@@ -557,47 +591,46 @@ export function stylePopup(popup, rect) {
     const responseContainer = document.getElementById('ai-response-container');
     if (!responseContainer) return;
 
-    // 只在选择文本时启用自动滚动
+    // 使用 requestAnimationFrame 来优化滚动性能
     if (window.getSelection().toString()) {
       const popupRect = popup.getBoundingClientRect();
       const mouseY = e.clientY;
       const relativeY = mouseY - popupRect.top;
 
-      // 清除之前的滚动间隔
       if (autoScrollInterval) {
         clearInterval(autoScrollInterval);
         autoScrollInterval = null;
       }
 
-      // 检查鼠标是否在弹窗的上边缘或下边缘
       if (relativeY < scrollThreshold) {
-        // 向上滚动
         autoScrollInterval = setInterval(() => {
-          responseContainer.scrollTop -= scrollSpeed;
+          requestAnimationFrame(() => {
+            responseContainer.scrollTop -= scrollSpeed;
+          });
         }, 16);
       } else if (relativeY > popup.offsetHeight - scrollThreshold) {
-        // 向下滚动
         autoScrollInterval = setInterval(() => {
-          responseContainer.scrollTop += scrollSpeed;
+          requestAnimationFrame(() => {
+            responseContainer.scrollTop += scrollSpeed;
+          });
         }, 16);
       }
     }
-  });
+  }, { passive: true });
 
-  // 当鼠标离开弹窗或松开鼠标时停止滚动
   popup.addEventListener('mouseleave', () => {
     if (autoScrollInterval) {
       clearInterval(autoScrollInterval);
       autoScrollInterval = null;
     }
-  });
+  }, { passive: true });
 
   document.addEventListener('mouseup', () => {
     if (autoScrollInterval) {
       clearInterval(autoScrollInterval);
       autoScrollInterval = null;
     }
-  });
+  }, { passive: true });
 }
 
 export function styleResponseContainer(container) {

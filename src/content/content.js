@@ -61,20 +61,22 @@ document.addEventListener("mouseup", function (event) {
   if (selectedText && event.button === 0) {
     removeIcon();
 
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    const x = event.clientX;
-    const y = event.clientY;
+    requestAnimationFrame(() => {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const x = event.clientX;
+      const y = event.clientY;
 
-    currentIcon = createIcon(x + 5, y - 25);
+      currentIcon = createIcon(x + 5, y - 25);
 
-    currentIcon.addEventListener("mousedown", function(e) {
-      handleIconClick(e, selectedText, rect, selection);
+      currentIcon.addEventListener("mousedown", function(e) {
+        handleIconClick(e, selectedText, rect, selection);
+      }, { passive: false });
+
+      document.body.appendChild(currentIcon);
     });
-
-    document.body.appendChild(currentIcon);
   }
-});
+}, { passive: true });
 
 document.addEventListener("mousedown", function(e) {
   if (isHandlingIconClick) return;
@@ -85,7 +87,7 @@ document.addEventListener("mousedown", function(e) {
       window.getSelection().removeAllRanges();
     }
   }
-}, true);
+}, { passive: true });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "createPopup") {

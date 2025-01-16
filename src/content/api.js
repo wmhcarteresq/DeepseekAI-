@@ -106,6 +106,11 @@ export async function getAIResponse(
               const tempDiv = document.createElement('div');
               tempDiv.innerHTML = md.render(aiResponse);
 
+              const codeBlocks = tempDiv.querySelectorAll('pre code');
+              codeBlocks.forEach(codeBlock => {
+                codeBlock.classList.add('code-wrap');
+              });
+
               const className = responseElement.className;
               const iconContainer = responseElement.querySelector('.icon-container');
 

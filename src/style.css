@@ -76,8 +76,21 @@
 
 /* 组件样式 */
 .theme-adaptive #ai-popup {
+  position: absolute;
+  width: 580px;
+  height: 380px;
+  padding-top: 20px;
+  background-color: var(--bg-primary);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
+  border-radius: 12px;
+  z-index: 1000;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .theme-adaptive .drag-handle {
@@ -86,9 +99,46 @@
   border-bottom: 1px solid var(--divider-color);
 }
 
+/* 右下角 resize 手柄样式 */
+.theme-adaptive #ai-popup .resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  cursor: se-resize;
+  z-index: 11;
+}
+
+/* 调整滚动条位置，避免与 resize 手柄冲突 */
+.ps__rail-y {
+  width: 6px !important;
+  right: 20px !important;  /* 为 resize 手柄留出空间 */
+  left: auto !important;
+  background-color: transparent !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+  z-index: 10;
+}
+
+/* 调整内容区域右侧边距 */
+#ai-response {
+  padding-right: 35px !important;  /* 为滚动条和 resize 手柄留出空间 */
+}
+
+/* 确保内容容器不会溢出 */
 .theme-adaptive #ai-response-container {
+  height: calc(100% - 60px) !important;
+  margin-bottom: 60px;
   background-color: var(--bg-primary);
-  padding-bottom: 60px;
+  padding-bottom: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: relative;
+}
+
+.theme-adaptive #ai-response-container::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 }
 
 .theme-adaptive .user-question {
@@ -163,7 +213,49 @@
   border-radius: 8px;
   margin: 1em 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  padding: 16px;
+}
+
+/* 代码自动换行样式 */
+.code-wrap,
+.code-wrap code {
+  white-space: pre-wrap !important;       /* 保留空格，允许换行 */
+  word-wrap: break-word !important;       /* 允许单词内换行 */
+  word-break: break-all !important;       /* 在任意字符处换行 */
+  tab-size: 2 !important;                 /* 设置制表符宽度 */
+  -moz-tab-size: 2 !important;
+  max-width: 100% !important;             /* 确保不超出容器宽度 */
+  overflow-x: visible !important;         /* 允许内容完全显示 */
+}
+
+/* 移除所有与横向滚动相关的样式 */
+.code-block-wrapper,
+.code-block-wrapper pre,
+.code-block-wrapper code {
+  overflow-x: visible !important;
+  overflow: visible !important;
+}
+
+/* 调整代码块容器样式 */
+.code-block-wrapper {
+  position: relative;
+  margin: 1em 0;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 16px;
+  width: 100%;
+}
+
+/* 确保代码内容不会溢出容器 */
+.code-block-wrapper code {
+  display: inline-block;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 明亮模式代码高亮 */
@@ -173,6 +265,8 @@
   font-family: "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", monospace;
   font-size: 14px;
   line-height: 1.5;
+  tab-size: 2;                /* 设置制表符宽度 */
+  -moz-tab-size: 2;
 }
 
 .theme-adaptive .hljs-comment,
@@ -307,7 +401,8 @@
   position: relative;
   margin: 0;
   padding: 16px;
-  padding-bottom: 24px;
+  padding-bottom: 20px;
+  overflow: visible;           /* 改为 visible，不需要滚动 */
 }
 
 /* 复制按钮样式 */
@@ -347,59 +442,101 @@
   vertical-align: middle;
 }
 
-/* 滚动条样式 */
-.theme-adaptive .ps {
-  position: relative;
-  overflow: hidden !important;
+/* 隐藏原生滚动条但保持滚动功能 */
+#ai-response-container {
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
 }
 
-.theme-adaptive .ps__rail-y {
+#ai-response-container::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* PerfectScrollbar 样式 */
+.ps__rail-y {
   width: 6px !important;
-  right: 0 !important;
+  right: 6px !important;  /* 移动滚动条，为 resize 手柄留出空间 */
   left: auto !important;
   background-color: transparent !important;
-  opacity: 0;
-  transition: opacity 0.2s ease, background-color 0.2s ease !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s ease !important;
+  z-index: 10;  /* 确保滚动条在上层 */
 }
 
-.theme-adaptive .ps__thumb-y {
+/* resize 手柄样式 */
+.theme-adaptive #ai-popup {
+  resize: both;
+}
+
+/* 自定义 resize 手柄区域 */
+.theme-adaptive #ai-popup::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  cursor: se-resize;
+  background:
+    linear-gradient(135deg, transparent 50%, var(--border-color) 50%),
+    linear-gradient(135deg, transparent 55%, var(--bg-secondary) 55%);
+  z-index: 9;  /* 确保在滚动条下层 */
+}
+
+/* 调整滚动条悬浮样式 */
+.ps__rail-y:hover,
+.ps__rail-y:focus,
+.ps__rail-y.ps--clicking,
+.ps:hover > .ps__rail-y,
+.ps--focus > .ps__rail-y,
+.ps--scrolling-y > .ps__rail-y {
+  width: 6px !important;
+  opacity: 1 !important;
+  background-color: transparent !important;
+}
+
+/* 调整内容区域右侧边距 */
+#ai-response {
+  padding-right: 20px !important;  /* 为滚动条留出空间 */
+}
+
+/* 确保 resize 手柄在暗色模式下也可见 */
+.theme-adaptive.dark-mode #ai-popup::after {
+  background:
+    linear-gradient(135deg, transparent 50%, var(--border-color) 50%),
+    linear-gradient(135deg, transparent 55%, var(--bg-secondary) 55%);
+}
+
+.ps__thumb-y {
   width: 6px !important;
   right: 0 !important;
   left: auto !important;
-  background-color: var(--scrollbar-thumb) !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
   border-radius: 3px !important;
   transition: background-color 0.2s ease !important;
 }
 
-.theme-adaptive .ps:hover > .ps__rail-y {
+.theme-adaptive.dark-mode .ps__thumb-y {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ps:hover > .ps__rail-y,
+.ps--focus > .ps__rail-y,
+.ps--scrolling-y > .ps__rail-y {
   opacity: 1;
+}
+
+.ps__rail-y:hover > .ps__thumb-y,
+.ps__rail-y:focus > .ps__thumb-y,
+.ps__rail-y.ps--clicking > .ps__thumb-y {
   width: 6px !important;
-  background-color: var(--scrollbar-bg) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
 }
 
-.theme-adaptive .ps__rail-y:hover,
-.theme-adaptive .ps__rail-y:focus,
-.theme-adaptive .ps__rail-y.ps--clicking {
-  width: 12px !important;
-  background-color: var(--scrollbar-bg) !important;
-}
-
-.theme-adaptive .ps__rail-y:hover > .ps__thumb-y,
-.theme-adaptive .ps__rail-y:focus > .ps__thumb-y,
-.theme-adaptive .ps__rail-y.ps--clicking > .ps__thumb-y {
-  width: 12px !important;
-  right: 0 !important;
-}
-
-/* 保持其他滚动条样式不变 */
-.theme-adaptive pre::-webkit-scrollbar {
-  height: 8px;
-  background-color: var(--scrollbar-bg);
-}
-
-.theme-adaptive pre::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 4px;
+.theme-adaptive.dark-mode .ps__rail-y:hover > .ps__thumb-y,
+.theme-adaptive.dark-mode .ps__rail-y:focus > .ps__thumb-y,
+.theme-adaptive.dark-mode .ps__rail-y.ps--clicking > .ps__thumb-y {
+  background-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 /* 图标适配 */
@@ -558,7 +695,7 @@
   margin: 0;
   padding: 16px;
   padding-bottom: 20px;
-  overflow: hidden;
+  overflow: visible;           /* 改为 visible，不需要滚动 */
 }
 
 .icon-container {
@@ -658,5 +795,61 @@
   transform: scale(0.7);  /* 增大缩放效果 */
   opacity: 0.5;  /* 增强透明度变化 */
   transition: all 0.1s ease;  /* 加快动画速度 */
+}
+
+/* 代码块容器样式 */
+.code-block-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin: 1em 0;
+  border-radius: 8px;
+}
+
+.code-block-wrapper pre {
+  position: relative;
+  margin: 0;
+  padding: 16px;
+  padding-bottom: 20px;
+  overflow: visible;           /* 改为 visible，不需要滚动 */
+}
+
+/* 代码块的横向滚动条样式 */
+.code-block-wrapper pre::-webkit-scrollbar {
+  height: 6px;
+  background-color: transparent;
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.theme-adaptive.dark-mode .code-block-wrapper pre::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.code-block-wrapper pre::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Firefox 的横向滚动条样式 */
+.code-block-wrapper pre {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.theme-adaptive.dark-mode .code-block-wrapper pre {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* 移除横向滚动条相关样式 */
+.code-block-wrapper pre::-webkit-scrollbar,
+.code-block-wrapper pre::-webkit-scrollbar-thumb,
+.code-block-wrapper pre::-webkit-scrollbar-track {
+  display: none;
+}
+
+.code-block-wrapper pre {
+  scrollbar-width: none;
 }
 

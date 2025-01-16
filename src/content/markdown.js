@@ -11,10 +11,13 @@ export const md = new MarkdownIt({
   highlight: function (str, lang) {
     if (lang && hljs.getLanguage(lang)) {
       try {
-        return hljs.highlight(str, { language: lang }).value;
+        const highlighted = hljs.highlight(str, { language: lang }).value;
+        // 添加自动换行的样式类
+        return `<div class="code-wrap">${highlighted}</div>`;
       } catch (__) {}
     }
-    return '';
+    // 如果没有指定语言或高亮失败，也添加自动换行的样式类
+    return `<div class="code-wrap">${md.utils.escapeHtml(str)}</div>`;
   }
 });
 
@@ -30,18 +33,18 @@ md.renderer.rules.fence = function (tokens, idx, options, env, self) {
   // 使用默认渲染器生成基础 HTML
   const rawHtml = defaultFence(tokens, idx, options, env, self);
 
-  // 包装生成的 HTML
+  // 包装生成的 HTML，添加自动换行的样式类
   const wrappedHtml = `
     <div class="code-block-wrapper">
-      ${rawHtml}
+      <pre class="code-wrap">${rawHtml}</pre>
       <button class="copy-button">
         <img src="${chrome.runtime.getURL("icons/copy.svg")}" alt="Copy" />
       </button>
     </div>
   `;
 
-  // 在下一个事件循环中初始化滚动条和复制按钮
-  setTimeout(() => {
+  // 在下一个事件循环中初始化复制按钮
+  requestAnimationFrame(() => {
     const codeBlocks = document.querySelectorAll(".code-block-wrapper");
     codeBlocks.forEach((block) => {
       const pre = block.querySelector("pre");
@@ -52,44 +55,25 @@ md.renderer.rules.fence = function (tokens, idx, options, env, self) {
         try {
           const result = hljs.highlight(code.textContent, { language: lang });
           code.innerHTML = result.value;
-          code.classList.add('hljs'); // 添加 hljs 类
+          code.classList.add('hljs', 'code-wrap');
         } catch (e) {
           console.warn('Failed to highlight:', e);
         }
-      }
-
-      // 初始化 PerfectScrollbar
-      if (!scrollbars.has(pre)) {
-        const ps = new PerfectScrollbar(pre, {
-          suppressScrollY: false,
-          wheelSpeed: 1,
-          wheelPropagation: false,
-          minScrollbarLength: 30,
-          maxScrollbarLength: 150,
-          swipeEasing: true,
-          scrollXMarginOffset: 0,
-          handlers: ['click-rail', 'drag-thumb', 'keyboard'],
-        });
-        scrollbars.set(pre, ps);
-
-        // 强制更新滚动条
-        setTimeout(() => ps.update(), 0);
       }
 
       // 设置复制按钮事件
       const copyButton = block.querySelector(".copy-button");
       copyButton.addEventListener("click", () => {
         navigator.clipboard.writeText(code.textContent).then(() => {
-
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             copyButton.querySelector("img").src = chrome.runtime.getURL(
               "icons/copy.svg"
             );
-          }, 2000);
+          });
         });
-      });
+      }, { passive: true });
     });
-  }, 0);
+  });
 
   return wrappedHtml;
 };
