@@ -80,38 +80,36 @@ export function addIconsToElement(element) {
   const iconContainer = document.createElement("div");
   iconContainer.className = "icon-container";
 
-  // 设置图标容器的样式
-  Object.assign(iconContainer.style, {
-    position: "absolute",
-    bottom: "2px",
-    right: "6px",
-    display: "none",
-    gap: "5px",
-    alignItems: "center",
-    zIndex: "1"
-  });
+  // 创建复制图标包装器
+  const copyWrapper = document.createElement("div");
+  copyWrapper.className = "icon-wrapper tooltip";
 
-  // 添加复制图标
   const copyIcon = document.createElement("img");
   copyIcon.src = chrome.runtime.getURL("icons/copy.svg");
-  copyIcon.style.width = "18px";
-  copyIcon.style.height = "18px";
-  copyIcon.style.cursor = "pointer";
   copyIcon.title = "复制";
-  copyIcon.addEventListener("click", (event) => {
+
+  const copyTooltip = document.createElement("span");
+  copyTooltip.className = "tooltiptext";
+  copyTooltip.textContent = "复制";
+
+  copyWrapper.appendChild(copyIcon);
+  copyWrapper.appendChild(copyTooltip);
+
+  copyWrapper.addEventListener("click", (event) => {
     event.stopPropagation();
-    navigator.clipboard.writeText(element.textContent);
-    setTimeout(() => {
-      copyIcon.src = chrome.runtime.getURL("icons/copy.svg");
-    }, 200);
+    navigator.clipboard.writeText(element.textContent).then(() => {
+      copyIcon.style.transform = "scale(1.2)";
+      setTimeout(() => {
+        copyIcon.style.transform = "";
+      }, 200);
+    });
   });
-  iconContainer.appendChild(copyIcon);
+
+  iconContainer.appendChild(copyWrapper);
 
   // 设置父元素样式
-  Object.assign(element.style, {
-    position: "relative",
-    paddingRight: "50px"  // 为图标预留空间
-  });
+  element.style.position = "relative";
+  element.style.paddingRight = "50px";
 
   // 添加鼠标悬浮事件
   element.addEventListener("mouseenter", () => {
@@ -124,13 +122,50 @@ export function addIconsToElement(element) {
 
   element.appendChild(iconContainer);
 
-  // 如果是 AI 回答，可能需要添加重答图标
+  // 如果是 AI 回答，添加重答图标
   if (element.classList.contains("ai-answer")) {
-    // 延迟一帧执行更新，确保 DOM 已经更新
-    requestAnimationFrame(() => {
-      updateLastAnswerIcons();
+    const regenerateWrapper = document.createElement("div");
+    regenerateWrapper.className = "icon-wrapper tooltip";
+
+    const regenerateIcon = document.createElement("img");
+    regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
+    regenerateIcon.title = "重新回答";
+
+    const regenerateTooltip = document.createElement("span");
+    regenerateTooltip.className = "tooltiptext";
+    regenerateTooltip.textContent = "重新回答";
+
+    regenerateWrapper.appendChild(regenerateIcon);
+    regenerateWrapper.appendChild(regenerateTooltip);
+
+    regenerateWrapper.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const userQuestion = element.previousElementSibling;
+      if (userQuestion && userQuestion.classList.contains("user-question")) {
+        const questionText = userQuestion.textContent;
+        element.textContent = "";
+        const abortController = new AbortController();
+        const aiResponseContainer = document.getElementById("ai-response-container");
+
+        getAIResponse(
+          questionText,
+          element,
+          abortController.signal,
+          aiResponseContainer.perfectScrollbar,
+          null,
+          aiResponseContainer,
+          true
+        );
+      }
     });
+
+    iconContainer.appendChild(regenerateWrapper);
   }
+
+  // 延迟一帧执行更新，确保 DOM 已经更新
+  requestAnimationFrame(() => {
+    updateLastAnswerIcons();
+  });
 }
 
 // 添加到 window 对象
@@ -546,17 +581,19 @@ export function stylePopup(popup, rect) {
     width: "580px",
     height: "380px",
     paddingTop: "20px",
-    backgroundColor: "#f6f6f6a8",
-    boxShadow: "0 0 1px #0009, 0 0 2px #0000000d, 0 38px 90px #00000040",
-    backdropFilter: "blur(10px)",
+    backgroundColor: "var(--bg-primary)",
+    boxShadow: "0 0 0 0.5px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.08)",
+    backdropFilter: "blur(25px)",
     borderRadius: "12px",
     zIndex: "1000",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif",
     overflow: "hidden",
     userSelect: "none",
     "-webkit-user-select": "none",
     "-moz-user-select": "none",
     "-ms-user-select": "none",
+    border: "1px solid var(--border-color)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
   });
 
   const { adjustedX, adjustedY } = adjustPopupPosition(rect, popup);

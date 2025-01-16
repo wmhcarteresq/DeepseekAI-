@@ -1,77 +1,77 @@
 /* 日间模式样式 */
 .theme-adaptive {
   /* 基础颜色 */
-  --bg-primary: rgba(255, 255, 255, 0.85);
-  --bg-secondary: rgba(242, 242, 247, 0.8);
-  --text-primary: #1d1d1f;
-  --text-secondary: #86868b;
+  --bg-primary: rgba(246, 246, 246, 0.8);
+  --bg-secondary: rgba(239, 239, 239, 0.75);
+  --text-primary: #262626;
+  --text-secondary: #737373;
 
   /* 交互元素 */
-  --accent-color: #0066ff;
-  --accent-hover: #0256d9;
-  --border-color: rgba(0, 0, 0, 0.1);
-  --divider-color: rgba(60, 60, 67, 0.1);
+  --accent-color: #007AFF;
+  --accent-hover: #0063CC;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --divider-color: rgba(0, 0, 0, 0.06);
 
   /* 组件特定颜色 */
-  --header-bg: rgba(239, 239, 244, 0.85);
-  --input-bg: rgba(242, 242, 247, 0.8);
-  --ai-answer-bg: rgba(242, 242, 247, 0.7);
-  --user-question-bg: var(--accent-color);
-  --code-block-bg: rgba(242, 242, 247, 0.6);
+  --header-bg: rgba(239, 239, 239, 0.85);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --ai-answer-bg: rgba(255, 255, 255, 0.6);
+  --user-question-bg: #007AFF;
+  --code-block-bg: rgba(250, 250, 250, 0.8);
 
   /* 滚动条 */
-  --scrollbar-bg: rgba(0, 0, 0, 0.05);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-bg: rgba(0, 0, 0, 0.03);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
 
   /* 阴影效果 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
 
   /* 应用基础样式 */
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 暗色模式样式 */
 .theme-adaptive.dark-mode {
   /* 基础颜色 */
-  --bg-primary: rgba(28, 28, 30, 0.85);
-  --bg-secondary: rgba(44, 44, 46, 0.8);
-  --text-primary: #f5f5f7;
-  --text-secondary: #98989d;
+  --bg-primary: rgba(32, 32, 32, 0.8);
+  --bg-secondary: rgba(40, 40, 40, 0.75);
+  --text-primary: #E4E4E4;
+  --text-secondary: #A1A1A1;
 
   /* 交互元素 */
-  --accent-color: #0a84ff;
-  --accent-hover: #409cff;
-  --border-color: rgba(255, 255, 255, 0.15);
-  --divider-color: rgba(84, 84, 88, 0.65);
+  --accent-color: #0A84FF;
+  --accent-hover: #409CFF;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --divider-color: rgba(255, 255, 255, 0.06);
 
   /* 组件特定颜色 */
-  --header-bg: rgba(44, 44, 46, 0.85);
-  --input-bg: rgba(58, 58, 60, 0.8);
-  --ai-answer-bg: rgba(44, 44, 46, 0.7);
-  --user-question-bg: var(--accent-color);
-  --code-block-bg: rgba(44, 44, 46, 0.6);
+  --header-bg: rgba(40, 40, 40, 0.85);
+  --input-bg: rgba(50, 50, 50, 0.9);
+  --ai-answer-bg: rgba(45, 45, 45, 0.6);
+  --user-question-bg: #0A84FF;
+  --code-block-bg: rgba(35, 35, 35, 0.8);
 
   /* 滚动条 */
-  --scrollbar-bg: rgba(255, 255, 255, 0.05);
-  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-bg: rgba(255, 255, 255, 0.03);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
 
   /* 阴影效果 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
 
   /* 应用基础样式 */
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 组件样式 */
@@ -851,5 +851,166 @@
 
 .code-block-wrapper pre {
   scrollbar-width: none;
+}
+
+/* 图标容器样式 */
+.icon-container {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  display: none;
+  gap: 6px;
+  align-items: center;
+  z-index: 1;
+  padding: 4px;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-container:hover {
+  background-color: var(--input-bg);
+}
+
+/* 图标包装器样式 */
+.icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-wrapper:hover {
+  background-color: var(--bg-primary);
+}
+
+/* 图标样式 */
+.icon-container img {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 日间模式图标样式 */
+.theme-adaptive.light-mode .icon-container img {
+  filter: brightness(0.4);
+}
+
+/* 夜间模式图标样式 */
+.theme-adaptive.dark-mode .icon-container img {
+  filter: invert(1) brightness(0.9);
+}
+
+/* 用户问题中的图标样式 */
+.user-question .icon-container {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-question .icon-container:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.user-question .icon-container img {
+  filter: brightness(10) !important;
+  opacity: 0.8;
+}
+
+/* 图标悬浮和点击效果 */
+.icon-container img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.icon-container img:active {
+  transform: scale(0.9);
+  opacity: 0.5;
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 工具提示样式 */
+.tooltip .tooltiptext {
+  font-size: 12px;
+  visibility: hidden;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 2;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* 发送按钮样式 */
+.send-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-secondary);
+}
+
+.send-icon:hover {
+  opacity: 1;
+  color: var(--accent-color);
+}
+
+.send-icon:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* 加载图标样式 */
+.loading-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: none;
+  color: var(--text-secondary);
+}
+
+.loading-icon.active {
+  display: block;
+  animation: loading-breathe 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes loading-breathe {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateY(-50%) scale(0.95);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-50%) scale(1);
+  }
 }
 
