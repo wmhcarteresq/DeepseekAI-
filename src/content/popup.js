@@ -26,11 +26,15 @@ function updateLastAnswerIcons() {
     }
   });
 
-  // 为最后一个回答添加重答图标
+  // 为最后一个回答添加重答图标，但只在有用户问题时添加
   if (answers.length > 0) {
     const lastAnswer = answers[answers.length - 1];
+    const userQuestion = lastAnswer.previousElementSibling;
     const iconContainer = lastAnswer.querySelector('.icon-container');
-    if (iconContainer && !iconContainer.querySelector('img[src*="regenerate"]')) {
+
+    // 只有当前面有用户问题时才添加重答按钮
+    if (iconContainer && !iconContainer.querySelector('img[src*="regenerate"]') &&
+        userQuestion && userQuestion.classList.contains("user-question")) {
       iconContainer.style.display = 'flex'; // 确保图标容器可见
       const regenerateWrapper = document.createElement("div");
       regenerateWrapper.className = "icon-wrapper tooltip";
@@ -48,32 +52,29 @@ function updateLastAnswerIcons() {
 
       regenerateWrapper.addEventListener("click", (event) => {
         event.stopPropagation();
-        const userQuestion = lastAnswer.previousElementSibling;
-        if (userQuestion && userQuestion.classList.contains("user-question")) {
-          const questionText = userQuestion.textContent;
-          lastAnswer.textContent = "";
-          const abortController = new AbortController();
+        const questionText = userQuestion.textContent;
+        lastAnswer.textContent = "";
+        const abortController = new AbortController();
 
-          // 获取或创建 PerfectScrollbar 实例
-          let ps = aiResponseContainer.ps;
-          if (!ps) {
-            ps = new PerfectScrollbar(aiResponseContainer, {
-              suppressScrollX: true,
-              wheelPropagation: false,
-            });
-            aiResponseContainer.ps = ps;
-          }
-
-          getAIResponse(
-            questionText,
-            lastAnswer,
-            abortController.signal,
-            ps,
-            null,
-            aiResponseContainer,
-            true
-          );
+        // 获取或创建 PerfectScrollbar 实例
+        let ps = aiResponseContainer.ps;
+        if (!ps) {
+          ps = new PerfectScrollbar(aiResponseContainer, {
+            suppressScrollX: true,
+            wheelPropagation: false,
+          });
+          aiResponseContainer.ps = ps;
         }
+
+        getAIResponse(
+          questionText,
+          lastAnswer,
+          abortController.signal,
+          ps,
+          null,
+          aiResponseContainer,
+          true
+        );
       });
       iconContainer.appendChild(regenerateWrapper);
     }
@@ -131,41 +132,27 @@ export function addIconsToElement(element) {
 
   iconContainer.appendChild(copyWrapper);
 
-  // 设置父元素样式
-  element.style.position = "relative";
-  element.style.paddingRight = "50px";
-
-  // 添加鼠标悬浮事件
-  element.addEventListener("mouseenter", () => {
-    iconContainer.style.display = "flex";
-  });
-
-  element.addEventListener("mouseleave", () => {
-    iconContainer.style.display = "none";
-  });
-
-  element.appendChild(iconContainer);
-
   // 如果是 AI 回答，添加重答图标
   if (element.classList.contains("ai-answer")) {
-    const regenerateWrapper = document.createElement("div");
-    regenerateWrapper.className = "icon-wrapper tooltip";
+    const userQuestion = element.previousElementSibling;
+    // 只有当前面有用户问题时才添加重答按钮
+    if (userQuestion && userQuestion.classList.contains("user-question")) {
+      const regenerateWrapper = document.createElement("div");
+      regenerateWrapper.className = "icon-wrapper tooltip";
 
-    const regenerateIcon = document.createElement("img");
-    regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
-    regenerateIcon.title = "重新回答";
+      const regenerateIcon = document.createElement("img");
+      regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
+      regenerateIcon.title = "重新回答";
 
-    const regenerateTooltip = document.createElement("span");
-    regenerateTooltip.className = "tooltiptext";
-    regenerateTooltip.textContent = "重新回答";
+      const regenerateTooltip = document.createElement("span");
+      regenerateTooltip.className = "tooltiptext";
+      regenerateTooltip.textContent = "重新回答";
 
-    regenerateWrapper.appendChild(regenerateIcon);
-    regenerateWrapper.appendChild(regenerateTooltip);
+      regenerateWrapper.appendChild(regenerateIcon);
+      regenerateWrapper.appendChild(regenerateTooltip);
 
-    regenerateWrapper.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const userQuestion = element.previousElementSibling;
-      if (userQuestion && userQuestion.classList.contains("user-question")) {
+      regenerateWrapper.addEventListener("click", (event) => {
+        event.stopPropagation();
         const questionText = userQuestion.textContent;
         element.textContent = "";
         const abortController = new AbortController();
@@ -180,11 +167,29 @@ export function addIconsToElement(element) {
           aiResponseContainer,
           true
         );
-      }
-    });
+      });
 
-    iconContainer.appendChild(regenerateWrapper);
+      iconContainer.appendChild(regenerateWrapper);
+    }
   }
+
+  // 设置父元素样式
+  element.style.position = "relative";
+  element.style.paddingRight = "50px";
+
+  // 默认隐藏图标容器
+  iconContainer.style.display = "none";
+
+  // 添加鼠标悬浮事件
+  element.addEventListener("mouseenter", () => {
+    iconContainer.style.display = "flex";
+  });
+
+  element.addEventListener("mouseleave", () => {
+    iconContainer.style.display = "none";
+  });
+
+  element.appendChild(iconContainer);
 
   // 延迟一帧执行更新，确保 DOM 已经更新
   requestAnimationFrame(() => {
