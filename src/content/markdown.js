@@ -4,6 +4,27 @@ import PerfectScrollbar from "perfect-scrollbar";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 import mathjax3 from "markdown-it-mathjax3";
 
+// 创建预处理函数
+function preprocessMath(text) {
+  // 替换块级公式 \[...\] 为 $$...$$
+  text = text.replace(/\\?\[([^]*?)\\?\]/g, (match, p1) => {
+    if (match.startsWith('\\[') && match.endsWith('\\]')) {
+      return `$$${p1}$$`;
+    }
+    return match;
+  });
+
+  // 替换行内公式 \(...\) 为 $...$
+  text = text.replace(/\\?\((.*?)\\?\)/g, (match, p1) => {
+    if (match.startsWith('\\(') && match.endsWith('\\)')) {
+      return `$${p1}$`;
+    }
+    return match;
+  });
+
+  return text;
+}
+
 // 创建 MarkdownIt 实例
 export const md = new MarkdownIt({
   html: true,
@@ -23,60 +44,28 @@ export const md = new MarkdownIt({
 // 配置 mathjax3 插件
 const mathjaxOptions = {
   tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']],
     processEscapes: true,
     processEnvironments: true,
     packages: ['base', 'ams', 'noerrors', 'noundefined']
   },
   options: {
-    skipHtmlTags: [],  // 不跳过任何HTML标签
-    processHtmlClass: 'math-tex',
-    ignoreHtmlClass: 'no-mathjax'  // 只有带有这个类的元素才会被忽略
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
   }
-};
-
-// 创建一个自定义的 markdown-it 规则来处理方括号数学公式
-md.inline.ruler.before('escape', 'brackets_math', function(state, silent) {
-  let pos = state.pos;
-  let ch = state.src.charAt(pos);
-
-  if (ch !== '[') return false;
-
-  let content = '';
-  let found = false;
-  let start = pos;
-  pos++;
-
-  while (pos < state.src.length) {
-    ch = state.src.charAt(pos);
-    if (ch === ']') {
-      found = true;
-      break;
-    }
-    content += ch;
-    pos++;
-  }
-
-  if (!found || content.length === 0) return false;
-
-  if (!silent) {
-    let token = state.push('math_inline', 'math', 0);
-    token.content = content;
-    token.markup = '[';
-  }
-
-  state.pos = pos + 1;
-  return true;
-});
-
-// 添加渲染规则
-md.renderer.rules.math_inline = function(tokens, idx) {
-  return '\\(' + tokens[idx].content + '\\)';
 };
 
 // 使用 mathjax3 插件
 md.use(mathjax3, mathjaxOptions);
+
+// 重写 render 方法
+const originalRender = md.render.bind(md);
+md.render = function(text) {
+  const preprocessedText = preprocessMath(text);
+  return originalRender(preprocessedText);
+};
 
 // 保存原始的 fence 渲染器
 const defaultFence = md.renderer.rules.fence;

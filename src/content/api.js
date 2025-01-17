@@ -135,6 +135,7 @@ export async function getAIResponse(
         }
       }
     }
+    console.log('Original AI Response:', aiResponse);
     conversation.push({ role: "assistant", content: aiResponse });
     isGenerating = false;
 

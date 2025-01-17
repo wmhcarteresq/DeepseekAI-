@@ -1066,3 +1066,57 @@
   width: 16px;
   height: 16px;
 }
+
+/* 添加数学公式渲染的过渡效果 */
+.math-tex {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.2s ease;
+}
+
+.math-tex.mathjax-rendered {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* 添加数学公式的占位样式 */
+.math-placeholder {
+  display: inline-block;
+  min-height: 1.2em;
+  min-width: 50px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* 数学公式占位符 */
+.math-tex::before {
+  content: '';
+  display: inline-block;
+  min-width: 20px;
+  min-height: 1em;
+  background: var(--bg-secondary);
+  border-radius: 2px;
+  animation: pulse 1s infinite;
+}
+
+.math-tex.mathjax-rendered::before {
+  display: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.4; }
+}
