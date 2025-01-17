@@ -63,9 +63,9 @@ export async function getAIResponse(
             role: "system",
             content: `You are a helpful AI assistant. ${
               language === "auto"
-                ? "Please detect the language of the user's input and respond in the same language."
-                : `The user's preferred language is ${language}. Regardless of the input language, you must respond in ${language} from now on.`
-            } Always prioritize clear and effective communication.`,
+                ? "Respond in the same language as the user's input."
+                : `Please respond in ${language}.`
+            }`,
           },
           ...conversation,
         ],
