@@ -1,6 +1,6 @@
 import PerfectScrollbar from "perfect-scrollbar";
 import { createSvgIcon } from "./icon";
-import { dragMoveListener, resizeMoveListener } from "./drag";
+import { initDraggable, resizeMoveListener } from "./drag";
 import interact from "interactjs";
 import { getAIResponse, getIsGenerating } from "./api";
 import { setAllowAutoScroll, updateAllowAutoScroll } from "./scrollControl";
@@ -293,41 +293,8 @@ export function createPopup(text, rect, hideQuestion = false) {
 
 // 设置交互功能
 function setupInteractions(popup, dragHandle, aiResponseContainer) {
-  // 使用 requestAnimationFrame 优化拖拽性能
-  let dragAnimationFrame;
-  let lastDragEvent;
-
-  interact(dragHandle).draggable({
-    inertia: {
-      resistance: 3,
-      minSpeed: 100,
-      endSpeed: 50
-    },
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: "body",
-        endOnly: true
-      })
-    ],
-    listeners: {
-      move: (event) => {
-        lastDragEvent = event;
-
-        if (!dragAnimationFrame) {
-          dragAnimationFrame = requestAnimationFrame(() => {
-            if (lastDragEvent) {
-              dragMoveListener(lastDragEvent);
-              lastDragEvent = null;
-            }
-            dragAnimationFrame = null;
-          });
-        }
-      }
-    },
-    autoScroll: false,
-    allowFrom: '.drag-handle',
-    ignoreFrom: '.no-drag'
-  });
+  // 初始化拖拽
+  initDraggable(dragHandle, popup);
 
   // 使用 requestAnimationFrame 优化调整大小性能
   let resizeAnimationFrame;
@@ -383,7 +350,7 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
                   inputContainer.style.bottom = '0';
                   inputContainer.style.width = '100%';
                 }
-              }, 32); // 增加延迟时间以减少更新频率
+              }, 32);
             });
           }
         }

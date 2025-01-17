@@ -76,7 +76,7 @@
 
 /* 组件样式 */
 .theme-adaptive #ai-popup {
-  position: absolute;
+  position: fixed;
   width: 580px;
   height: 380px;
   padding-top: 20px;
@@ -84,23 +84,21 @@
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  z-index: 1000;
+  z-index: 2147483647;
   font-family: Arial, sans-serif;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  will-change: transform, width, height;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  perspective: 1000;
-  -webkit-perspective: 1000;
-  transform-style: preserve-3d;
-  -webkit-transform-style: preserve-3d;
   contain: layout style paint;
   transition: none;
+}
+
+.theme-adaptive #ai-popup.dragging {
+  transition: none !important;
+  pointer-events: none;
+  cursor: grabbing;
 }
 
 .theme-adaptive .drag-handle {
