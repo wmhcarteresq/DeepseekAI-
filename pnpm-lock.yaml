@@ -38,6 +38,9 @@ importers:
       markdown-it-highlightjs:
         specifier: ^4.1.0
         version: 4.1.0
+      markdown-it-katex:
+        specifier: ^2.0.3
+        version: 2.0.3
       markdown-it-mathjax3:
         specifier: ^4.3.2
         version: 4.3.2
@@ -1948,6 +1951,10 @@ packages:
     resolution: {integrity: sha512-pBxcB3LFc8QVgdggvZWyeys+hnrNWg4OcZIU/1X59k5jQdLBlCsYGRQaz234SqoRLTCgMH00fY0xRJH+F9METQ==}
     engines: {node: '>=8'}
 
+  katex@0.6.0:
+    resolution: {integrity: sha512-rS4mY3SvHYg5LtQV6RBcK0if7ur6plyEukAOV+jGGPqFImuzu8fHL6M752iBmRGoUyF0bhZbAPoezehn7xYksA==}
+    hasBin: true
+
   keyv@3.0.0:
     resolution: {integrity: sha512-eguHnq22OE3uVoSYG0LVWNP+4ppamWr9+zWBe1bsNcovIMy6huUJFPgy4mGwCd/rnl3vOLGW1MTlu4c57CT1xA==}
 
@@ -2015,6 +2022,9 @@ packages:
   markdown-it-highlightjs@4.1.0:
     resolution: {integrity: sha512-aYcgme5aYn10BHEvLZaCNgwxU2oaAX9inK9dwCv38wJdq7tal5FzZrLdQQY8MR3I1H07S3BKgYGRX2kKuPT+sA==}
 
+  markdown-it-katex@2.0.3:
+    resolution: {integrity: sha512-nUkkMtRWeg7OpdflamflE/Ho/pWl64Lk9wNBKOmaj33XkQdumhXAIYhI0WO03GeiycPCsxbmX536V5NEXpC3Ng==}
+
   markdown-it-mathjax3@4.3.2:
     resolution: {integrity: sha512-TX3GW5NjmupgFtMJGRauioMbbkGsOXAAt1DZ/rzzYmTHqzkO1rNAdiMD4NiruurToPApn2kYy76x02QN26qr2w==}
 
@@ -2026,6 +2036,9 @@ packages:
     resolution: {integrity: sha512-rqRix3/TWzE9rIoFGIn8JmsVfhiuC8VIQ8IdX5TfzmeBucdY05/0UlzKaw0eVtpcN/OdVFpBk7CjKGo9iHJ/zA==}
     engines: {node: '>= 18'}
     hasBin: true
+
+  match-at@0.1.1:
+    resolution: {integrity: sha512-h4Yd392z9mST+dzc+yjuybOGFNOZjmXIPKWjxBd1Bb23r4SmDOsk2NYCU2BMUBGbSpZqwVsZYNq26QS3xfaT3Q==}
 
   mathjax-full@3.2.2:
     resolution: {integrity: sha512-+LfG9Fik+OuI8SLwsiR02IVdjcnRCy5MufYLi0C3TdMT56L/pjB0alMVGgoWJF8pN9Rc7FESycZB9BMNWIid5w==}
@@ -5442,6 +5455,10 @@ snapshots:
 
   junk@3.1.0: {}
 
+  katex@0.6.0:
+    dependencies:
+      match-at: 0.1.1
+
   keyv@3.0.0:
     dependencies:
       json-buffer: 3.0.0
@@ -5507,6 +5524,10 @@ snapshots:
     dependencies:
       highlight.js: 11.10.0
 
+  markdown-it-katex@2.0.3:
+    dependencies:
+      katex: 0.6.0
+
   markdown-it-mathjax3@4.3.2:
     dependencies:
       juice: 8.1.0
@@ -5524,6 +5545,8 @@ snapshots:
       uc.micro: 2.1.0
 
   marked@13.0.3: {}
+
+  match-at@0.1.1: {}
 
   mathjax-full@3.2.2:
     dependencies:

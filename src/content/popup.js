@@ -17,7 +17,11 @@ function updateLastAnswerIcons() {
     if (iconContainer) {
       const regenerateIcon = iconContainer.querySelector('img[src*="regenerate"]');
       if (regenerateIcon) {
-        regenerateIcon.remove();
+        regenerateIcon.parentElement.remove(); // 移除整个图标包装器
+        // 如果图标容器为空，则隐藏它
+        if (iconContainer.children.length === 0) {
+          iconContainer.style.display = 'none';
+        }
       }
     }
   });
@@ -27,13 +31,22 @@ function updateLastAnswerIcons() {
     const lastAnswer = answers[answers.length - 1];
     const iconContainer = lastAnswer.querySelector('.icon-container');
     if (iconContainer && !iconContainer.querySelector('img[src*="regenerate"]')) {
+      iconContainer.style.display = 'flex'; // 确保图标容器可见
+      const regenerateWrapper = document.createElement("div");
+      regenerateWrapper.className = "icon-wrapper tooltip";
+
       const regenerateIcon = document.createElement("img");
       regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
-      regenerateIcon.style.width = "18px";
-      regenerateIcon.style.height = "18px";
-      regenerateIcon.style.cursor = "pointer";
       regenerateIcon.title = "重新回答";
-      regenerateIcon.addEventListener("click", (event) => {
+
+      const regenerateTooltip = document.createElement("span");
+      regenerateTooltip.className = "tooltiptext";
+      regenerateTooltip.textContent = "重新回答";
+
+      regenerateWrapper.appendChild(regenerateIcon);
+      regenerateWrapper.appendChild(regenerateTooltip);
+
+      regenerateWrapper.addEventListener("click", (event) => {
         event.stopPropagation();
         const userQuestion = lastAnswer.previousElementSibling;
         if (userQuestion && userQuestion.classList.contains("user-question")) {
@@ -62,7 +75,7 @@ function updateLastAnswerIcons() {
           );
         }
       });
-      iconContainer.appendChild(regenerateIcon);
+      iconContainer.appendChild(regenerateWrapper);
     }
   }
 }
@@ -71,6 +84,11 @@ function updateLastAnswerIcons() {
 window.updateLastAnswerIcons = updateLastAnswerIcons;
 
 export function addIconsToElement(element) {
+  // 如果元素没有内容，直接返回不添加图标
+  if (!element.textContent.trim()) {
+    return;
+  }
+
   // 如果已经有图标容器，先移除它
   const existingContainer = element.querySelector('.icon-container');
   if (existingContainer) {
@@ -196,7 +214,7 @@ export function createPopup(text, rect, hideQuestion = false) {
   popup.appendChild(resizeHandle);
 
   aiResponseElement.id = "ai-response";
-  aiResponseElement.style.padding = "10px 40px 0";
+  aiResponseElement.style.padding = "10px 30px 0";
   aiResponseElement.style.fontSize = "14px";
 
   // 只在不隐藏问题时添加问题元素

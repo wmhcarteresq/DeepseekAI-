@@ -901,7 +901,7 @@
 .icon-container {
   position: absolute;
   bottom: -25px;
-  right: -10px;
+  right: -5px;
   display: none;
   gap: 2px;
   align-items: center;
