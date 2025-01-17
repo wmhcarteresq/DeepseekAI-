@@ -1068,39 +1068,64 @@
 }
 
 /* 数学公式样式 */
-.theme-adaptive .ai-answer .MathJax {
-  overflow-x: auto;
-  overflow-y: hidden;
-  max-width: 100%;
-  padding: 2px 0;
+.theme-adaptive .ai-answer .MathJax,
+.theme-adaptive .ai-answer .MathJax_SVG,
+.theme-adaptive .ai-answer .MathJax_Display,
+.theme-adaptive .ai-answer mjx-container {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  padding: 1px 0;
   margin: 0 2px;
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
 }
 
-.theme-adaptive .ai-answer .MathJax::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+/* 数学公式滚动条样式 */
+.theme-adaptive .ai-answer mjx-container::-webkit-scrollbar,
+.theme-adaptive .ai-answer .MathJax::-webkit-scrollbar,
+.theme-adaptive .ai-answer .MathJax_SVG::-webkit-scrollbar,
+.theme-adaptive .ai-answer .MathJax_Display::-webkit-scrollbar {
+  height: 1px !important;
+}
+
+.theme-adaptive .ai-answer mjx-container::-webkit-scrollbar-thumb,
+.theme-adaptive .ai-answer .MathJax::-webkit-scrollbar-thumb,
+.theme-adaptive .ai-answer .MathJax_SVG::-webkit-scrollbar-thumb,
+.theme-adaptive .ai-answer .MathJax_Display::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 2px;
+  opacity: 0.3;
+}
+
+/* Firefox 滚动条样式 */
+.theme-adaptive .ai-answer mjx-container,
+.theme-adaptive .ai-answer .MathJax,
+.theme-adaptive .ai-answer .MathJax_SVG,
+.theme-adaptive .ai-answer .MathJax_Display {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 /* 行内公式样式 */
-.theme-adaptive .ai-answer .MathJax[display="false"] {
+.theme-adaptive .ai-answer .MathJax[display="false"],
+.theme-adaptive .ai-answer mjx-container[display="false"] {
   display: inline-block !important;
-  vertical-align: middle;
+  vertical-align: middle !important;
 }
 
 /* 块级公式样式 */
-.theme-adaptive .ai-answer .MathJax[display="true"] {
+.theme-adaptive .ai-answer .MathJax[display="true"],
+.theme-adaptive .ai-answer mjx-container[display="true"] {
   display: block !important;
-  margin: 8px 0;
+  margin: 8px 0 !important;
 }
 
 /* 优化公式渲染过程 */
 .theme-adaptive .ai-answer .MathJax-Processing {
-  visibility: hidden;
+  visibility: hidden !important;
 }
 
 .theme-adaptive .ai-answer .MathJax-Processed {
-  visibility: visible;
-  transition: visibility 0s;
+  visibility: visible !important;
+  transition: visibility 0s !important;
 }
 
