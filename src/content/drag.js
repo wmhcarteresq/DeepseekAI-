@@ -4,6 +4,7 @@ export function dragMoveListener(event) {
   const y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
 
   target.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  target.style.willChange = 'transform';
 
   requestAnimationFrame(() => {
     target.setAttribute("data-x", x);
@@ -16,20 +17,18 @@ export function resizeMoveListener(event) {
   x = (parseFloat(x) || 0) + event.deltaRect.left;
   y = (parseFloat(y) || 0) + event.deltaRect.top;
 
-  const style = event.target.style;
+  const target = event.target;
   const width = `${event.rect.width}px`;
   const height = `${event.rect.height}px`;
 
   requestAnimationFrame(() => {
-    style.setProperty('--popup-width', width);
-    style.setProperty('--popup-height', height);
-    style.width = 'var(--popup-width)';
-    style.height = 'var(--popup-height)';
-    style.transform = `translate3d(${x}px, ${y}px, 0)`;
-  });
-
-  requestAnimationFrame(() => {
-    event.target.dataset.x = x;
-    event.target.dataset.y = y;
+    target.style.willChange = 'transform, width, height';
+    target.style.setProperty('--popup-width', width);
+    target.style.setProperty('--popup-height', height);
+    target.style.width = 'var(--popup-width)';
+    target.style.height = 'var(--popup-height)';
+    target.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    target.dataset.x = x;
+    target.dataset.y = y;
   });
 }

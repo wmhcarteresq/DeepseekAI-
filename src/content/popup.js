@@ -299,9 +299,9 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
 
   interact(dragHandle).draggable({
     inertia: {
-      resistance: 5,
-      minSpeed: 200,
-      endSpeed: 100
+      resistance: 3,
+      minSpeed: 100,
+      endSpeed: 50
     },
     modifiers: [
       interact.modifiers.restrictRect({
@@ -339,9 +339,9 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
       edges: { left: true, right: true, bottom: true, top: true },
       margin: 5,
       inertia: {
-        resistance: 5,
-        minSpeed: 200,
-        endSpeed: 100
+        resistance: 3,
+        minSpeed: 100,
+        endSpeed: 50
       },
       modifiers: [
         interact.modifiers.restrictSize({
@@ -383,7 +383,7 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
                   inputContainer.style.bottom = '0';
                   inputContainer.style.width = '100%';
                 }
-              }, 16);
+              }, 32); // 增加延迟时间以减少更新频率
             });
           }
         }
@@ -647,7 +647,11 @@ export function stylePopup(popup, rect) {
     "-moz-user-select": "none",
     "-ms-user-select": "none",
     border: "1px solid var(--border-color)",
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+    transition: "transform 0.05s cubic-bezier(0.4, 0, 0.2, 1)",
+    willChange: "transform, width, height",
+    backfaceVisibility: "hidden",
+    perspective: "1000px",
+    transformStyle: "preserve-3d"
   });
 
   const { adjustedX, adjustedY } = adjustPopupPosition(rect, popup);
