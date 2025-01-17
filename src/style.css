@@ -7,8 +7,8 @@
   --text-secondary: #737373;
 
   /* 交互元素 */
-  --accent-color: #007AFF;
-  --accent-hover: #0063CC;
+  --accent-color: #007aff;
+  --accent-hover: #0063cc;
   --border-color: rgba(0, 0, 0, 0.08);
   --divider-color: rgba(0, 0, 0, 0.06);
 
@@ -16,7 +16,7 @@
   --header-bg: rgba(239, 239, 239, 0.85);
   --input-bg: rgba(255, 255, 255, 0.9);
   --ai-answer-bg: rgba(255, 255, 255, 0.6);
-  --user-question-bg: #007AFF;
+  --user-question-bg: #007aff;
   --code-block-bg: rgba(250, 250, 250, 0.8);
 
   /* 滚动条 */
@@ -41,12 +41,12 @@
   /* 基础颜色 */
   --bg-primary: rgba(32, 32, 32, 0.8);
   --bg-secondary: rgba(40, 40, 40, 0.75);
-  --text-primary: #E4E4E4;
-  --text-secondary: #A1A1A1;
+  --text-primary: #e4e4e4;
+  --text-secondary: #a1a1a1;
 
   /* 交互元素 */
-  --accent-color: #0A84FF;
-  --accent-hover: #409CFF;
+  --accent-color: #0a84ff;
+  --accent-hover: #409cff;
   --border-color: rgba(255, 255, 255, 0.08);
   --divider-color: rgba(255, 255, 255, 0.06);
 
@@ -54,7 +54,7 @@
   --header-bg: rgba(40, 40, 40, 0.85);
   --input-bg: rgba(50, 50, 50, 0.9);
   --ai-answer-bg: rgba(45, 45, 45, 0.6);
-  --user-question-bg: #0A84FF;
+  --user-question-bg: #0a84ff;
   --code-block-bg: rgba(35, 35, 35, 0.8);
 
   /* 滚动条 */
@@ -113,7 +113,7 @@
 /* 调整滚动条位置，避免与 resize 手柄冲突 */
 .ps__rail-y {
   width: 6px !important;
-  right: 20px !important;  /* 为 resize 手柄留出空间 */
+  right: 20px !important; /* 为 resize 手柄留出空间 */
   left: auto !important;
   background-color: transparent !important;
   opacity: 0 !important;
@@ -123,7 +123,7 @@
 
 /* 调整内容区域右侧边距 */
 #ai-response {
-  padding-right: 35px !important;  /* 为滚动条和 resize 手柄留出空间 */
+  padding-right: 35px !important; /* 为滚动条和 resize 手柄留出空间 */
 }
 
 /* 确保内容容器不会溢出 */
@@ -138,7 +138,7 @@
 }
 
 .theme-adaptive #ai-response-container::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .theme-adaptive .user-question {
@@ -148,10 +148,6 @@
   border-radius: 12px;
   max-width: 85%;
   box-shadow: var(--shadow-sm);
-}
-.user-question p{
-  margin-block-start: 0.5em;
-  margin-block-end: 0.5em;
 }
 
 .theme-adaptive .ai-answer {
@@ -220,13 +216,13 @@
 /* 代码自动换行样式 */
 .code-wrap,
 .code-wrap code {
-  white-space: pre-wrap !important;       /* 保留空格，允许换行 */
-  word-wrap: break-word !important;       /* 允许单词内换行 */
-  word-break: break-all !important;       /* 在任意字符处换行 */
-  tab-size: 2 !important;                 /* 设置制表符宽度 */
+  white-space: pre-wrap !important; /* 保留空格，允许换行 */
+  word-wrap: break-word !important; /* 允许单词内换行 */
+  word-break: break-all !important; /* 在任意字符处换行 */
+  tab-size: 2 !important; /* 设置制表符宽度 */
   -moz-tab-size: 2 !important;
-  max-width: 100% !important;             /* 确保不超出容器宽度 */
-  overflow-x: visible !important;         /* 允许内容完全显示 */
+  max-width: 100% !important; /* 确保不超出容器宽度 */
+  overflow-x: visible !important; /* 允许内容完全显示 */
 }
 
 /* 移除所有与横向滚动相关的样式 */
@@ -265,7 +261,7 @@
   font-family: "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", monospace;
   font-size: 14px;
   line-height: 1.5;
-  tab-size: 2;                /* 设置制表符宽度 */
+  tab-size: 2; /* 设置制表符宽度 */
   -moz-tab-size: 2;
 }
 
@@ -402,7 +398,7 @@
   margin: 0;
   padding: 16px;
   padding-bottom: 20px;
-  overflow: visible;           /* 改为 visible，不需要滚动 */
+  overflow: visible; /* 改为 visible，不需要滚动 */
 }
 
 /* 复制按钮样式 */
@@ -444,23 +440,23 @@
 
 /* 隐藏原生滚动条但保持滚动功能 */
 #ai-response-container {
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
 #ai-response-container::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* PerfectScrollbar 样式 */
 .ps__rail-y {
   width: 6px !important;
-  right: 6px !important;  /* 移动滚动条，为 resize 手柄留出空间 */
+  right: 6px !important; /* 移动滚动条，为 resize 手柄留出空间 */
   left: auto !important;
   background-color: transparent !important;
   opacity: 0 !important;
   transition: opacity 0.2s ease !important;
-  z-index: 10;  /* 确保滚动条在上层 */
+  z-index: 10; /* 确保滚动条在上层 */
 }
 
 /* resize 手柄样式 */
@@ -470,17 +466,16 @@
 
 /* 自定义 resize 手柄区域 */
 .theme-adaptive #ai-popup::after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0;
   bottom: 0;
   width: 15px;
   height: 15px;
   cursor: se-resize;
-  background:
-    linear-gradient(135deg, transparent 50%, var(--border-color) 50%),
+  background: linear-gradient(135deg, transparent 50%, var(--border-color) 50%),
     linear-gradient(135deg, transparent 55%, var(--bg-secondary) 55%);
-  z-index: 9;  /* 确保在滚动条下层 */
+  z-index: 9; /* 确保在滚动条下层 */
 }
 
 /* 调整滚动条悬浮样式 */
@@ -497,13 +492,12 @@
 
 /* 调整内容区域右侧边距 */
 #ai-response {
-  padding-right: 20px !important;  /* 为滚动条留出空间 */
+  padding-right: 20px !important; /* 为滚动条留出空间 */
 }
 
 /* 确保 resize 手柄在暗色模式下也可见 */
 .theme-adaptive.dark-mode #ai-popup::after {
-  background:
-    linear-gradient(135deg, transparent 50%, var(--border-color) 50%),
+  background: linear-gradient(135deg, transparent 50%, var(--border-color) 50%),
     linear-gradient(135deg, transparent 55%, var(--bg-secondary) 55%);
 }
 
@@ -630,10 +624,8 @@
 /* 添加主题切换时的过渡效果 */
 .theme-adaptive,
 .theme-adaptive * {
-  transition: background-color 0.3s ease,
-              color 0.3s ease,
-              border-color 0.3s ease,
-              box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* 确保滚动条样式也随主题切换 */
@@ -695,7 +687,7 @@
   margin: 0;
   padding: 16px;
   padding-bottom: 20px;
-  overflow: visible;           /* 改为 visible，不需要滚动 */
+  overflow: visible; /* 改为 visible，不需要滚动 */
 }
 
 .icon-container {
@@ -708,11 +700,16 @@
   z-index: 1;
 }
 
-.user-question, .ai-answer {
+.user-question,
+.ai-answer {
   position: relative;
   padding-right: 15px !important;
   /* padding-bottom: 35px !important; */
   margin: 5px 0;
+}
+.ai-answer p, .user-question p {
+  margin-block-start: 0;
+  margin-block-end: 0;
 }
 
 .icon-wrapper {
@@ -780,7 +777,7 @@
 
 /* 用户问题中的图标样式 */
 .user-question .icon-container img {
-  filter: brightness(10) !important;  /* 确保在蓝色背景上显示白色图标 */
+  filter: brightness(10) !important; /* 确保在蓝色背景上显示白色图标 */
   opacity: 0.8;
 }
 
@@ -792,9 +789,9 @@
 
 /* 图标点击效果 */
 .icon-container img:active {
-  transform: scale(0.7);  /* 增大缩放效果 */
-  opacity: 0.5;  /* 增强透明度变化 */
-  transition: all 0.1s ease;  /* 加快动画速度 */
+  transform: scale(0.7); /* 增大缩放效果 */
+  opacity: 0.5; /* 增强透明度变化 */
+  transition: all 0.1s ease; /* 加快动画速度 */
 }
 
 /* 代码块容器样式 */
@@ -810,7 +807,7 @@
   margin: 0;
   padding: 16px;
   padding-bottom: 20px;
-  overflow: visible;           /* 改为 visible，不需要滚动 */
+  overflow: visible; /* 改为 visible，不需要滚动 */
 }
 
 /* 代码块的横向滚动条样式 */
@@ -1004,7 +1001,8 @@
 }
 
 @keyframes loading-breathe {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
     transform: translateY(-50%) scale(0.95);
   }
@@ -1014,3 +1012,29 @@
   }
 }
 
+/* 图标样式优化 */
+.theme-adaptive .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.theme-adaptive .icon-button:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  opacity: 1;
+}
+
+.theme-adaptive .icon-button svg {
+  width: 16px;
+  height: 16px;
+}
