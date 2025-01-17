@@ -430,20 +430,35 @@ function createQuestionInputContainer(aiResponseContainer) {
 
   function adjustHeight(element) {
     requestAnimationFrame(() => {
-      element.style.height = "auto";
-      element.style.height = element.scrollHeight + "px";
+      // 先将高度设置为默认值，以便正确计算 scrollHeight
+      element.style.height = "40px";
+      // 如果内容为空，保持默认高度
+      if (element.value.trim() === "") {
+        element.style.height = "40px";
+        element.style.minHeight = "40px";
+      } else {
+        // 否则根据内容调整高度
+        element.style.height = element.scrollHeight + "px";
+        element.style.minHeight = "60px";
+      }
     });
   }
 
   textarea.addEventListener("input", function(e) {
     if (!isComposing) {
-      requestAnimationFrame(() => adjustHeight(this));
+      adjustHeight(this);
     }
-  }, { passive: true });
+  });
 
   // 处理键盘事件
   textarea.addEventListener("keydown", function(e) {
-    if (e.metaKey || e.ctrlKey || isComposing) {
+    // 如果是组合键（如 Command+A），不要阻止默认行为
+    if (e.metaKey || e.ctrlKey) {
+      return;
+    }
+
+    // 如果正在输入中文，不要处理 Enter 键
+    if (isComposing) {
       return;
     }
 
@@ -489,41 +504,9 @@ function createQuestionInputContainer(aiResponseContainer) {
     adjustHeight(this);
   });
 
-  // 添加一个独立的高度调整函数
-  function adjustHeight(element) {
-    element.style.height = "auto";
-    element.style.height = element.scrollHeight + "px";
-  }
-
-  textarea.addEventListener("input", function(e) {
-    if (!isComposing) {
-      adjustHeight(this);
-    }
-  });
-
-  // 处理键盘事件
-  textarea.addEventListener("keydown", function(e) {
-    // 如果是组合键（如 Command+A），不要阻止默认行为
-    if (e.metaKey || e.ctrlKey) {
-      return;
-    }
-
-    // 如果正在输入中文，不要处理 Enter 键
-    if (isComposing) {
-      return;
-    }
-
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (!getIsGenerating()) {
-        sendQuestion();
-      }
-    }
-  });
-
-  // 设置固定高度
-  textarea.style.height = "60px";
-  textarea.style.minHeight = "60px";
+  // 设置初始高度
+  textarea.style.height = "40px";
+  textarea.style.minHeight = "40px";
   textarea.style.maxHeight = "120px";
 
   // 注释掉这些事件监听器，看是否是它们导致的问题
