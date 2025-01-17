@@ -97,7 +97,13 @@ export function addIconsToElement(element) {
 
   copyWrapper.addEventListener("click", (event) => {
     event.stopPropagation();
-    navigator.clipboard.writeText(element.textContent).then(() => {
+    // 直接获取文本内容，排除图标容器
+    const textContent = Array.from(element.childNodes)
+      .filter(node => !node.classList || !node.classList.contains('icon-container'))
+      .map(node => node.textContent)
+      .join('');
+
+    navigator.clipboard.writeText(textContent).then(() => {
       copyIcon.style.transform = "scale(1.2)";
       setTimeout(() => {
         copyIcon.style.transform = "";
@@ -287,53 +293,101 @@ export function createPopup(text, rect, hideQuestion = false) {
 
 // 设置交互功能
 function setupInteractions(popup, dragHandle, aiResponseContainer) {
+  // 使用 requestAnimationFrame 优化拖拽性能
+  let dragAnimationFrame;
+  let lastDragEvent;
+
   interact(dragHandle).draggable({
-    inertia: true,
+    inertia: {
+      resistance: 5,
+      minSpeed: 200,
+      endSpeed: 100
+    },
     modifiers: [
-      interact.modifiers.restrictRect({ restriction: "body", endOnly: true }),
+      interact.modifiers.restrictRect({
+        restriction: "body",
+        endOnly: true
+      })
     ],
-    listeners: { move: dragMoveListener },
+    listeners: {
+      move: (event) => {
+        lastDragEvent = event;
+
+        if (!dragAnimationFrame) {
+          dragAnimationFrame = requestAnimationFrame(() => {
+            if (lastDragEvent) {
+              dragMoveListener(lastDragEvent);
+              lastDragEvent = null;
+            }
+            dragAnimationFrame = null;
+          });
+        }
+      }
+    },
     autoScroll: false,
     allowFrom: '.drag-handle',
     ignoreFrom: '.no-drag'
   });
 
+  // 使用 requestAnimationFrame 优化调整大小性能
+  let resizeAnimationFrame;
+  let lastResizeEvent;
+  let resizeTimeout;
+
   interact(popup)
     .resizable({
       edges: { left: true, right: true, bottom: true, top: true },
       margin: 5,
+      inertia: {
+        resistance: 5,
+        minSpeed: 200,
+        endSpeed: 100
+      },
       modifiers: [
         interact.modifiers.restrictSize({
           min: { width: 300, height: 200 },
-          max: { width: 900, height: 800 },
-        }),
+          max: { width: 900, height: 800 }
+        })
       ],
       listeners: {
         move: (event) => {
-          resizeMoveListener(event);
+          lastResizeEvent = event;
 
-          requestAnimationFrame(() => {
-            if (aiResponseContainer) {
-              // 更新容器高度
-              aiResponseContainer.style.height = `calc(${event.rect.height}px - 60px)`;
-
-              // 使用已存在的 PerfectScrollbar 实例
-              if (aiResponseContainer.perfectScrollbar) {
-                aiResponseContainer.perfectScrollbar.update();
+          if (!resizeAnimationFrame) {
+            resizeAnimationFrame = requestAnimationFrame(() => {
+              if (lastResizeEvent) {
+                resizeMoveListener(lastResizeEvent);
+                lastResizeEvent = null;
               }
-            }
+              resizeAnimationFrame = null;
 
-            // 更新输入框容器位置
-            const inputContainer = popup.querySelector('.input-container-wrapper');
-            if (inputContainer) {
-              inputContainer.style.position = 'absolute';
-              inputContainer.style.bottom = '0';
-              inputContainer.style.width = '100%';
-            }
-          });
+              // 使用防抖优化滚动条更新
+              if (resizeTimeout) {
+                clearTimeout(resizeTimeout);
+              }
+
+              resizeTimeout = setTimeout(() => {
+                if (aiResponseContainer) {
+                  aiResponseContainer.style.height = `calc(${event.rect.height}px - 60px)`;
+
+                  if (aiResponseContainer.perfectScrollbar) {
+                    requestAnimationFrame(() => {
+                      aiResponseContainer.perfectScrollbar.update();
+                    });
+                  }
+                }
+
+                const inputContainer = popup.querySelector('.input-container-wrapper');
+                if (inputContainer) {
+                  inputContainer.style.position = 'absolute';
+                  inputContainer.style.bottom = '0';
+                  inputContainer.style.width = '100%';
+                }
+              }, 16);
+            });
+          }
         }
       },
-      inertia: true,
       autoScroll: false
     });
 }

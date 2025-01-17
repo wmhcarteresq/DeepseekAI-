@@ -91,12 +91,29 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
+  will-change: transform, width, height;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  contain: layout style paint;
+  transition: none;
 }
 
 .theme-adaptive .drag-handle {
   background-color: var(--header-bg);
   color: var(--text-primary);
   border-bottom: 1px solid var(--divider-color);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  contain: layout style paint;
 }
 
 /* 右下角 resize 手柄样式 */
@@ -119,6 +136,13 @@
   opacity: 0 !important;
   transition: opacity 0.2s ease !important;
   z-index: 10;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* 调整内容区域右侧边距 */
@@ -135,6 +159,12 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   position: relative;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000;
+  -webkit-perspective: 1000;
 }
 
 .theme-adaptive #ai-response-container::-webkit-scrollbar {
@@ -142,22 +172,57 @@
 }
 
 .theme-adaptive .user-question {
-  background-color: var(--user-question-bg);
+  background-color: var(--accent-color);
   color: white;
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: 18px 18px 4px 18px;
   max-width: 85%;
+  margin-left: auto;
+  margin-right: 10px;
   box-shadow: var(--shadow-sm);
+  position: relative;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .theme-adaptive .ai-answer {
   background-color: var(--ai-answer-bg);
   color: var(--text-primary);
   padding: 8px 12px;
-  border-radius: 12px;
+  border-radius: 18px 18px 18px 4px;
   max-width: 85%;
+  margin-right: auto;
+  margin-left: 10px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 1em;
+  position: relative;
+  word-wrap: break-word;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* 调整消息内容的间距 */
+.user-question p, .ai-answer p {
+  margin: 0;
+  padding: 0;
+}
+
+/* 调整连续消息的间距 */
+.user-question + .user-question,
+.ai-answer + .ai-answer {
+  margin-top: 2px;
+}
+
+/* 不同类型消息之间的间距 */
+.user-question + .ai-answer,
+.ai-answer + .user-question {
+  margin-top: 10px;
+}
+
+/* 优化暗色模式下的样式 */
+.theme-adaptive.dark-mode .ai-answer {
+  background-color: var(--ai-answer-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 /* 输入框样式 */
@@ -690,15 +755,6 @@
   overflow: visible; /* 改为 visible，不需要滚动 */
 }
 
-.icon-container {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  display: none;
-  gap: 8px;
-  align-items: center;
-  z-index: 1;
-}
 
 .user-question,
 .ai-answer {
@@ -756,14 +812,7 @@
   opacity: 1;
 }
 
-/* 图标样式 */
-.icon-container img {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.6;
-}
+
 
 /* 日间模式图标样式 */
 .theme-adaptive.light-mode .icon-container img {
@@ -853,22 +902,26 @@
 /* 图标容器样式 */
 .icon-container {
   position: absolute;
-  bottom: 6px;
-  right: 8px;
+  bottom: -25px;
+  right: -10px;
   display: none;
-  gap: 6px;
+  gap: 2px;
   align-items: center;
   z-index: 1;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 2px 4px;
+  border-radius: 8px;
   background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 0.5px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.icon-container:hover {
-  background-color: var(--input-bg);
+/* 用户消息中的图标容器样式 */
+.user-question .icon-container {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* 图标包装器样式 */
@@ -877,21 +930,17 @@
   align-items: center;
   justify-content: center;
   padding: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
-.icon-wrapper:hover {
-  background-color: var(--bg-primary);
-}
-
-/* 图标样式 */
+/* 图标基础样式 */
 .icon-container img {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  transition: all 0.2s ease;
+  cursor: pointer;
   opacity: 0.6;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 日间模式图标样式 */
@@ -904,60 +953,41 @@
   filter: invert(1) brightness(0.9);
 }
 
-/* 用户问题中的图标样式 */
-.user-question .icon-container {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.1);
+/* 用户消息中的图标样式 */
+.user-question .icon-container img {
+  filter: brightness(10);
+  opacity: 0.9;
 }
 
-.user-question .icon-container:hover {
+/* 图标悬浮效果 */
+.icon-wrapper:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+.user-question .icon-wrapper:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-.user-question .icon-container img {
-  filter: brightness(10) !important;
-  opacity: 0.8;
+.theme-adaptive.dark-mode .icon-wrapper:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* 图标悬浮和点击效果 */
-.icon-container img:hover {
-  opacity: 1;
-  transform: scale(1.1);
+/* 图标点击效果 */
+.icon-wrapper:active {
+  transform: scale(0.92);
+  opacity: 0.6;
 }
 
-.icon-container img:active {
-  transform: scale(0.9);
-  opacity: 0.5;
-  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 工具提示样式 */
+/* 工具提示样式优化 */
 .tooltip .tooltiptext {
   font-size: 12px;
-  visibility: hidden;
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  text-align: center;
-  padding: 6px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
-  position: absolute;
-  z-index: 2;
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  opacity: 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-  transform: translateX(-50%) translateY(-2px);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* 发送按钮样式 */
