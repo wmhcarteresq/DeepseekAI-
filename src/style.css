@@ -1067,56 +1067,40 @@
   height: 16px;
 }
 
-/* 添加数学公式渲染的过渡效果 */
-.math-tex {
+/* 数学公式样式 */
+.theme-adaptive .ai-answer .MathJax {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding: 2px 0;
+  margin: 0 2px;
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.theme-adaptive .ai-answer .MathJax::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* 行内公式样式 */
+.theme-adaptive .ai-answer .MathJax[display="false"] {
+  display: inline-block !important;
+  vertical-align: middle;
+}
+
+/* 块级公式样式 */
+.theme-adaptive .ai-answer .MathJax[display="true"] {
+  display: block !important;
+  margin: 8px 0;
+}
+
+/* 优化公式渲染过程 */
+.theme-adaptive .ai-answer .MathJax-Processing {
   visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s, opacity 0.2s ease;
 }
 
-.math-tex.mathjax-rendered {
+.theme-adaptive .ai-answer .MathJax-Processed {
   visibility: visible;
-  opacity: 1;
+  transition: visibility 0s;
 }
 
-/* 添加数学公式的占位样式 */
-.math-placeholder {
-  display: inline-block;
-  min-height: 1.2em;
-  min-width: 50px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 0.3;
-  }
-}
-
-/* 数学公式占位符 */
-.math-tex::before {
-  content: '';
-  display: inline-block;
-  min-width: 20px;
-  min-height: 1em;
-  background: var(--bg-secondary);
-  border-radius: 2px;
-  animation: pulse 1s infinite;
-}
-
-.math-tex.mathjax-rendered::before {
-  display: none;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.4; }
-}

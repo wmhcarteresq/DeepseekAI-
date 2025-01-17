@@ -48,12 +48,39 @@ const mathjaxOptions = {
     displayMath: [['$$', '$$']],
     processEscapes: true,
     processEnvironments: true,
-    packages: ['base', 'ams', 'noerrors', 'noundefined']
+    packages: ['base', 'ams', 'noerrors', 'noundefined'],
+    processRefs: true,
+    processEscapes: true
   },
   options: {
     skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
     ignoreHtmlClass: 'tex2jax_ignore',
     processHtmlClass: 'tex2jax_process'
+  },
+  startup: {
+    typeset: false,  // 禁用自动渲染
+    ready: () => {
+      MathJax.startup.defaultReady();
+      MathJax.startup.promise.then(() => {
+        // 设置渲染选项
+        MathJax.config.options.renderActions = {
+          addMenu: [],  // 禁用右键菜单
+          checkLoading: [],  // 禁用加载检查
+          find: [
+            'find',  // 名称
+            'find',  // 动作
+            '(doc) => doc.findMath()',  // 函数
+            true  // 延迟
+          ],
+          typeset: [
+            'typeset',  // 名称
+            'typeset',  // 动作
+            '(math, doc) => math.typesetRoot = doc.typesetRoot',  // 函数
+            false  // 不延迟
+          ]
+        };
+      });
+    }
   }
 };
 
