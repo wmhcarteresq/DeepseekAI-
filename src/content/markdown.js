@@ -7,20 +7,10 @@ import mathjax3 from "markdown-it-mathjax3";
 // 创建预处理函数
 function preprocessMath(text) {
   // 替换块级公式 \[...\] 为 $$...$$
-  text = text.replace(/\\?\[([^]*?)\\?\]/g, (match, p1) => {
-    if (match.startsWith('\\[') && match.endsWith('\\]')) {
-      return `$$${p1}$$`;
-    }
-    return match;
-  });
+  text = text.replace(/\\\[(.*?)\\\]/gs, (_, p1) => `$$${p1}$$`);
 
   // 替换行内公式 \(...\) 为 $...$
-  text = text.replace(/\\?\((.*?)\\?\)/g, (match, p1) => {
-    if (match.startsWith('\\(') && match.endsWith('\\)')) {
-      return `$${p1}$`;
-    }
-    return match;
-  });
+  text = text.replace(/\\\((.*?)\\\)/gs, (_, p1) => `$${p1}$`);
 
   return text;
 }

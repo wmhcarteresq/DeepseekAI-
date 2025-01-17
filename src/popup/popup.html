@@ -250,6 +250,42 @@
           background-color: rgba(10, 132, 255, 0.2);
         }
       }
+
+      .help-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .help-link {
+          border-top-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      .help-link a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #0a84ff;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+
+      .help-link a:hover {
+        background-color: rgba(10, 132, 255, 0.1);
+      }
+
+      .help-link svg {
+        width: 16px;
+        height: 16px;
+      }
     </style>
   </head>
   <body>
@@ -312,6 +348,16 @@
             默认快捷键：Mac 为 Command + Shift + D，Windows/Linux 为 Ctrl + Shift + D。点击上方按钮可自定义快捷键。
           </div>
         </div>
+      </div>
+      <div class="help-link">
+        <a href="#" id="instructionsLink">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12" y2="17"></line>
+          </svg>
+          使用说明
+        </a>
       </div>
     </div>
     <script src="popup.js"></script>

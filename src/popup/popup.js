@@ -86,15 +86,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // 打开扩展管理页面
     chrome.tabs.create({
       url: "chrome://extensions/shortcuts"
-    }
-    );
+    });
   });
 
-  // 处理快捷键设置链接点击
-  document.getElementById('shortcutSettingsLink').addEventListener('click', (e) => {
+  // 处理使用说明链接点击
+  document.getElementById('instructionsLink').addEventListener('click', (e) => {
     e.preventDefault();
+    const instructionsUrl = chrome.runtime.getURL('Instructions.html');
     chrome.tabs.create({
-      url: 'chrome://extensions/shortcuts'
+      url: instructionsUrl
     });
   });
 });

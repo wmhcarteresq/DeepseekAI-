@@ -38,9 +38,9 @@
         "icons/close.svg",
         "icons/closeClicked.svg",
         "icons/regenerate.svg",
-        "fonts/*"
+        "fonts/*",
+        "Instructions.html"
       ],
-
       "matches": ["<all_urls>"]
     }
   ],

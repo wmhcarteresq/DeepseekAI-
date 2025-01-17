@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek AI 使用说明</title>
+    <style>
+        :root {
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --background-primary: #ffffff;
+            --background-secondary: #f5f5f7;
+            --accent-color: #0071e3;
+            --border-color: #d2d2d7;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #f5f5f7;
+                --text-secondary: #a1a1a6;
+                --background-primary: #1d1d1f;
+                --background-secondary: #2c2c2e;
+                --border-color: #424245;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            color: var(--text-primary);
+            background-color: var(--background-primary);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.003em;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 40px 0 20px;
+            letter-spacing: -0.002em;
+        }
+
+        h3 {
+            font-size: 21px;
+            font-weight: 600;
+            margin: 30px 0 15px;
+        }
+
+        p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature-item {
+            background: var(--background-secondary);
+            border-radius: 18px;
+            padding: 24px;
+        }
+
+        .feature-item h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        .feature-item p {
+            margin-bottom: 0;
+            font-size: 15px;
+        }
+
+        .installation {
+            background: var(--background-secondary);
+            border-radius: 18px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+
+        .installation ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .installation li {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        code {
+            font-family: "SF Mono", monospace;
+            background: var(--background-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .tip {
+            border-left: 4px solid var(--accent-color);
+            padding: 16px 24px;
+            margin: 24px 0;
+            background: var(--background-secondary);
+        }
+
+        .tip p {
+            margin: 0;
+            font-size: 15px;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .link-item {
+            display: block;
+            padding: 24px;
+            background: var(--background-secondary);
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .link-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .link-item h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+        }
+
+        .link-item p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .usage-section {
+            margin: 30px 0;
+        }
+
+        .usage-item {
+            background: var(--background-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .usage-item h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        .usage-item p {
+            margin: 0;
+        }
+
+        .features-section {
+            margin: 30px 0;
+        }
+
+        .feature-row {
+            background: var(--background-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .feature-row h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        .feature-row p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+
+        button.link-item {
+            font-family: inherit;
+            font-size: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>DeepSeek AI 使用说明</h1>
+            <p>让 AI 助手为您的网页浏览体验增添智慧</p>
+        </div>
+
+        <section class="installation">
+            <h2>快速开始</h2>
+            <div class="links-grid">
+                <a href="https://chromewebstore.google.com/detail/deepseek-ai/bjjobdlpgglckcmhgmmecijpfobmcpap" class="link-item" target="_blank">
+                    <h3>Chrome 商店安装</h3>
+                    <p>从 Chrome 网上应用店安装扩展</p>
+                </a>
+                <a href="https://microsoftedge.microsoft.com/addons/Microsoft-Edge-Extensions-Home" class="link-item" target="_blank">
+                    <h3>Edge 商店安装</h3>
+                    <p>从 Edge 网上应用店安装扩展</p>
+                </a>
+                <a href="https://chat.deepseek.com/" class="link-item" target="_blank">
+                    <h3>DeepSeek 官网</h3>
+                    <p>访问 DeepSeek AI 官方网站</p>
+                </a>
+                <a href="https://platform.deepseek.com/api_keys" class="link-item" target="_blank">
+                    <h3>获取 API Key</h3>
+                    <p>在 DeepSeek 平台获取您的 API 密钥</p>
+                </a>
+                <a href="#" class="link-item" id="shortcuts-link">
+                    <h3>快捷键设置</h3>
+                    <p>自定义扩展快捷键</p>
+                </a>
+                <a href="https://github.com/DeepLifeStudio/DeepSeekAI" class="link-item" target="_blank">
+                    <h3>GitHub 仓库</h3>
+                    <p>查看源代码和提交建议</p>
+                </a>
+            </div>
+            <ol>
+                <li>在浏览器中安装 DeepSeek AI 扩展</li>
+                <li>点击工具栏中的扩展图标</li>
+                <li>输入您的 DeepSeek API 密钥</li>
+                <li>选择您偏好的回答语言</li>
+                <li>在任意网页上选择文本，开始与 AI 对话！</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>使用方法</h2>
+            <div class="usage-section">
+                <div class="usage-item">
+                    <h3>文本选择使用</h3>
+                    <p>在网页上选中任意文本后，点击旁边的 DeepSeek 图标，即可呼出对话窗口，获取智能回答。</p>
+                </div>
+                <div class="usage-item">
+                    <h3>快捷键使用</h3>
+                    <p>无论是否选中文本，都可以直接使用快捷键 <code>Ctrl+Shift+D</code>（Windows）或 <code>Command+Shift+D</code>（Mac）呼出对话窗口。</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>功能特点</h2>
+            <div class="features-section">
+                <div class="feature-row">
+                    <h3>智能对话</h3>
+                    <p>• 支持多轮对话，记住上下文</p>
+                    <p>• 实时流式响应，打字机效果</p>
+                    <p>• 支持重新生成回答</p>
+                </div>
+                <div class="feature-row">
+                    <h3>界面交互</h3>
+                    <p>• 可拖拽调整窗口位置和大小</p>
+                    <p>• 支持 Markdown 格式化显示</p>
+                    <p>• 支持 LaTeX 数学公式渲染</p>
+                    <p>• 代码块一键复制</p>
+                </div>
+                <div class="feature-row">
+                    <h3>个性化设置</h3>
+                    <p>• 自定义语言偏好</p>
+                    <p>• 深色模式自动适配</p>
+                    <p>• 可配置快捷键</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>使用技巧</h2>
+            <div class="tip">
+                <p>💡 使用快捷键可以更快地打开对话窗口，Mac 为 Command + Shift + D，Windows/Linux 为 Ctrl + Shift + D。</p>
+            </div>
+            <div class="tip">
+                <p>💡 点击代码块右上角的复制按钮，可以快速复制代码片段</p>
+            </div>
+            <div class="tip">
+                <p>💡 如果对 AI 的回答不满意，可以点击重新生成按钮获取新的答案</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>隐私说明</h2>
+            <p>我们重视您的隐私。DeepSeek AI 扩展只会在必要时发送您选中的文本到 API，不会收集或存储任何其他个人信息。您的 API 密钥仅保存在本地浏览器中。</p>
+        </section>
+    </div>
+    <script>
+        document.getElementById('shortcuts-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (chrome && chrome.tabs && chrome.tabs.create) {
+                chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+            }
+        });
+    </script>
+</body>
+</html>

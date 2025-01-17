@@ -40,7 +40,8 @@ module.exports = {
         { from: "./src/icons", to: "icons" },
         { from: "./src/style.css", to: "style.css" },
         { from: "./src/popup", to: "popup" },
-        { from: "./src/background.js", to: "background.js" }
+        { from: "./src/background.js", to: "background.js" },
+        { from: "./src/Instructions.html", to: "Instructions.html" }
       ],
     }),
   ],
