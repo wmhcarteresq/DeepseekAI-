@@ -3,7 +3,7 @@ import { createSvgIcon } from "./icon";
 import { initDraggable, resizeMoveListener } from "./drag";
 import interact from "interactjs";
 import { getAIResponse, getIsGenerating } from "./api";
-import { setAllowAutoScroll, updateAllowAutoScroll, handleUserScroll } from "./scrollControl";
+import { setAllowAutoScroll, updateAllowAutoScroll, handleUserScroll, getAllowAutoScroll } from "./scrollControl";
 import { isDarkMode, watchThemeChanges, applyTheme } from './theme';
 
 function updateLastAnswerIcons() {
@@ -53,7 +53,11 @@ function updateLastAnswerIcons() {
       regenerateWrapper.addEventListener("click", (event) => {
         event.stopPropagation();
         const questionText = userQuestion.textContent;
+
+        // 清除内容和最小高度限制
+        lastAnswer.style.minHeight = '0';
         lastAnswer.textContent = "";
+
         const abortController = new AbortController();
 
         // 获取或创建 PerfectScrollbar 实例
@@ -65,6 +69,16 @@ function updateLastAnswerIcons() {
           });
           aiResponseContainer.ps = ps;
         }
+
+        // 重置滚动状态
+        setAllowAutoScroll(true);
+
+        // 立即滚动到答案位置
+        requestAnimationFrame(() => {
+          const answerTop = lastAnswer.offsetTop;
+          aiResponseContainer.scrollTop = answerTop - 20; // 留出一些上边距
+          ps.update();
+        });
 
         getAIResponse(
           questionText,
@@ -344,11 +358,70 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
   // 初始化拖拽
   initDraggable(dragHandle, popup);
 
-  // 使用 requestAnimationFrame 优化调整大小性能
-  let resizeAnimationFrame;
-  let lastResizeEvent;
-  let resizeTimeout;
+  // 使用防抖函数优化resize处理
+  const debounce = (fn, delay) => {
+    let timer = null;
+    return (...args) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  };
 
+  // 处理滚动更新的函数
+  const updateScroll = ({ height, ps = aiResponseContainer?.perfectScrollbar }) => {
+    if (!aiResponseContainer) return;
+
+    // 使用 ResizeObserver 监听高度变化
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const { height } = entry.contentRect;
+        ps?.update();
+        // 强制滚动到底部
+        requestAnimationFrame(() => {
+          aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
+        });
+      }
+    });
+
+    // 开始观察
+    resizeObserver.observe(aiResponseContainer);
+
+    // 设置新高度
+    aiResponseContainer.style.height = `calc(${height}px - 60px)`;
+
+    // 返回清理函数
+    return () => resizeObserver.disconnect();
+  };
+
+  // 更新输入框容器位置
+  const updateInputContainer = debounce(() => {
+    const inputContainer = popup.querySelector('.input-container-wrapper');
+    if (inputContainer) {
+      Object.assign(inputContainer.style, {
+        position: 'absolute',
+        bottom: '0',
+        width: '100%'
+      });
+    }
+  }, 16);
+
+  // 主要的resize处理函数
+  const handleResize = event => {
+    const cleanup = updateScroll({
+      height: event.rect.height,
+      ps: aiResponseContainer?.perfectScrollbar
+    });
+
+    updateInputContainer();
+
+    // 返回清理函数
+    return cleanup;
+  };
+
+  // 保存上一次的清理函数
+  let prevCleanup = null;
+
+  // 设置resize交互
   interact(popup)
     .resizable({
       edges: { left: true, right: true, bottom: true, top: true },
@@ -365,41 +438,23 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
         })
       ],
       listeners: {
-        move: (event) => {
-          lastResizeEvent = event;
+        move: event => {
+          // 清理上一次的观察者
+          if (prevCleanup) {
+            prevCleanup();
+          }
 
-          if (!resizeAnimationFrame) {
-            resizeAnimationFrame = requestAnimationFrame(() => {
-              if (lastResizeEvent) {
-                resizeMoveListener(lastResizeEvent);
-                lastResizeEvent = null;
-              }
-              resizeAnimationFrame = null;
+          // 更新移动状态
+          resizeMoveListener(event);
 
-              // 使用防抖优化滚动条更新
-              if (resizeTimeout) {
-                clearTimeout(resizeTimeout);
-              }
-
-              resizeTimeout = setTimeout(() => {
-                if (aiResponseContainer) {
-                  aiResponseContainer.style.height = `calc(${event.rect.height}px - 60px)`;
-
-                  if (aiResponseContainer.perfectScrollbar) {
-                    requestAnimationFrame(() => {
-                      aiResponseContainer.perfectScrollbar.update();
-                    });
-                  }
-                }
-
-                const inputContainer = popup.querySelector('.input-container-wrapper');
-                if (inputContainer) {
-                  inputContainer.style.position = 'absolute';
-                  inputContainer.style.bottom = '0';
-                  inputContainer.style.width = '100%';
-                }
-              }, 32);
-            });
+          // 保存新的清理函数
+          prevCleanup = handleResize(event);
+        },
+        end: () => {
+          // 最后一次更新
+          if (prevCleanup) {
+            prevCleanup();
+            prevCleanup = null;
           }
         }
       },
