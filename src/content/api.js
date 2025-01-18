@@ -1,5 +1,5 @@
 import { md } from "./markdown";
-import { getAllowAutoScroll } from "./scrollControl";
+import { getAllowAutoScroll, scrollToBottom } from "./scrollControl";
 
 let conversation = [];
 let isGenerating = false;
@@ -130,7 +130,7 @@ export async function getAIResponse(
 
                 ps.update();
                 if (getAllowAutoScroll()) {
-                  aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
+                  scrollToBottom(aiResponseContainer);
                 }
               }
             } catch (e) {

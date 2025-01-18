@@ -3,7 +3,7 @@ import { createSvgIcon } from "./icon";
 import { initDraggable, resizeMoveListener } from "./drag";
 import interact from "interactjs";
 import { getAIResponse, getIsGenerating } from "./api";
-import { setAllowAutoScroll, updateAllowAutoScroll } from "./scrollControl";
+import { setAllowAutoScroll, updateAllowAutoScroll, handleUserScroll } from "./scrollControl";
 import { isDarkMode, watchThemeChanges, applyTheme } from './theme';
 
 function updateLastAnswerIcons() {
@@ -277,16 +277,41 @@ export function createPopup(text, rect, hideQuestion = false) {
   );
 
   aiResponseContainer.addEventListener('wheel', () => {
-    requestAnimationFrame(() => {
-      ps.update();
-      setAllowAutoScroll(false);
-      updateAllowAutoScroll(aiResponseContainer);
-    });
+    handleUserScroll();
+    // 使用 requestIdleCallback 延迟非关键更新
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => {
+        ps.update();
+        updateAllowAutoScroll(aiResponseContainer);
+      });
+    } else {
+      requestAnimationFrame(() => {
+        ps.update();
+        updateAllowAutoScroll(aiResponseContainer);
+      });
+    }
   }, { passive: true });
 
   aiResponseContainer.addEventListener('touchstart', () => {
-    requestAnimationFrame(() => ps.update());
+    handleUserScroll();
   }, { passive: true });
+
+  // 使用 passive 和 capture 优化滚动性能
+  aiResponseContainer.addEventListener('scroll', () => {
+    handleUserScroll();
+    // 使用 requestIdleCallback 延迟非关键更新
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => {
+        ps.update();
+        updateAllowAutoScroll(aiResponseContainer);
+      });
+    } else {
+      requestAnimationFrame(() => {
+        ps.update();
+        updateAllowAutoScroll(aiResponseContainer);
+      });
+    }
+  }, { passive: true, capture: true });
 
   const dragHandle = createDragHandle();
   popup.appendChild(dragHandle);
