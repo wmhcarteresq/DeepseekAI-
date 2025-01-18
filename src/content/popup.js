@@ -591,9 +591,38 @@ function createQuestionInputContainer(aiResponseContainer) {
   };
 
   // 更新高度的核心逻辑
-  const updateHeight = (element) => {
+  const updateHeight = (() => {
+    let rafId = null;
+    let updateQueued = false;
+
+    return (element) => {
+      const state = getState(element);
+      if (state.lock) return;
+
+      // 如果正在输入法编辑，延迟更新高度
+      if (state.isComposing) {
+        if (!updateQueued) {
+          updateQueued = true;
+          rafId = requestAnimationFrame(() => {
+            updateQueued = false;
+            performHeightUpdate(element);
+          });
+        }
+        return;
+      }
+
+      performHeightUpdate(element);
+    };
+  })();
+
+  // 实际执行高度更新的函数
+  const performHeightUpdate = (element) => {
     const state = getState(element);
-    if (state.lock) return;
+
+    // 获取当前滚动位置和选择范围
+    const selectionStart = element.selectionStart;
+    const selectionEnd = element.selectionEnd;
+    const scrollTop = element.scrollTop;
 
     const currentHeight = element.style.height;
     element.style.height = "40px";
@@ -610,9 +639,20 @@ function createQuestionInputContainer(aiResponseContainer) {
     } else {
       const newHeight = Math.min(Math.max(scrollHeight, 60), 120);
       if (newHeight !== state.lastHeight) {
+        // 在高度变化前锁定状态
+        state.lock = true;
         element.style.height = `${newHeight}px`;
         element.style.minHeight = "60px";
         state.lastHeight = newHeight;
+
+        // 恢复滚动位置和选择范围
+        element.scrollTop = scrollTop;
+        element.setSelectionRange(selectionStart, selectionEnd);
+
+        // 使用 RAF 延迟解锁，确保渲染完成
+        requestAnimationFrame(() => {
+          state.lock = false;
+        });
       } else {
         element.style.height = currentHeight;
       }
@@ -626,6 +666,8 @@ function createQuestionInputContainer(aiResponseContainer) {
         const state = getState(event.target);
         state.isComposing = true;
         state.compositionText = event.data || '';
+        // 在输入法开始时锁定高度更新
+        state.lock = true;
       },
 
       compositionupdate(event) {
@@ -637,8 +679,12 @@ function createQuestionInputContainer(aiResponseContainer) {
         const state = getState(event.target);
         state.isComposing = false;
         state.compositionText = '';
-        // 在输入完成后更新高度
-        setTimeout(() => updateHeight(event.target), 0);
+        // 输入法结束后解锁并更新高度
+        state.lock = false;
+        // 使用 RAF 确保输入法完全结束后再更新高度
+        requestAnimationFrame(() => {
+          updateHeight(event.target);
+        });
       }
     };
 
@@ -663,7 +709,9 @@ function createQuestionInputContainer(aiResponseContainer) {
     element.addEventListener("input", (event) => {
       const state = getState(event.target);
       if (!state.isComposing) {
-        updateHeight(event.target);
+        requestAnimationFrame(() => {
+          updateHeight(event.target);
+        });
       }
     }, options);
 
