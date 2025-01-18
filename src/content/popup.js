@@ -393,62 +393,65 @@ function createQuestionInputContainer(aiResponseContainer) {
         <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      <svg class="loading-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="7" y="7" width="10" height="10" rx="1" stroke="currentColor" stroke-width="2" fill="none" />
-      </svg>
+      <div class="loading-icon-wrapper tooltip">
+        <svg class="loading-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="7" y="7" width="10" height="10" rx="1" stroke="currentColor" stroke-width="2" fill="none" />
+        </svg>
+        <span class="tooltiptext">停止生成</span>
+      </div>
     </div>
   `;
 
   const textarea = container.querySelector(".expandable-textarea");
   const sendIcon = container.querySelector(".send-icon");
+  const loadingIconWrapper = container.querySelector(".loading-icon-wrapper");
 
-  // 移除直接设置 style
   textarea.removeAttribute("style");
-
-  // 使用 CSS 类来控制样式
   textarea.classList.add("textarea-default");
 
-  // 添加 passive 选项到事件监听器
-  textarea.addEventListener("compositionstart", function(e) {
+  let isComposing = false;
+  let lastHeight = 40;
+
+  function adjustHeight(element, force = false) {
+    if (isComposing && !force) return;
+
+    const currentHeight = element.style.height;
+    element.style.height = "40px";
+    const scrollHeight = element.scrollHeight;
+
+    if (element.value.trim() === "") {
+      element.style.height = "40px";
+      element.style.minHeight = "40px";
+      lastHeight = 40;
+    } else {
+      const newHeight = Math.min(Math.max(scrollHeight, 60), 120);
+      if (newHeight !== lastHeight) {
+        element.style.height = newHeight + "px";
+        element.style.minHeight = "60px";
+        lastHeight = newHeight;
+      } else {
+        element.style.height = currentHeight;
+      }
+    }
+  }
+
+  textarea.addEventListener("compositionstart", () => {
     isComposing = true;
   }, { passive: true });
 
-  textarea.addEventListener("compositionend", function(e) {
+  textarea.addEventListener("compositionend", () => {
     isComposing = false;
-    requestAnimationFrame(() => adjustHeight(this));
+    adjustHeight(textarea, true);
   }, { passive: true });
 
-  function adjustHeight(element) {
-    requestAnimationFrame(() => {
-      // 先将高度设置为默认值，以便正确计算 scrollHeight
-      element.style.height = "40px";
-      // 如果内容为空，保持默认高度
-      if (element.value.trim() === "") {
-        element.style.height = "40px";
-        element.style.minHeight = "40px";
-      } else {
-        // 否则根据内容调整高度
-        element.style.height = element.scrollHeight + "px";
-        element.style.minHeight = "60px";
-      }
-    });
-  }
-
-  textarea.addEventListener("input", function(e) {
+  textarea.addEventListener("input", () => {
     if (!isComposing) {
-      adjustHeight(this);
+      adjustHeight(textarea);
     }
-  });
+  }, { passive: true });
 
-  // 处理键盘事件
-  textarea.addEventListener("keydown", function(e) {
-    // 如果是组合键（如 Command+A），不要阻止默认行为
-    if (e.metaKey || e.ctrlKey) {
-      return;
-    }
-
-    // 如果正在输入中文，不要处理 Enter 键
-    if (isComposing) {
+  textarea.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || isComposing) {
       return;
     }
 
@@ -460,16 +463,6 @@ function createQuestionInputContainer(aiResponseContainer) {
     }
   });
 
-  // 添加触摸事件的 passive 监听
-  textarea.addEventListener("touchstart", function(e) {
-    // 触摸事件的处理
-  }, { passive: true });
-
-  textarea.addEventListener("wheel", function(e) {
-    // 滚轮事件的处理
-  }, { passive: true });
-
-  // 使用 CSS 类替代内联样式
   const style = document.createElement('style');
   style.textContent = `
     .textarea-default {
@@ -478,42 +471,72 @@ function createQuestionInputContainer(aiResponseContainer) {
       max-height: 120px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      resize: none;
+      padding: 10px;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .loading-icon-wrapper {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      display: none;  /* 默认隐藏 */
+    }
+
+    .loading-icon {
+      width: 22px;
+      height: 22px;
+      color: currentColor;
+      display: block;
+    }
+
+    .loading-icon-wrapper .tooltiptext {
+      visibility: hidden;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 10px;
+      position: absolute;
+      z-index: 1;
+      width: max-content;
+      bottom: 130%;
+      left: 0%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .loading-icon-wrapper .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+    }
+
+    .loading-icon-wrapper:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
     }
   `;
   document.head.appendChild(style);
 
-  // 标记是否正在进行中文输入
-  let isComposing = false;
-
-  textarea.addEventListener("compositionstart", function(e) {
-    isComposing = true;
-  });
-
-  textarea.addEventListener("compositionend", function(e) {
-    isComposing = false;
-    adjustHeight(this);
-  });
-
-  // 设置初始高度
   textarea.style.height = "40px";
   textarea.style.minHeight = "40px";
   textarea.style.maxHeight = "120px";
 
-  // 注释掉这些事件监听器，看是否是它们导致的问题
-  // textarea.addEventListener("focus", function () {
-  //   this.style.minHeight = "60px";
-  // });
-
-  // textarea.addEventListener("blur", function () {
-  //   if (this.value.trim() === "") {
-  //     this.style.height = "40px";
-  //     this.style.minHeight = "40px";
-  //   }
-  // });
-
   function sendQuestion() {
-    // 如果正在生成回答，则不允许发送
-    if (getIsGenerating()) {
+    if (getIsGenerating() || isComposing) {
       return;
     }
 
@@ -523,23 +546,24 @@ function createQuestionInputContainer(aiResponseContainer) {
       textarea.value = "";
       textarea.style.height = "40px";
       textarea.style.minHeight = "40px";
+      lastHeight = 40;
     }
   }
 
   function updateSendButtonState() {
     const sendIcon = container.querySelector(".send-icon");
-    const loadingIcon = container.querySelector(".loading-icon");
+    const loadingIconWrapper = container.querySelector(".loading-icon-wrapper");
     const textarea = container.querySelector(".expandable-textarea");
 
     if (getIsGenerating()) {
       sendIcon.style.display = "none";
-      loadingIcon.classList.add("active");
+      loadingIconWrapper.style.display = "block";
       textarea.style.cursor = "not-allowed";
       textarea.setAttribute("disabled", "disabled");
       textarea.setAttribute("placeholder", "AI正在回答中...");
     } else {
       sendIcon.style.display = "block";
-      loadingIcon.classList.remove("active");
+      loadingIconWrapper.style.display = "none";
       textarea.style.cursor = "text";
       textarea.removeAttribute("disabled");
       textarea.setAttribute("placeholder", "输入您的问题...");
@@ -552,6 +576,15 @@ function createQuestionInputContainer(aiResponseContainer) {
   sendIcon.addEventListener("click", function() {
     if (!getIsGenerating()) {
       sendQuestion();
+    }
+  });
+
+  loadingIconWrapper.addEventListener("click", function() {
+    if (getIsGenerating()) {
+      // 触发中断信号
+      if (window.currentAbortController) {
+        window.currentAbortController.abort();
+      }
     }
   });
 

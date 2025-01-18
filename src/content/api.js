@@ -50,6 +50,9 @@ export async function getAIResponse(
     }else{
       conversation.push({ role: "user", content: text });
     }
+
+    // 创建新的AbortController并保存到全局
+    window.currentAbortController = new AbortController();
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
@@ -71,7 +74,7 @@ export async function getAIResponse(
         ],
         stream: true,
       }),
-      signal: signal,
+      signal: window.currentAbortController.signal,
     });
 
     if (!response.ok) {
@@ -83,58 +86,68 @@ export async function getAIResponse(
     const decoder = new TextDecoder("utf-8");
     let aiResponse = "";
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n\n");
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n\n");
 
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const jsonLine = line.slice(6);
-          if (jsonLine === "[DONE]") break;
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const jsonLine = line.slice(6);
+            if (jsonLine === "[DONE]") break;
 
-          try {
-            const data = JSON.parse(jsonLine);
-            if (
-              data.choices &&
-              data.choices[0].delta &&
-              data.choices[0].delta.content
-            ) {
-              aiResponse += data.choices[0].delta.content;
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = md.render(aiResponse);
+            try {
+              const data = JSON.parse(jsonLine);
+              if (
+                data.choices &&
+                data.choices[0].delta &&
+                data.choices[0].delta.content
+              ) {
+                aiResponse += data.choices[0].delta.content;
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = md.render(aiResponse);
 
-              const codeBlocks = tempDiv.querySelectorAll('pre code');
-              codeBlocks.forEach(codeBlock => {
-                codeBlock.classList.add('code-wrap');
-              });
+                const codeBlocks = tempDiv.querySelectorAll('pre code');
+                codeBlocks.forEach(codeBlock => {
+                  codeBlock.classList.add('code-wrap');
+                });
 
-              const className = responseElement.className;
-              const iconContainer = responseElement.querySelector('.icon-container');
+                const className = responseElement.className;
+                const iconContainer = responseElement.querySelector('.icon-container');
 
-              responseElement.textContent = "";
-              while (tempDiv.firstChild) {
-                responseElement.appendChild(tempDiv.firstChild);
+                responseElement.textContent = "";
+                while (tempDiv.firstChild) {
+                  responseElement.appendChild(tempDiv.firstChild);
+                }
+
+                responseElement.className = className;
+                if (iconContainer) {
+                  responseElement.appendChild(iconContainer);
+                }
+
+                ps.update();
+                if (getAllowAutoScroll()) {
+                  aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
+                }
               }
-
-              responseElement.className = className;
-              if (iconContainer) {
-                responseElement.appendChild(iconContainer);
-              }
-
-              ps.update();
-              if (getAllowAutoScroll()) {
-                aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
-              }
+            } catch (e) {
+              console.error("Error parsing JSON:", e);
             }
-          } catch (e) {
-            console.error("Error parsing JSON:", e);
           }
         }
       }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        // 请求被中断，保留已生成的内容
+        console.log('Request aborted, keeping generated content');
+      } else {
+        throw error;
+      }
     }
+
     console.log('Original AI Response:', aiResponse);
     conversation.push({ role: "assistant", content: aiResponse });
     isGenerating = false;
@@ -149,13 +162,17 @@ export async function getAIResponse(
     });
   } catch (error) {
     console.error("Fetch error:", error);
-    const textNode = document.createTextNode("Request failed. Please try again later.");
-    responseElement.textContent = "";
-    responseElement.appendChild(textNode);
-    if (existingIconContainer) {
-      responseElement.appendChild(existingIconContainer);
+    if (error.name !== 'AbortError') {
+      const textNode = document.createTextNode("Request failed. Please try again later.");
+      responseElement.textContent = "";
+      responseElement.appendChild(textNode);
+      if (existingIconContainer) {
+        responseElement.appendChild(existingIconContainer);
+      }
     }
     isGenerating = false;
+  } finally {
+    window.currentAbortController = null;
   }
 }
 
