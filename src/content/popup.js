@@ -1253,7 +1253,7 @@ const styles = `
     border: 1px solid #e6e6e6;
   }
 
-  .theme-adaptive.dark-mode .ai-answer pre {
+  .theme-adaptive.dark-mode .ai-answer pre pre{
     background-color: #282c34;
     border: 1px solid #3d3d3d;
   }

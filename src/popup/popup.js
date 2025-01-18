@@ -92,9 +92,61 @@ document.addEventListener("DOMContentLoaded", function () {
   // 处理使用说明链接点击
   document.getElementById('instructionsLink').addEventListener('click', (e) => {
     e.preventDefault();
-    const instructionsUrl = chrome.runtime.getURL('Instructions.html');
+    const instructionsUrl = chrome.runtime.getURL('Instructions/Instructions.html');
     chrome.tabs.create({
       url: instructionsUrl
     });
   });
 });
+const translations = {
+  zh: {
+    headerTitle: "DeepSeek AI",
+    apiKeyPlaceholder: "在此输入 API Key",
+    apiKeyLink: "前往获取 API Key",
+    preferredLanguageLabel: "首选语言",
+    saveButton: "保存",
+    shortcutSettingsText: "快捷键设置",
+    shortcutDescription: "请前往设置快捷键",
+    instructionsText: "使用说明",
+  },
+  en: {
+    headerTitle: "DeepSeek AI",
+    apiKeyPlaceholder: "Enter API Key here",
+    apiKeyLink: "Get API Key",
+    preferredLanguageLabel: "Preferred Language",
+    saveButton: "Save",
+    shortcutSettingsText: "Shortcut Settings",
+    shortcutDescription: "Please configure shortcut keys",
+    instructionsText: "Instructions",
+  },
+};
+
+let currentLang = "zh";
+
+const toggleLanguage = () => {
+  currentLang = currentLang === "zh" ? "en" : "zh";
+  updateContent();
+};
+
+const updateContent = () => {
+  const langData = translations[currentLang];
+  document.getElementById("header-title").textContent = langData.headerTitle;
+  document.getElementById("apiKey").placeholder = langData.apiKeyPlaceholder;
+  document.getElementById("apiKeyLink").textContent = langData.apiKeyLink;
+  document.getElementById("preferredLanguageLabel").textContent =
+    langData.preferredLanguageLabel;
+  document.getElementById("saveButton").textContent = langData.saveButton;
+  document.getElementById("shortcutSettingsText").textContent =
+    langData.shortcutSettingsText;
+  document.getElementById("shortcutDescription").textContent =
+    langData.shortcutDescription;
+  document.getElementById("instructionsText").textContent =
+    langData.instructionsText;
+};
+
+document
+  .getElementById("language-toggle")
+  .addEventListener("click", toggleLanguage);
+
+// 初始化内容
+updateContent();

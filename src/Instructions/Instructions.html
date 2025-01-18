@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DeepSeek AI 使用说明</title>
+    <style>
+      :root {
+        --text-primary: #1d1d1f;
+        --text-secondary: #86868b;
+        --background-primary: #ffffff;
+        --background-secondary: #f5f5f7;
+        --accent-color: #0071e3;
+        --border-color: #d2d2d7;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --text-primary: #f5f5f7;
+          --text-secondary: #a1a1a6;
+          --background-primary: #1d1d1f;
+          --background-secondary: #2c2c2e;
+          --border-color: #424245;
+        }
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Helvetica Neue", sans-serif;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+        color: var(--text-primary);
+        background-color: var(--background-primary);
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .hero {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      h1 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        letter-spacing: -0.003em;
+      }
+
+      h2 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 40px 0 20px;
+        letter-spacing: -0.002em;
+      }
+
+      h3 {
+        font-size: 21px;
+        font-weight: 600;
+        margin: 30px 0 15px;
+      }
+
+      p {
+        font-size: 17px;
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin: 40px 0;
+      }
+
+      .feature-item {
+        background: var(--background-secondary);
+        border-radius: 18px;
+        padding: 24px;
+      }
+
+      .feature-item h3 {
+        margin-top: 0;
+        color: var(--text-primary);
+      }
+
+      .feature-item p {
+        margin-bottom: 0;
+        font-size: 15px;
+      }
+
+      .installation {
+        background: var(--background-secondary);
+        border-radius: 18px;
+        padding: 30px;
+        margin: 40px 0;
+      }
+
+      .installation ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .installation li {
+        margin-bottom: 16px;
+        color: var(--text-primary);
+      }
+
+      code {
+        font-family: "SF Mono", monospace;
+        background: var(--background-primary);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .tip {
+        border-left: 4px solid var(--accent-color);
+        padding: 16px 24px;
+        margin: 24px 0;
+        background: var(--background-secondary);
+      }
+
+      .tip p {
+        margin: 0;
+        font-size: 15px;
+      }
+
+      .links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+
+      .link-item {
+        display: block;
+        padding: 15px;
+        background: var(--background-secondary);
+        border-radius: 12px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .link-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .link-item h3 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        color: var(--accent-color);
+      }
+
+      .link-item p {
+        margin: 0;
+        font-size: 14px;
+      }
+
+      .usage-section {
+        margin: 30px 0;
+      }
+
+      .usage-item {
+        background: var(--background-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      .usage-item h3 {
+        margin-top: 0;
+        color: var(--text-primary);
+      }
+
+      .usage-item p {
+        margin: 0;
+      }
+
+      .features-section {
+        margin: 30px 0;
+      }
+
+      .feature-row {
+        background: var(--background-secondary);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      .feature-row h3 {
+        margin-top: 0;
+        color: var(--text-primary);
+      }
+
+      .feature-row p {
+        margin: 8px 0;
+        font-size: 15px;
+      }
+
+      button.link-item {
+        font-family: inherit;
+        font-size: inherit;
+      }
+
+      .language-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        z-index: 1000;
+      }
+
+      .language-toggle svg {
+        width: 24px;
+        height: 24px;
+        fill: var(--text-primary);
+      }
+    </style>
+  </head>
+  <body>
+    <button class="language-toggle" id="language-toggle">
+      <svg
+        t="1737193929400"
+        class="icon"
+        viewBox="0 0 1024 1024"
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        p-id="7149"
+        width="200"
+        height="200"
+      >
+        <path
+          d="M848.805886 805.572222c70.998007-81.260745 109.779266-184.217628 109.779266-293.14448 0-119.204939-46.421262-231.277434-130.713041-315.569212C744.876861 113.862257 634.94103 67.61598 517.788843 66.213028c-1.924839-0.599657-10.290367-0.592494-12.227486 0.01535C388.878868 67.945485 279.434224 114.159016 196.73471 196.85853 113.863281 279.730982 67.630307 389.460106 66.095347 506.415818c-0.428765 1.64957-0.436952 8.601912-0.021489 10.226922 1.082658 117.628024 47.364751 228.058113 130.660852 311.354214 84.291778 84.291778 196.36325 130.713041 315.569212 130.713041 119.204939 0 231.277434-46.421262 315.569212-130.713041 6.139837-6.139837 12.054547-12.444427 17.789155-18.871813 0.50756-0.453325 1.001817-0.928139 1.471514-1.440815C847.750857 807.012014 848.295256 806.299793 848.805886 805.572222zM107.447151 532.043499l187.501418 0c1.322112 65.678862 9.253758 127.264499 22.505573 182.112688-61.690014 16.687054-100.819197 38.371936-121.076566 51.906184C144.30971 701.336206 111.676475 620.35687 107.447151 532.043499zM195.881272 259.408121c20.090571 13.556761 59.242266 35.461653 121.340579 52.260248-12.998035 54.127781-20.827351 114.778116-22.243607 179.432649L107.525945 491.101018C112.076588 403.731134 144.437623 323.612399 195.881272 259.408121zM917.081898 491.099994 729.628576 491.099994c-1.415232-64.630996-9.240455-125.260865-22.229281-179.37432 61.95505-16.693194 101.235682-38.444591 121.56673-52.020794C880.270505 323.860039 912.537396 403.866211 917.081898 491.099994zM688.677908 491.099994 532.167319 491.099994 532.167319 335.061149c52.209082-1.094938 97.103572-6.453992 135.272893-14.033621C680.000272 373.163955 687.286212 430.896844 688.677908 491.099994zM532.167319 294.115598 532.167319 109.918435c36.84107 10.398838 72.779583 49.205679 100.926644 110.015649 8.810666 19.035542 16.645099 39.641859 23.464411 61.521169C621.531626 288.227494 580.261687 293.062616 532.167319 294.115598zM491.223814 110.273523l0 183.805236c-47.504944-1.12666-88.378863-6.001691-123.120109-12.802584 6.807033-21.812795 14.623046-42.35976 23.409153-61.344137C419.351903 159.792333 454.809463 121.175827 491.223814 110.273523zM491.223814 335.040682l0 156.059312L335.928912 491.099994c1.391696-60.213383 8.679683-117.955482 21.243837-170.099073C395.008472 328.536548 439.487499 333.887416 491.223814 335.040682zM335.893096 532.043499l155.330718 0 0 158.667719c-51.609425 1.194198-96.019891 6.563486-133.821845 14.103206C344.576873 651.927913 337.193719 593.243349 335.893096 532.043499zM491.223814 731.672118l0 182.909843c-36.415374-10.902304-71.871911-49.51881-99.709933-109.659539-8.679683-18.752086-16.409738-39.034015-23.157419-60.551074C402.9964 737.645157 443.773106 732.820268 491.223814 731.672118zM532.167319 914.937049 532.167319 731.608673c47.904033 1.025353 89.103364 5.862521 124.116809 12.656251-6.755868 21.555945-14.497179 41.87369-23.190165 60.656475C604.946902 865.73137 569.008388 904.538211 532.167319 914.937049zM532.167319 690.660052 532.167319 532.043499l156.546406 0c-1.298576 61.096497-8.66024 119.68487-21.445428 172.502819C629.154233 697.013761 584.319096 691.710988 532.167319 690.660052zM729.659275 532.043499l187.501418 0c-4.221138 88.138386-36.732599 168.973436-88.620363 233.635131-20.469194-13.668301-59.635215-35.298947-121.30374-51.868321C720.43724 659.049101 728.33921 597.585237 729.659275 532.043499zM801.518906 228.742704c-18.329461 11.570523-52.309366 29.355585-104.858186 43.493583-19.295462-63.056128-46.110177-115.004267-78.06189-150.97655C689.00025 140.410913 751.833297 178.097234 801.518906 228.742704zM406.007991 121.259738c-31.905664 35.920094-58.690704 87.768973-77.979002 150.702304-52.40351-14.241352-86.370113-32.099069-104.581893-43.587728C273.076422 177.914062 335.777463 140.364865 406.007991 121.259738zM223.917816 796.963147c18.284435-11.535731 52.098565-29.230742 104.332207-43.335994 19.271926 62.60485 45.976124 114.186645 77.757968 149.968593C335.99952 884.550994 273.472442 847.181899 223.917816 796.963147zM618.59883 903.595746c31.801287-35.803437 58.517765-87.426165 77.792761-150.08218 51.984978 14.023388 85.972047 31.631418 104.533798 43.208081C751.3329 847.061149 688.718841 884.521319 618.59883 903.595746z"
+          p-id="7150"
+        ></path>
+      </svg>
+    </button>
+
+    <div class="container">
+      <div class="hero">
+        <h1 id="title">DeepSeek AI 使用说明</h1>
+        <p id="subtitle">让 AI 助手为您的网页浏览体验增添智慧</p>
+      </div>
+
+      <section class="installation">
+        <h2 id="quick-start">快速开始</h2>
+        <div class="links-grid">
+          <a
+            href="https://chromewebstore.google.com/detail/deepseek-ai/bjjobdlpgglckcmhgmmecijpfobmcpap"
+            class="link-item"
+            target="_blank"
+          >
+            <h3 id="chrome-install">Chrome 商店安装</h3>
+            <p id="chrome-desc">从 Chrome 网上应用店安装扩展</p>
+          </a>
+          <a
+            href="https://microsoftedge.microsoft.com/addons/Microsoft-Edge-Extensions-Home"
+            class="link-item"
+            target="_blank"
+          >
+            <h3 id="edge-install">Edge 商店安装</h3>
+            <p id="edge-desc">从 Edge 网上应用店安装扩展</p>
+          </a>
+          <a
+            href="https://chat.deepseek.com/"
+            class="link-item"
+            target="_blank"
+          >
+            <h3 id="deepseek-website">DeepSeek 官网</h3>
+            <p id="deepseek-desc">访问 DeepSeek AI 官方网站</p>
+          </a>
+          <a
+            href="https://platform.deepseek.com/api_keys"
+            class="link-item"
+            target="_blank"
+          >
+            <h3 id="api-key">获取 API Key</h3>
+            <p id="api-desc">在 DeepSeek 平台获取您的 API 密钥</p>
+          </a>
+          <a href="#" class="link-item" id="shortcuts-link">
+            <h3 id="shortcuts">快捷键设置</h3>
+            <p id="shortcuts-desc">自定义扩展快捷键</p>
+          </a>
+          <a
+            href="https://github.com/DeepLifeStudio/DeepSeekAI"
+            class="link-item"
+            target="_blank"
+          >
+            <h3 id="github">GitHub 仓库</h3>
+            <p id="github-desc">查看源代码和提交建议</p>
+          </a>
+        </div>
+        <ol id="installation-steps">
+          <li>在浏览器中安装 DeepSeek AI 扩展</li>
+          <li>点击工具栏中的扩展图标</li>
+          <li>输入您的 DeepSeek API 密钥</li>
+          <li>选择您偏好的回答语言</li>
+          <li>设置你偏好的快捷键</li>
+          <li>在任意网页上选择文本，开始与 AI 对话！</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2 id="usage">使用方法</h2>
+        <div class="usage-section">
+          <div class="usage-item">
+            <h3 id="text-selection">文本选择使用</h3>
+            <p id="text-selection-desc">
+              在网页上选中任意文本后，点击旁边的 DeepSeek
+              图标，即可呼出对话窗口，获取智能回答。
+            </p>
+          </div>
+          <div class="usage-item">
+            <h3 id="shortcut-usage">快捷键使用</h3>
+            <p id="shortcut-usage-desc">
+              无论是否选中文本，都可以直接使用快捷键
+              <code>Ctrl+Shift+D</code>（Windows）或
+              <code>Command+Shift+D</code>（Mac）呼出对话窗口。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="features">功能特点</h2>
+        <div class="features-section">
+          <div class="feature-row">
+            <h3 id="smart-chat">智能对话</h3>
+            <p id="smart-chat-1">• 支持多轮对话，记住上下文</p>
+            <p id="smart-chat-2">• 实时流式响应，打字机效果</p>
+            <p id="smart-chat-3">• 支持重新生成回答</p>
+          </div>
+          <div class="feature-row">
+            <h3 id="ui-interaction">界面交互</h3>
+            <p id="ui-interaction-1">• 可拖拽调整窗口位置和大小</p>
+            <p id="ui-interaction-2">• 支持 Markdown 格式化显示</p>
+            <p id="ui-interaction-3">• 支持 LaTeX 数学公式渲染</p>
+            <p id="ui-interaction-4">• 代码块一键复制</p>
+            <p id="ui-interaction-5">• 支持代码高亮</p>
+          </div>
+          <div class="feature-row">
+            <h3 id="personalization">个性化设置</h3>
+            <p id="personalization-1">• 自定义语言偏好</p>
+            <p id="personalization-2">• 深色模式自动适配</p>
+            <p id="personalization-3">• 可配置快捷键</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="tips">使用技巧</h2>
+        <div class="tip">
+          <p id="tip-1">
+            💡 使用快捷键可以更快地打开对话窗口，Mac 为 Command + Shift +
+            D，Windows/Linux 为 Ctrl + Shift + D。
+          </p>
+        </div>
+        <div class="tip">
+          <p id="tip-2">💡 点击代码块右上角的复制按钮，可以快速复制代码片段</p>
+        </div>
+        <div class="tip">
+          <p id="tip-3">
+            💡 如果对 AI 的回答不满意，可以点击重新生成按钮获取新的答案
+          </p>
+        </div>
+      </section>
+      <section>
+        <h2 id="feedback">反馈与支持</h2>
+        <div class="feedback-section">
+          <div class="feedback-item">
+            <p id="feedback-desc">
+              如果您喜欢 DeepSeek AI 扩展，欢迎在 Chrome
+              网上应用商店评分和评论，期待您的反馈！
+            </p>
+            <a
+              href="https://chromewebstore.google.com/detail/deepseek-ai/bjjobdlpgglckcmhgmmecijpfobmcpap"
+              class="link-item"
+              target="_blank"
+            >
+              <h3 id="chrome-feedback">前往 Chrome 商店</h3>
+              <p id="chrome-feedback-desc">为 DeepSeek AI 评分和评论</p>
+            </a>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 id="privacy">隐私说明</h2>
+        <p id="privacy-desc">
+          重视您的隐私。DeepSeek AI 扩展只会在必要时发送您选中的文本到
+          API，不会收集或存储任何其他个人信息。您的 API
+          密钥仅保存在本地浏览器中。
+        </p>
+      </section>
+    </div>
+    <script src="instructions.js"></script>
+  </body>
+</html>

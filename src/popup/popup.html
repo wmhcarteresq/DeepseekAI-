@@ -209,6 +209,9 @@
       }
 
       .setting-title {
+        display: flex;
+        align-items: center;
+        gap: 3px;
         font-weight: 500;
         font-size: 14px;
       }
@@ -223,14 +226,18 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        margin-top: 8px;
       }
 
-      .setting-icon {
+      .setting-icon  {
         width: 18px;
         height: 18px;
+        fill: black;
       }
-
+      @media (prefers-color-scheme: dark) {
+        .setting-icon  {
+          fill: #86868b; /* 夜间模式下的浅色 */
+        }
+      }
       .shortcut-tip {
         margin-top: 16px;
         padding: 12px;
@@ -286,15 +293,55 @@
         width: 16px;
         height: 16px;
       }
+
+      .language-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        z-index: 1000;
+      }
+
+      .language-toggle svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;
+        color: #b4afaf;
+      }
     </style>
   </head>
   <body>
+    <button class="language-toggle" id="language-toggle">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+        />
+      </svg>
+    </button>
+
     <div class="container">
       <div class="header">
         <img src="../icons/icon24.png" alt="DeepSeek AI Logo" />
-        <span>DeepSeek AI</span>
+        <span id="header-title">DeepSeek AI</span>
       </div>
+
       <div class="key">
+        <a
+          href="https://platform.deepseek.com/api_keys"
+          target="_blank"
+          rel="noopener noreferrer"
+          id="apiKeyLink"
+        >
+          前往获取 API Key
+        </a>
         <div class="error-message" id="errorMessage"></div>
         <div class="input-container">
           <input
@@ -307,17 +354,11 @@
             <img class="svg" src="../icons/show.svg" alt="" id="iconSwitch" />
           </button>
         </div>
-        <a
-          href="https://platform.deepseek.com/api_keys"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          前往获取 API Key
-        </a>
+
         <div class="language-switch">
-          <label for="language">首选语言</label>
+          <label for="language" id="preferredLanguageLabel">首选语言</label>
           <select id="language">
-            <option value="auto">自动检测</option>
+            <option value="auto">Auto</option>
             <option value="zh">中文</option>
             <option value="en">English</option>
             <option value="es">Español</option>
@@ -335,28 +376,33 @@
       <div class="settings-section">
         <div class="setting-item">
           <div class="setting-title">
+            <svg t="1737192355038" class="setting-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6074" width="200" height="200"><path d="M853.333333 213.333333a85.333333 85.333333 0 0 1 85.333334 85.333334v426.666666a85.333333 85.333333 0 0 1-85.333334 85.333334H170.666667a85.333333 85.333333 0 0 1-85.333334-85.333334V298.666667a85.333333 85.333333 0 0 1 85.333334-85.333334h682.666666z m0 42.666667H170.666667a42.666667 42.666667 0 0 0-42.666667 42.666667v426.666666a42.666667 42.666667 0 0 0 42.666667 42.666667h682.666666a42.666667 42.666667 0 0 0 42.666667-42.666667V298.666667a42.666667 42.666667 0 0 0-42.666667-42.666667z m-202.666666 362.666667a32 32 0 1 1 0 64h-277.333334a32 32 0 1 1 0-64h277.333334zM256 469.333333a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334zM256 341.333333a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z"  p-id="6075"></path></svg>
             <a href="#" id="shortcutSettings" class="link-button">
-              <img
-                src="../icons/keyboard.svg"
-                alt="keyboard"
-                class="setting-icon"
-              />
-              快捷键设置
+              <?xml version="1.0" encoding="UTF-8"?>
+              <span id="shortcutSettingsText">快捷键设置</span>
             </a>
           </div>
-          <div class="setting-description">
+          <div class="setting-description" id="shortcutDescription">
             请前往设置快捷键
           </div>
         </div>
       </div>
       <div class="help-link">
         <a href="#" id="instructionsLink">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
             <line x1="12" y1="17" x2="12" y2="17"></line>
           </svg>
-          使用说明
+          <span id="instructionsText">使用说明</span>
         </a>
       </div>
     </div>

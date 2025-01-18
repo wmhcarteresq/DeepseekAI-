@@ -459,7 +459,6 @@
 .theme-adaptive .code-block-wrapper pre {
   position: relative;
   margin: 0;
-  padding: 16px;
   padding-bottom: 20px;
   overflow: visible; /* 改为 visible，不需要滚动 */
 }
