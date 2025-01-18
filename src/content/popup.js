@@ -358,27 +358,102 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
   // 初始化拖拽
   initDraggable(dragHandle, popup);
 
-  // 使用防抖函数优化resize处理
-  const debounce = (fn, delay) => {
+  // 使用高级防抖函数，支持取消和立即执行
+  const debounce = (fn, wait, options = {}) => {
     let timer = null;
-    return (...args) => {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => fn(...args), delay);
+    let lastArgs = null;
+    let lastThis = null;
+
+    return function debounced(...args) {
+      const context = this;
+      const later = () => {
+        timer = null;
+        if (!options.leading) {
+          fn.apply(context, lastArgs);
+        }
+        lastArgs = lastThis = null;
+      };
+
+      if (!timer && options.leading) {
+        fn.apply(context, args);
+      } else {
+        lastArgs = args;
+        lastThis = context;
+      }
+
+      clearTimeout(timer);
+      timer = setTimeout(later, wait);
     };
   };
 
+  // 创建一个状态管理器
+  const ResizeState = {
+    previousDimensions: { width: 0, height: 0 },
+    isExpanding: false,
+    scrollPosition: 0,
+
+    // 更新状态
+    update(newWidth, newHeight) {
+      this.isExpanding = newWidth > this.previousDimensions.width ||
+                        newHeight > this.previousDimensions.height;
+      this.previousDimensions = { width: newWidth, height: newHeight };
+    },
+
+    // 保存滚动位置
+    saveScrollPosition(container) {
+      this.scrollPosition = container.scrollTop;
+    },
+
+    // 恢复滚动位置
+    restoreScrollPosition(container, forceBottom = false) {
+      if (forceBottom || this.isNearBottom(container)) {
+        container.scrollTop = container.scrollHeight;
+      } else if (!this.isExpanding) {
+        // 在收缩时保持相对位置
+        const scrollRatio = this.scrollPosition / container.scrollHeight;
+        container.scrollTop = scrollRatio * container.scrollHeight;
+      }
+      // 扩大时保持原位置
+    },
+
+    // 检查是否接近底部
+    isNearBottom(container, threshold = 50) {
+      return container.scrollHeight - (container.scrollTop + container.clientHeight) <= threshold;
+    }
+  };
+
   // 处理滚动更新的函数
-  const updateScroll = ({ height, ps = aiResponseContainer?.perfectScrollbar }) => {
+  const updateScroll = ({ width, height, ps = aiResponseContainer?.perfectScrollbar }) => {
     if (!aiResponseContainer) return;
 
-    // 使用 ResizeObserver 监听高度变化
+    // 使用 ResizeObserver 监听尺寸变化
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
-        const { height } = entry.contentRect;
+        const { width, height } = entry.contentRect;
+
+        // 更新状态
+        ResizeState.update(width, height);
+
+        // 保存当前滚动位置
+        ResizeState.saveScrollPosition(aiResponseContainer);
+
         ps?.update();
-        // 强制滚动到底部
+
+        // 使用 RAF 确保平滑过渡
         requestAnimationFrame(() => {
-          aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
+          // 处理图标容器
+          const visibleIconContainer = aiResponseContainer.querySelector('.icon-container[style*="display: flex"]');
+          if (visibleIconContainer) {
+            const containerRect = aiResponseContainer.getBoundingClientRect();
+            const iconRect = visibleIconContainer.getBoundingClientRect();
+
+            if (iconRect.bottom > containerRect.bottom) {
+              aiResponseContainer.scrollTop += (iconRect.bottom - containerRect.bottom + 10);
+            }
+          }
+
+          // 根据状态恢复滚动位置
+          ResizeState.restoreScrollPosition(aiResponseContainer, getIsGenerating());
         });
       }
     });
@@ -386,8 +461,9 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
     // 开始观察
     resizeObserver.observe(aiResponseContainer);
 
-    // 设置新高度
+    // 设置新尺寸
     aiResponseContainer.style.height = `calc(${height}px - 60px)`;
+    aiResponseContainer.style.width = `${width}px`;
 
     // 返回清理函数
     return () => resizeObserver.disconnect();
@@ -403,18 +479,17 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
         width: '100%'
       });
     }
-  }, 16);
+  }, 16, { leading: true });
 
   // 主要的resize处理函数
   const handleResize = event => {
     const cleanup = updateScroll({
+      width: event.rect.width,
       height: event.rect.height,
       ps: aiResponseContainer?.perfectScrollbar
     });
 
     updateInputContainer();
-
-    // 返回清理函数
     return cleanup;
   };
 
