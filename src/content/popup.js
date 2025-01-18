@@ -6,6 +6,15 @@ import { getAIResponse, getIsGenerating } from "./api";
 import { setAllowAutoScroll, updateAllowAutoScroll, handleUserScroll, getAllowAutoScroll } from "./scrollControl";
 import { isDarkMode, watchThemeChanges, applyTheme } from './theme';
 
+// 新增：定义全局滚动相关的常量
+const SCROLL_CONSTANTS = {
+  SCROLL_THRESHOLD: 30,          // 滚动触发阈值
+  COOLDOWN_DURATION: 150,        // 滚动冷却时间（毫秒）
+  ANIMATION_DURATION: 300,       // 动画持续时间（毫秒）
+  VELOCITY_THRESHOLD: 0.5,       // 速度阈值
+  MAX_MOMENTUM_SAMPLES: 5        // 最大动量采样数
+};
+
 function updateLastAnswerIcons() {
   const aiResponseElement = document.getElementById("ai-response");
   const answers = aiResponseElement.getElementsByClassName("ai-answer");
@@ -73,10 +82,12 @@ function updateLastAnswerIcons() {
         // 重置滚动状态
         setAllowAutoScroll(true);
 
-        // 立即滚动到答案位置
+        // 立即滚动到问题位置
         requestAnimationFrame(() => {
-          const answerTop = lastAnswer.offsetTop;
-          aiResponseContainer.scrollTop = answerTop - 20; // 留出一些上边距
+          // 计算问题元素的位置
+          const questionTop = userQuestion.offsetTop;
+          // 设置滚动位置，使问题出现在容器顶部
+          aiResponseContainer.scrollTop = Math.max(0, questionTop - 20);
           ps.update();
         });
 
@@ -380,7 +391,7 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
     saveScrollPosition(container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
       const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-      this.isAtBottom = distanceFromBottom <= SCROLL_THRESHOLD;
+      this.isAtBottom = distanceFromBottom <= SCROLL_CONSTANTS.SCROLL_THRESHOLD;
       this.scrollPosition = scrollTop;
     },
 
@@ -397,9 +408,9 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
     },
 
     // 检查是否接近底部
-    isNearBottom(container, threshold = SCROLL_THRESHOLD) {
+    isNearBottom(container) {
       const { scrollTop, scrollHeight, clientHeight } = container;
-      return scrollHeight - (scrollTop + clientHeight) <= threshold;
+      return scrollHeight - (scrollTop + clientHeight) <= SCROLL_CONSTANTS.SCROLL_THRESHOLD;
     }
   };
 
@@ -1010,6 +1021,211 @@ export function styleResponseContainer(container) {
     "-ms-user-select": "text",
   });
   container.id = "ai-response-container";
+
+  // 创建滚动状态管理器
+  const scrollStateManager = {
+    isManualScrolling: false,
+    lastScrollTime: 0,
+    scrollTimeout: null,
+    scrollRAF: null,
+    // 新增：跟踪滚动动画状态
+    scrollAnimation: {
+      isAnimating: false,
+      startTime: 0,
+      startPosition: 0,
+      targetPosition: 0,
+      duration: SCROLL_CONSTANTS.ANIMATION_DURATION,
+    },
+    // 新增：滚动惯性追踪
+    scrollMomentum: {
+      velocity: 0,
+      timestamp: 0,
+      positions: [],
+      maxSamples: SCROLL_CONSTANTS.MAX_MOMENTUM_SAMPLES,
+    },
+
+    // 设置手动滚动状态
+    setManualScrolling(value) {
+      this.isManualScrolling = value;
+      if (value) {
+        this.lastScrollTime = Date.now();
+        this.scrollAnimation.isAnimating = false;
+      }
+    },
+
+    // 新增：计算滚动速度
+    updateScrollVelocity(currentPosition) {
+      const now = Date.now();
+      const momentum = this.scrollMomentum;
+
+      momentum.positions.push({
+        position: currentPosition,
+        timestamp: now
+      });
+
+      if (momentum.positions.length > momentum.maxSamples) {
+        momentum.positions.shift();
+      }
+
+      if (momentum.positions.length >= 2) {
+        const newest = momentum.positions[momentum.positions.length - 1];
+        const oldest = momentum.positions[0];
+        const timeDiff = newest.timestamp - oldest.timestamp;
+
+        if (timeDiff > 0) {
+          momentum.velocity = (newest.position - oldest.position) / timeDiff;
+        }
+      }
+    },
+
+    // 新增：检查是否正在快速滚动
+    isRapidScrolling() {
+      return Math.abs(this.scrollMomentum.velocity) > SCROLL_CONSTANTS.VELOCITY_THRESHOLD;
+    },
+
+    // 检查是否在手动滚动冷却期
+    isInCooldown() {
+      return Date.now() - this.lastScrollTime < SCROLL_CONSTANTS.COOLDOWN_DURATION || this.isRapidScrolling();
+    },
+
+    // 保存滚动位置
+    saveScrollPosition(container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+      this.isAtBottom = distanceFromBottom <= SCROLL_CONSTANTS.SCROLL_THRESHOLD;
+      this.scrollPosition = scrollTop;
+    },
+
+    // 恢复滚动位置
+    restoreScrollPosition(container) {
+      if (this.isAtBottom || getIsGenerating()) {
+        container.scrollTop = container.scrollHeight;
+      } else {
+        const scrollRatio = this.scrollPosition / container.scrollHeight;
+        container.scrollTop = scrollRatio * container.scrollHeight;
+      }
+    },
+
+    // 检查是否接近底部
+    isNearBottom(container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      return scrollHeight - (scrollTop + clientHeight) <= SCROLL_CONSTANTS.SCROLL_THRESHOLD;
+    },
+
+    // 清理所有计时器
+    cleanup() {
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout);
+      }
+      if (this.scrollRAF) {
+        cancelAnimationFrame(this.scrollRAF);
+      }
+      this.scrollAnimation.isAnimating = false;
+      this.scrollMomentum.positions = [];
+    }
+  };
+
+  // 保存状态管理器到容器实例
+  container.scrollStateManager = scrollStateManager;
+
+  // 优化的滚动处理函数
+  const handleOptimizedScroll = (() => {
+    let ticking = false;
+    let lastScrollTop = container.scrollTop;
+    let lastEventTime = Date.now();
+
+    // 新增：使用 WeakMap 存储每个容器的去抖动配置
+    const containerConfig = new WeakMap();
+
+    // 新增：初始化容器配置
+    containerConfig.set(container, {
+      smoothingFactor: 0.2,  // 平滑因子
+      minScrollDelta: 1,     // 最小滚动增量
+      velocityThreshold: 0.5 // 速度阈值
+    });
+
+    return (event) => {
+      const config = containerConfig.get(container);
+      const now = Date.now();
+      const timeDelta = now - lastEventTime;
+      lastEventTime = now;
+
+      // 如果是用户手动滚动
+      if (event.type === 'wheel' || event.type === 'touchmove') {
+        scrollStateManager.setManualScrolling(true);
+
+        // 新增：更新滚动动量
+        scrollStateManager.updateScrollVelocity(container.scrollTop);
+      }
+
+      // 防止在滚动动画进行时触发新的滚动
+      if (scrollStateManager.isManualScrolling && scrollStateManager.isInCooldown()) {
+        // 新增：如果是快速滚动，允许用户完全控制
+        if (scrollStateManager.isRapidScrolling()) {
+          event.stopPropagation();
+          if (container.perfectScrollbar) {
+            container.perfectScrollbar.update();
+          }
+          return;
+        }
+      }
+
+      if (!ticking) {
+        scrollStateManager.scrollRAF = requestAnimationFrame(() => {
+          const currentScrollTop = container.scrollTop;
+          const rawScrollDelta = currentScrollTop - lastScrollTop;
+
+          // 新增：应用平滑处理
+          const smoothedDelta = rawScrollDelta * config.smoothingFactor;
+          const finalDelta = Math.abs(smoothedDelta) < config.minScrollDelta
+            ? rawScrollDelta
+            : smoothedDelta;
+
+          // 只在滚动差值大于阈值时更新
+          if (Math.abs(finalDelta) > config.minScrollDelta) {
+            handleUserScroll();
+            if (container.perfectScrollbar) {
+              container.perfectScrollbar.update();
+            }
+            updateAllowAutoScroll(container);
+            lastScrollTop = currentScrollTop;
+          }
+
+          ticking = false;
+        });
+
+        ticking = true;
+      }
+
+      // 重置手动滚动状态的延时器
+      if (scrollStateManager.scrollTimeout) {
+        clearTimeout(scrollStateManager.scrollTimeout);
+      }
+
+      scrollStateManager.scrollTimeout = setTimeout(() => {
+        scrollStateManager.setManualScrolling(false);
+        // 新增：清理滚动动量数据
+        scrollStateManager.scrollMomentum.positions = [];
+        scrollStateManager.scrollMomentum.velocity = 0;
+      }, 150); // 150ms后重置状态
+    };
+  })();
+
+  // 使用 passive 选项优化滚动性能
+  container.addEventListener('wheel', handleOptimizedScroll, { passive: true });
+  container.addEventListener('touchmove', handleOptimizedScroll, { passive: true });
+  container.addEventListener('scroll', handleOptimizedScroll, { passive: true });
+
+  // 在组件卸载时清理
+  const cleanup = () => {
+    container.scrollStateManager.cleanup();
+    container.removeEventListener('wheel', handleOptimizedScroll);
+    container.removeEventListener('touchmove', handleOptimizedScroll);
+    container.removeEventListener('scroll', handleOptimizedScroll);
+  };
+
+  // 保存清理函数到容器实例
+  container.cleanup = cleanup;
 }
 
 function adjustPopupPosition(rect, popup) {
