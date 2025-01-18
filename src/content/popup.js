@@ -564,59 +564,147 @@ function createQuestionInputContainer(aiResponseContainer) {
   textarea.removeAttribute("style");
   textarea.classList.add("textarea-default");
 
-  let isComposing = false;
-  let lastHeight = 40;
+  // 使用WeakMap存储私有状态
+  const textareaState = new WeakMap();
 
-  function adjustHeight(element, force = false) {
-    if (isComposing && !force) return;
+  // 创建防抖函数
+  const debounce = (fn, delay) => {
+    let timer = null;
+    return (...args) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        fn.apply(this, args);
+        timer = null;
+      }, delay);
+    };
+  };
+
+  // 创建节流函数
+  const throttle = (fn, delay) => {
+    let lastTime = 0;
+    return (...args) => {
+      const now = Date.now();
+      if (now - lastTime >= delay) {
+        fn.apply(this, args);
+        lastTime = now;
+      }
+    };
+  };
+
+  // 初始化textarea状态
+  const initTextareaState = (element) => {
+    const state = {
+      isComposing: false,
+      lastHeight: 40,
+      compositionText: '',
+      originalValue: '',
+      lock: false
+    };
+    textareaState.set(element, state);
+    return state;
+  };
+
+  // 获取textarea状态
+  const getState = (element) => {
+    return textareaState.get(element) || initTextareaState(element);
+  };
+
+  // 更新高度的核心逻辑
+  const updateHeight = (element) => {
+    const state = getState(element);
+    if (state.lock) return;
 
     const currentHeight = element.style.height;
     element.style.height = "40px";
     const scrollHeight = element.scrollHeight;
 
-    if (element.value.trim() === "") {
+    const valueToCheck = state.isComposing
+      ? element.value + state.compositionText
+      : element.value;
+
+    if (!valueToCheck.trim()) {
       element.style.height = "40px";
       element.style.minHeight = "40px";
-      lastHeight = 40;
+      state.lastHeight = 40;
     } else {
       const newHeight = Math.min(Math.max(scrollHeight, 60), 120);
-      if (newHeight !== lastHeight) {
-        element.style.height = newHeight + "px";
+      if (newHeight !== state.lastHeight) {
+        element.style.height = `${newHeight}px`;
         element.style.minHeight = "60px";
-        lastHeight = newHeight;
+        state.lastHeight = newHeight;
       } else {
         element.style.height = currentHeight;
       }
     }
-  }
+  };
 
-  textarea.addEventListener("compositionstart", () => {
-    isComposing = true;
-  }, { passive: true });
+  // 处理输入法事件
+  const handleComposition = (() => {
+    const handlers = {
+      compositionstart(event) {
+        const state = getState(event.target);
+        state.isComposing = true;
+        state.compositionText = event.data || '';
+      },
 
-  textarea.addEventListener("compositionend", () => {
-    isComposing = false;
-    adjustHeight(textarea, true);
-  }, { passive: true });
+      compositionupdate(event) {
+        const state = getState(event.target);
+        state.compositionText = event.data || '';
+      },
 
-  textarea.addEventListener("input", () => {
-    if (!isComposing) {
-      adjustHeight(textarea);
-    }
-  }, { passive: true });
-
-  textarea.addEventListener("keydown", (e) => {
-    if (e.metaKey || e.ctrlKey || isComposing) {
-      return;
-    }
-
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (!getIsGenerating()) {
-        sendQuestion();
+      compositionend(event) {
+        const state = getState(event.target);
+        state.isComposing = false;
+        state.compositionText = '';
+        // 在输入完成后更新高度
+        setTimeout(() => updateHeight(event.target), 0);
       }
-    }
-  });
+    };
+
+    return (event) => {
+      const handler = handlers[event.type];
+      if (handler) {
+        handler(event);
+      }
+    };
+  })();
+
+  // 事件监听器设置
+  const setupEventListeners = (element) => {
+    const options = { passive: true };
+
+    // 输入法事件
+    element.addEventListener("compositionstart", handleComposition, options);
+    element.addEventListener("compositionupdate", handleComposition, options);
+    element.addEventListener("compositionend", handleComposition, options);
+
+    // 常规输入事件
+    element.addEventListener("input", (event) => {
+      const state = getState(event.target);
+      if (!state.isComposing) {
+        updateHeight(event.target);
+      }
+    }, options);
+
+    // 按键事件
+    element.addEventListener("keydown", (event) => {
+      const state = getState(event.target);
+      if (event.key === "Enter" && !event.shiftKey && !state.isComposing) {
+        event.preventDefault();
+        if (!getIsGenerating()) {
+          sendQuestion();
+        }
+      }
+    });
+  };
+
+  // 初始化textarea
+  setupEventListeners(textarea);
+
+  // 设置初始样式
+  textarea.style.height = "40px";
+  textarea.style.minHeight = "40px";
+  textarea.style.maxHeight = "120px";
 
   const style = document.createElement('style');
   style.textContent = `
@@ -686,12 +774,9 @@ function createQuestionInputContainer(aiResponseContainer) {
   `;
   document.head.appendChild(style);
 
-  textarea.style.height = "40px";
-  textarea.style.minHeight = "40px";
-  textarea.style.maxHeight = "120px";
-
   function sendQuestion() {
-    if (getIsGenerating() || isComposing) {
+    const state = getState(textarea);
+    if (getIsGenerating() || state.isComposing) {
       return;
     }
 
@@ -701,7 +786,7 @@ function createQuestionInputContainer(aiResponseContainer) {
       textarea.value = "";
       textarea.style.height = "40px";
       textarea.style.minHeight = "40px";
-      lastHeight = 40;
+      state.lastHeight = 40;
     }
   }
 
