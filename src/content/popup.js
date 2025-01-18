@@ -256,8 +256,9 @@ export function createPopup(text, rect, hideQuestion = false) {
 
   aiResponseContainer.style.paddingBottom = "10px";
   aiResponseContainer.appendChild(aiResponseElement);
-  popup.appendChild(aiResponseContainer);  // 先添加到 DOM 中
+  popup.appendChild(aiResponseContainer);
 
+  // 创建并保存 PerfectScrollbar 实例
   const ps = new PerfectScrollbar(aiResponseContainer, {
     suppressScrollX: true,
     wheelPropagation: false,
@@ -290,42 +291,18 @@ export function createPopup(text, rect, hideQuestion = false) {
     aiResponseContainer
   );
 
-  aiResponseContainer.addEventListener('wheel', () => {
+  // 优化滚动事件监听
+  const handleScroll = () => {
     handleUserScroll();
-    // 使用 requestIdleCallback 延迟非关键更新
-    if (window.requestIdleCallback) {
-      requestIdleCallback(() => {
-        ps.update();
-        updateAllowAutoScroll(aiResponseContainer);
-      });
-    } else {
-      requestAnimationFrame(() => {
-        ps.update();
-        updateAllowAutoScroll(aiResponseContainer);
-      });
-    }
-  }, { passive: true });
+    requestAnimationFrame(() => {
+      ps.update();
+      updateAllowAutoScroll(aiResponseContainer);
+    });
+  };
 
-  aiResponseContainer.addEventListener('touchstart', () => {
-    handleUserScroll();
-  }, { passive: true });
-
-  // 使用 passive 和 capture 优化滚动性能
-  aiResponseContainer.addEventListener('scroll', () => {
-    handleUserScroll();
-    // 使用 requestIdleCallback 延迟非关键更新
-    if (window.requestIdleCallback) {
-      requestIdleCallback(() => {
-        ps.update();
-        updateAllowAutoScroll(aiResponseContainer);
-      });
-    } else {
-      requestAnimationFrame(() => {
-        ps.update();
-        updateAllowAutoScroll(aiResponseContainer);
-      });
-    }
-  }, { passive: true, capture: true });
+  aiResponseContainer.addEventListener('wheel', handleScroll, { passive: true });
+  aiResponseContainer.addEventListener('touchstart', handleUserScroll, { passive: true });
+  aiResponseContainer.addEventListener('scroll', handleScroll, { passive: true });
 
   const dragHandle = createDragHandle();
   popup.appendChild(dragHandle);
@@ -401,24 +378,28 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
 
     // 保存滚动位置
     saveScrollPosition(container) {
-      this.scrollPosition = container.scrollTop;
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+      this.isAtBottom = distanceFromBottom <= SCROLL_THRESHOLD;
+      this.scrollPosition = scrollTop;
     },
 
     // 恢复滚动位置
-    restoreScrollPosition(container, forceBottom = false) {
-      if (forceBottom || this.isNearBottom(container)) {
+    restoreScrollPosition(container) {
+      if (this.isAtBottom || getIsGenerating()) {
+        // 如果之前在底部或正在生成内容，保持在底部
         container.scrollTop = container.scrollHeight;
-      } else if (!this.isExpanding) {
-        // 在收缩时保持相对位置
+      } else {
+        // 保持相对位置
         const scrollRatio = this.scrollPosition / container.scrollHeight;
         container.scrollTop = scrollRatio * container.scrollHeight;
       }
-      // 扩大时保持原位置
     },
 
     // 检查是否接近底部
-    isNearBottom(container, threshold = 50) {
-      return container.scrollHeight - (container.scrollTop + container.clientHeight) <= threshold;
+    isNearBottom(container, threshold = SCROLL_THRESHOLD) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      return scrollHeight - (scrollTop + clientHeight) <= threshold;
     }
   };
 
@@ -453,7 +434,7 @@ function setupInteractions(popup, dragHandle, aiResponseContainer) {
           }
 
           // 根据状态恢复滚动位置
-          ResizeState.restoreScrollPosition(aiResponseContainer, getIsGenerating());
+          ResizeState.restoreScrollPosition(aiResponseContainer);
         });
       }
     });
@@ -851,16 +832,10 @@ function sendQuestionToAI(question) {
 
   aiResponseContainer.scrollTop = aiResponseContainer.scrollHeight;
 
-  // 获取已存在的 PerfectScrollbar 实例或创建新的
-  let ps = aiResponseContainer.ps;
-  if (!ps) {
-    ps = new PerfectScrollbar(aiResponseContainer, {
-      suppressScrollX: true,
-      wheelPropagation: false,
-    });
-    aiResponseContainer.ps = ps;  // 保存实例以供后续使用
-  } else {
-    ps.update();  // 更新已存在的实例
+  // 使用已存在的 PerfectScrollbar 实例
+  const ps = aiResponseContainer.perfectScrollbar;
+  if (ps) {
+    ps.update();
   }
 
   const abortController = new AbortController();
