@@ -27,6 +27,8 @@ const translations = {
     textSelection: "文本选择使用",
     textSelectionDesc:
       "在网页上选中任意文本后，点击旁边的 DeepSeek 图标，即可呼出对话窗口，获取智能回答。",
+    quickButton: "快捷按钮设置",
+    quickButtonDesc: "在扩展设置中开启快捷按钮后，选中网页文本时会自动显示一个便捷的 AI 按钮。点击该按钮即可快速呼出会话窗口，让您的操作更加流畅。",
     shortcutUsage: "快捷键使用",
     shortcutUsageDesc:
       "无论是否选中文本，都可以直接使用快捷键 Ctrl+Shift+D（Windows）或 Command+Shift+D（Mac）呼出对话窗口。",
@@ -86,6 +88,8 @@ const translations = {
     textSelection: "Text Selection",
     textSelectionDesc:
       "After selecting any text on a webpage, click the DeepSeek icon to open the chat window and get intelligent responses.",
+    quickButton: "Quick Button Settings",
+    quickButtonDesc: "When the Quick Button is enabled in extension settings, an AI button will automatically appear when you select text on a webpage. Click this button to quickly open the chat window for a smoother experience.",
     shortcutUsage: "Shortcut Usage",
     shortcutUsageDesc:
       "Whether or not text is selected, you can directly use the shortcut Ctrl+Shift+D (Windows) or Command+Shift+D (Mac) to open the chat window.",
@@ -173,6 +177,8 @@ const updateContent = () => {
     langData.textSelection;
   document.getElementById("text-selection-desc").textContent =
     langData.textSelectionDesc;
+  document.getElementById("quick-button").textContent = langData.quickButton;
+  document.getElementById("quick-button-desc").textContent = langData.quickButtonDesc;
   document.getElementById("shortcut-usage").textContent =
     langData.shortcutUsage;
   document.getElementById("shortcut-usage-desc").textContent =
