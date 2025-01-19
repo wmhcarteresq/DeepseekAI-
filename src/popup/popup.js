@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function validateApiKey(apiKey, callback) {
+    const currentLang = getCurrentLang();
     fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // API Key 输入框失焦时自动验证
   apiKeyInput.addEventListener("blur", function () {
     const apiKey = apiKeyInput.value.trim();
+    const currentLang = getCurrentLang();
 
     // 如果输入框为空或者值没有变化，不进行验证
     if (apiKey === "" || apiKey === lastValidatedValue) {
@@ -74,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // 显示加载状态
-    showMessage('<span class="loading"></span> 正在验证...', true);
+    showMessage('<span class="loading"></span> ' + translations[currentLang].validating, true);
 
     validateApiKey(apiKey, function (isValid) {
       if (isValid) {
@@ -94,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
     chrome.storage.sync.set({ language: languageSelect.value });
   });
 
-  // 划词翻译开关自动保存
+  // 快捷按钮开关自动保存
   selectionEnabled.addEventListener("change", function () {
     chrome.storage.sync.set({ selectionEnabled: selectionEnabled.checked });
   });
@@ -265,6 +267,7 @@ const translations = {
     apiKeyInvalid: "API Key 无效",
     saveSuccess: "设置已保存",
     selectionEnabledLabel: "快捷按钮",
+    validating: "正在验证...",
   },
   en: {
     headerTitle: "DeepSeek AI",
@@ -283,6 +286,7 @@ const translations = {
     apiKeyInvalid: "Invalid API Key",
     saveSuccess: "Settings saved",
     selectionEnabledLabel: "Quick Button",
+    validating: "Validating...",
   },
 };
 
