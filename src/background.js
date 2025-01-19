@@ -73,11 +73,11 @@ function getGreeting() {
   }
 }
 
-// 检查快捷键是否已设置
-chrome.runtime.onInstalled.addListener((reason) => {
-  if (reason === chrome.runtime.OnInstalledReason.INSTALL) {
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    // 打开说明页面
     chrome.tabs.create({
-      url: 'chrome://extensions/shortcuts',
+      url: chrome.runtime.getURL('Instructions/Instructions.html')
     });
   }
 });

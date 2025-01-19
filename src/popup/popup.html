@@ -86,14 +86,16 @@
       }
 
       .input-container {
+        display: flex;
+        align-items: center;
         width: 100%;
         position: relative;
         margin-bottom: 16px;
       }
 
       input {
-        width: 80%;
-        padding: 10px 50px 10px 12px;
+        flex: 1;
+        padding: 10px 40px 10px 12px;
         font-size: 14px;
         border-radius: 8px;
         background-color: rgba(0, 0, 0, 0.05);
@@ -130,17 +132,16 @@
       }
 
       .toggle-visibility {
-        background: none;
-        border: none;
-        cursor: pointer;
         position: absolute;
         right: 5px;
         top: 50%;
         transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
         padding: 4px;
         opacity: 0.6;
         transition: all 0.2s ease;
-        border-radius: 4px;
       }
 
       .toggle-visibility:hover {
@@ -595,6 +596,29 @@
           background-color: #ffffff;
         }
       }
+
+      .verify-button {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #007aff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .verify-button:hover {
+        background-color: #0066d6;
+      }
+
+      .verify-button:active {
+        transform: translateY(-50%) scale(0.98);
+      }
     </style>
   </head>
   <body>
@@ -688,10 +712,6 @@
             <label for="selectionEnabled" class="switch-label"></label>
           </div>
         </div>
-
-        <button id="saveButton">
-          <span class="button-content">保存</span>
-        </button>
       </div>
 
       <div class="settings-section">

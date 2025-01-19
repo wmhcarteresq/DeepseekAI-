@@ -20,18 +20,16 @@ const translations = {
       "点击工具栏中的扩展图标",
       "输入您的 DeepSeek API 密钥",
       "选择您偏好的回答语言",
+      "开启快捷按钮功能",
       "设置你偏好的快捷键",
       "在任意网页上选择文本，开始与 AI 对话！",
     ],
     usage: "使用方法",
-    textSelection: "文本选择使用",
-    textSelectionDesc:
-      "在网页上选中任意文本后，点击旁边的 DeepSeek 图标，即可呼出对话窗口，获取智能回答。",
-    quickButton: "快捷按钮设置",
+    quickButton: "快捷按钮使用",
     quickButtonDesc: "在扩展设置中开启快捷按钮后，选中网页文本时会自动显示一个便捷的 AI 按钮。点击该按钮即可快速呼出会话窗口，让您的操作更加流畅。",
     shortcutUsage: "快捷键使用",
     shortcutUsageDesc:
-      "无论是否选中文本，都可以直接使用快捷键 Ctrl+Shift+D（Windows）或 Command+Shift+D（Mac）呼出对话窗口。",
+      "无论是否选中文本，都可以直接使用自定义快捷键呼出对话窗口。",
     features: "功能特点",
     smartChat: "智能对话",
     smartChat1: "• 支持多轮对话，记住上下文",
@@ -44,11 +42,11 @@ const translations = {
     uiInteraction4: "• 代码块一键复制",
     uiInteraction5: "• 支持代码高亮",
     personalization: "个性化设置",
-    personalization1: "• 自定义语言偏好",
+    personalization1: "• 自定义AI回复语言偏好",
     personalization2: "• 深色模式自动适配",
     personalization3: "• 可配置快捷键",
     tips: "使用技巧",
-    tip1: "💡 使用快捷键可以更快地打开对话窗口，Mac 为 Command + Shift + D，Windows/Linux 为 Ctrl + Shift + D。",
+    tip1: "💡 可自定义快捷键以更快地打开对话窗口",
     tip2: "💡 点击代码块右上角的复制按钮，可以快速复制代码片段",
     tip3: "💡 如果对 AI 的回答不满意，可以点击重新生成按钮获取新的答案",
     feedback: "反馈与支持",
@@ -81,18 +79,16 @@ const translations = {
       "Click the extension icon in the toolbar",
       "Enter your DeepSeek API key",
       "Select your preferred response language",
+      "Enable the Quick Button feature",
       "Set your preferred shortcut keys",
-      "Select text on any webpage and start chatting with AI!",
+      "Select text on the webpage to start a conversation with AI!",
     ],
     usage: "Usage",
-    textSelection: "Text Selection",
-    textSelectionDesc:
-      "After selecting any text on a webpage, click the DeepSeek icon to open the chat window and get intelligent responses.",
-    quickButton: "Quick Button Settings",
+    quickButton: "Quick Button Usage",
     quickButtonDesc: "When the Quick Button is enabled in extension settings, an AI button will automatically appear when you select text on a webpage. Click this button to quickly open the chat window for a smoother experience.",
     shortcutUsage: "Shortcut Usage",
     shortcutUsageDesc:
-      "Whether or not text is selected, you can directly use the shortcut Ctrl+Shift+D (Windows) or Command+Shift+D (Mac) to open the chat window.",
+      "Whether or not text is selected, you can directly use custom shortcuts to bring up the dialog window.",
     features: "Features",
     smartChat: "Smart Chat",
     smartChat1: "• Supports multi-turn conversations with context memory",
@@ -105,11 +101,11 @@ const translations = {
     uiInteraction4: "• One-click code block copying",
     uiInteraction5: "• Supports code highlighting",
     personalization: "Personalization",
-    personalization1: "• Customizable language preferences",
+    personalization1: "• Customize AI response language preference.",
     personalization2: "• Automatic dark mode adaptation",
     personalization3: "• Configurable shortcuts",
     tips: "Tips",
-    tip1: "💡 Use shortcuts to quickly open the chat window: Command + Shift + D (Mac) or Ctrl + Shift + D (Windows/Linux).",
+    tip1: "💡 Customizable shortcuts for faster opening of the chat window.",
     tip2: "💡 Click the copy button on the code block to quickly copy the code snippet.",
     tip3: "💡 If you're not satisfied with the AI's response, click the regenerate button to get a new answer.",
     feedback: "Feedback & Support",
@@ -173,10 +169,6 @@ const updateContent = () => {
   });
 
   document.getElementById("usage").textContent = langData.usage;
-  document.getElementById("text-selection").textContent =
-    langData.textSelection;
-  document.getElementById("text-selection-desc").textContent =
-    langData.textSelectionDesc;
   document.getElementById("quick-button").textContent = langData.quickButton;
   document.getElementById("quick-button-desc").textContent = langData.quickButtonDesc;
   document.getElementById("shortcut-usage").textContent =

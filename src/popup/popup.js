@@ -1,17 +1,19 @@
 document.addEventListener("DOMContentLoaded", function () {
   const apiKeyInput = document.getElementById("apiKey");
-  const saveButton = document.getElementById("saveButton");
   const errorMessage = document.getElementById("errorMessage");
   const toggleButton = document.getElementById("toggleVisibility");
   const iconSwitch = document.getElementById("iconSwitch");
   const languageSelect = document.getElementById("language");
   const selectionEnabled = document.getElementById("selectionEnabled");
+  const currentLang = getCurrentLang();
+  let lastValidatedValue = '';
 
   // Load saved API key, language preference and selection enabled state
   chrome.storage.sync.get(["apiKey", "language", "selectionEnabled"], function (data) {
-    console.log('data', data);
     if (data.apiKey) {
       apiKeyInput.value = data.apiKey;
+      lastValidatedValue = data.apiKey;
+      handleBalanceRefresh();
     }
     if (data.language) {
       languageSelect.value = data.language;
@@ -62,33 +64,39 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Save API key, language preference and selection enabled state
-  saveButton.addEventListener("click", function () {
+  // API Key 输入框失焦时自动验证
+  apiKeyInput.addEventListener("blur", function () {
     const apiKey = apiKeyInput.value.trim();
-    const language = languageSelect.value;
-    const isSelectionEnabled = selectionEnabled.checked;
 
-    if (apiKey === "") {
-      showMessage(translations[getCurrentLang()].apiKeyEmpty, false);
+    // 如果输入框为空或者值没有变化，不进行验证
+    if (apiKey === "" || apiKey === lastValidatedValue) {
       return;
     }
 
+    // 显示加载状态
+    showMessage('<span class="loading"></span> 正在验证...', true);
+
     validateApiKey(apiKey, function (isValid) {
       if (isValid) {
-        chrome.storage.sync.set(
-          {
-            apiKey: apiKey,
-            language: language,
-            selectionEnabled: isSelectionEnabled
-          },
-          function () {
-            showMessage(translations[getCurrentLang()].saveSuccess, true);
-          }
-        );
+        chrome.storage.sync.set({ apiKey: apiKey }, function () {
+          lastValidatedValue = apiKey;
+          showMessage(translations[currentLang].saveSuccess, true);
+          handleBalanceRefresh(); // 刷新余额显示
+        });
       } else {
-        showMessage(translations[getCurrentLang()].apiKeyInvalid, false);
+        showMessage(translations[currentLang].apiKeyInvalid, false);
       }
     });
+  });
+
+  // 语言选择自动保存
+  languageSelect.addEventListener("change", function () {
+    chrome.storage.sync.set({ language: languageSelect.value });
+  });
+
+  // 划词翻译开关自动保存
+  selectionEnabled.addEventListener("change", function () {
+    chrome.storage.sync.set({ selectionEnabled: selectionEnabled.checked });
   });
 
   function showMessage(message, isSuccess) {
@@ -104,15 +112,17 @@ document.addEventListener("DOMContentLoaded", function () {
     // 创建新消息
     const messageDiv = document.createElement('div');
     messageDiv.className = isSuccess ? 'success-message' : 'error-message';
-    messageDiv.textContent = message;
+    messageDiv.innerHTML = message;
 
     // 插入到input-container的开头
     messageContainer.insertBefore(messageDiv, messageContainer.firstChild);
 
-    // 2秒后移除消息
-    setTimeout(() => {
-      messageDiv.remove();
-    }, 2000);
+    // 如果不是加载状态消息，2秒后移除
+    if (!message.includes('loading')) {
+      setTimeout(() => {
+        messageDiv.remove();
+      }, 2000);
+    }
   }
 
   document.getElementById('shortcutSettings').addEventListener('click', (e) => {
@@ -177,6 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateBalanceDisplay(balanceData) {
+    const currentLang = getCurrentLang();
     if (!balanceData.is_available) {
       totalBalance.textContent = translations[currentLang].noBalance;
       return;
@@ -190,6 +201,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isBalanceLoading) return;
 
     const apiKey = await chrome.storage.sync.get('apiKey');
+    const currentLang = getCurrentLang();
+
     if (!apiKey.apiKey) {
       totalBalance.textContent = translations[currentLang].noApiKey;
       return;
@@ -228,7 +241,11 @@ document.addEventListener("DOMContentLoaded", function () {
       handleBalanceRefresh();
     }
   });
+
+  // 初始化语言
+  updateContent();
 });
+
 // 语言切换功能
 const translations = {
   zh: {
@@ -338,9 +355,4 @@ document.getElementById('language').addEventListener('change', (e) => {
   // 这里不需要调用 setCurrentLang 和 updateContent
   // 因为这个选择器只用于设置大模型的回复语言
   // 实际的保存会在点击保存按钮时进行
-});
-
-// 初始化语言
-document.addEventListener('DOMContentLoaded', () => {
-  updateContent();
 });
