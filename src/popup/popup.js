@@ -5,15 +5,22 @@ document.addEventListener("DOMContentLoaded", function () {
   const toggleButton = document.getElementById("toggleVisibility");
   const iconSwitch = document.getElementById("iconSwitch");
   const languageSelect = document.getElementById("language");
+  const selectionEnabled = document.getElementById("selectionEnabled");
 
-  // Load saved API key and language preference
-  chrome.storage.sync.get(["apiKey", "language"], function (data) {
+  // Load saved API key, language preference and selection enabled state
+  chrome.storage.sync.get(["apiKey", "language", "selectionEnabled"], function (data) {
     console.log('data', data);
     if (data.apiKey) {
       apiKeyInput.value = data.apiKey;
     }
     if (data.language) {
       languageSelect.value = data.language;
+    }
+    if (typeof data.selectionEnabled !== 'undefined') {
+      selectionEnabled.checked = data.selectionEnabled;
+    } else {
+      // 默认开启
+      selectionEnabled.checked = true;
     }
   });
 
@@ -55,10 +62,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Save API key and language preference
+  // Save API key, language preference and selection enabled state
   saveButton.addEventListener("click", function () {
     const apiKey = apiKeyInput.value.trim();
     const language = languageSelect.value;
+    const isSelectionEnabled = selectionEnabled.checked;
 
     if (apiKey === "") {
       showMessage(translations[getCurrentLang()].apiKeyEmpty, false);
@@ -68,7 +76,11 @@ document.addEventListener("DOMContentLoaded", function () {
     validateApiKey(apiKey, function (isValid) {
       if (isValid) {
         chrome.storage.sync.set(
-          { apiKey: apiKey, language: language },
+          {
+            apiKey: apiKey,
+            language: language,
+            selectionEnabled: isSelectionEnabled
+          },
           function () {
             showMessage(translations[getCurrentLang()].saveSuccess, true);
           }
@@ -235,6 +247,7 @@ const translations = {
     apiKeyEmpty: "请输入 API Key",
     apiKeyInvalid: "API Key 无效",
     saveSuccess: "设置已保存",
+    selectionEnabledLabel: "快捷按钮",
   },
   en: {
     headerTitle: "DeepSeek AI",
@@ -252,6 +265,7 @@ const translations = {
     apiKeyEmpty: "Please enter API Key",
     apiKeyInvalid: "Invalid API Key",
     saveSuccess: "Settings saved",
+    selectionEnabledLabel: "Quick Button",
   },
 };
 
@@ -275,6 +289,7 @@ const updateContent = () => {
     'shortcutDescription': langData.shortcutDescription,
     'instructionsText': langData.instructionsText,
     'balanceText': langData.balanceText,
+    'selectionEnabledLabel': langData.selectionEnabledLabel,
   };
 
   // 批量更新DOM

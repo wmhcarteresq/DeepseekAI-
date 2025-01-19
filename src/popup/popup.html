@@ -65,27 +65,30 @@
         color: #ff3b30;
         font-size: 13px;
         position: absolute;
-        top: -24px;
+        top: 100%;
         left: 0;
         width: 100%;
-        text-align: left;
+        text-align: center;
         animation: fadeIn 0.2s ease;
+        margin-top: 4px;
       }
 
       .success-message {
         color: #007aff;
         font-size: 13px;
         position: absolute;
-        top: -24px;
+        top: 100%;
         left: 0;
         width: 100%;
-        text-align: left;
+        text-align: center;
         animation: fadeIn 0.2s ease;
+        margin-top: 4px;
       }
 
       .input-container {
         width: 100%;
         position: relative;
+        margin-bottom: 16px;
       }
 
       input {
@@ -399,6 +402,7 @@
         justify-content: space-between;
         padding: 8px 0;
         border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+        margin-top: -4px;
       }
 
       .balance-text {
@@ -525,6 +529,72 @@
           transform: rotate(360deg);
         }
       }
+
+      .selection-switch {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+      }
+
+      .selection-switch label {
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .switch-wrapper {
+        position: relative;
+        width: 44px;
+        height: 26px;
+      }
+
+      .switch-input {
+        display: none;
+      }
+
+      .switch-label {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 44px;
+        height: 26px;
+        border-radius: 34px;
+        background-color: rgba(120, 120, 128, 0.16);
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .switch-label:before {
+        content: "";
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+      }
+
+      .switch-input:checked + .switch-label {
+        background-color: #34C759;
+      }
+
+      .switch-input:checked + .switch-label:before {
+        transform: translateX(18px);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .switch-label:before {
+          background-color: #636366;
+        }
+
+        .switch-input:checked + .switch-label:before {
+          background-color: #ffffff;
+        }
+      }
     </style>
   </head>
   <body>
@@ -609,6 +679,14 @@
             <option value="ar">العربية</option>
             <option value="hi">हिन्दी</option>
           </select>
+        </div>
+
+        <div class="selection-switch">
+          <label for="selectionEnabled" id="selectionEnabledLabel">划词翻译</label>
+          <div class="switch-wrapper">
+            <input type="checkbox" id="selectionEnabled" class="switch-input" />
+            <label for="selectionEnabled" class="switch-label"></label>
+          </div>
         </div>
 
         <button id="saveButton">

@@ -5,11 +5,29 @@ import "perfect-scrollbar/css/perfect-scrollbar.css";
 let currentIcon = null;
 let isCreatingPopup = false;
 let isHandlingIconClick = false;
+let isSelectionEnabled = true; // 默认启用
 
 const link = document.createElement("link");
 link.rel = "stylesheet";
 link.href = chrome.runtime.getURL("style.css");
 document.head.appendChild(link);
+
+// 加载设置
+chrome.storage.sync.get(['selectionEnabled'], function(data) {
+  if (typeof data.selectionEnabled !== 'undefined') {
+    isSelectionEnabled = data.selectionEnabled;
+  }
+});
+
+// 监听设置变化
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  if (namespace === 'sync' && changes.selectionEnabled) {
+    isSelectionEnabled = changes.selectionEnabled.newValue;
+    if (!isSelectionEnabled) {
+      removeIcon();
+    }
+  }
+});
 
 function removeIcon() {
   if (currentIcon && document.body.contains(currentIcon)) {
@@ -53,7 +71,7 @@ function handleIconClick(e, selectedText, rect, selection) {
 }
 
 document.addEventListener("mouseup", function (event) {
-  if (isCreatingPopup || isHandlingIconClick) return;
+  if (!isSelectionEnabled || isCreatingPopup || isHandlingIconClick) return;
 
   const selection = window.getSelection();
   const selectedText = selection.toString().trim();
