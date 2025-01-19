@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       // 如果没有选中文本，将弹窗放在页面中心
       rect = {
-        left: window.innerWidth / 2 - 290,
+        left: window.innerWidth / 2 ,
         top: window.innerHeight / 2 - 190,
         width: 0,
         height: 0

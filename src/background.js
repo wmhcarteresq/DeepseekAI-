@@ -3,7 +3,9 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getApiKeyAndLanguage") {
     chrome.storage.sync.get(["apiKey", "language"], function (data) {
-      sendResponse({ apiKey: data.apiKey, language: data.language || "zh" });
+      console.log('data', data);
+
+      sendResponse({ apiKey: data.apiKey, language: data.language || "auto" });
     });
     return true;
   }
@@ -63,11 +65,11 @@ chrome.commands.onCommand.addListener(async (command) => {
 function getGreeting() {
   const hour = new Date().getHours();
   if (hour >= 5 && hour < 12) {
-    return "早上好 👋";
+    return "Good morning 👋";
   } else if (hour >= 12 && hour < 18) {
-    return "下午好 👋";
+    return "Good afternoon 👋";
   } else {
-    return "晚上好 👋";
+    return "Good evening 👋";
   }
 }
 

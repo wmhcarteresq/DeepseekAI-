@@ -53,6 +53,7 @@ export async function getAIResponse(
 
     // 创建新的AbortController并保存到全局
     window.currentAbortController = new AbortController();
+    console.log('language', language);
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
@@ -66,13 +67,14 @@ export async function getAIResponse(
             role: "system",
             content: `You are a helpful AI assistant. ${
               language === "auto"
-                ? "Respond in the same language as the user's input."
-                : `Please respond in ${language}.`
+                ? "Detect and respond in the same language as the user's input. If the user's input is in Chinese, respond in Chinese. If the user's input is in English, respond in English, etc."
+                : `You MUST respond ONLY in ${language}. This is a strict requirement. Do not use any other language except ${language}.`
             }`,
           },
           ...conversation,
         ],
         stream: true,
+        temperature: 0.5,
       }),
       signal: window.currentAbortController.signal,
     });
@@ -148,7 +150,6 @@ export async function getAIResponse(
       }
     }
 
-    console.log('Original AI Response:', aiResponse);
     conversation.push({ role: "assistant", content: aiResponse });
     isGenerating = false;
 

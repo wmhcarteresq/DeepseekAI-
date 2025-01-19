@@ -9,23 +9,23 @@
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
           "Helvetica Neue", sans-serif;
         margin: 0;
-        padding: 20px;
-        width: 300px;
-        color: #1d1d1f;
-        background-color: #f5f5f7;
+        padding: 16px;
+        width: 320px;
+        color: rgba(0, 0, 0, 0.85);
+        background-color: #ffffff;
       }
 
       @media (prefers-color-scheme: dark) {
         body {
           background-color: #1c1c1e;
-          color: #f5f5f7;
+          color: rgba(255, 255, 255, 0.85);
         }
       }
 
       .container {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
       }
 
       .header {
@@ -33,7 +33,9 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
+        padding-bottom: 12px;
         margin-bottom: 4px;
+        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
       .header img {
@@ -44,64 +46,83 @@
       .header span {
         font-size: 18px;
         font-weight: 600;
-        color: #0a84ff;
+        color: #007aff;
       }
 
       .key {
         display: flex;
         flex-direction: column;
+        gap: 12px;
+      }
+
+      .key-header {
+        display: flex;
         align-items: center;
-        position: relative;
+        justify-content: space-between;
       }
 
       .error-message {
-        color: #ff453a;
-        font-size: 12px;
+        color: #ff3b30;
+        font-size: 13px;
         position: absolute;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: -24px;
+        left: 0;
         width: 100%;
-        text-align: center;
+        text-align: left;
+        animation: fadeIn 0.2s ease;
+      }
+
+      .success-message {
+        color: #007aff;
+        font-size: 13px;
+        position: absolute;
+        top: -24px;
+        left: 0;
+        width: 100%;
+        text-align: left;
+        animation: fadeIn 0.2s ease;
       }
 
       .input-container {
         width: 100%;
         position: relative;
-        text-align: center;
       }
 
       input {
-        width: 70%;
-        padding: 10px 35px 10px 14px;
+        width: 80%;
+        padding: 10px 50px 10px 12px;
         font-size: 14px;
-        border-radius: 10px;
+        border-radius: 8px;
         background-color: rgba(0, 0, 0, 0.05);
         border: none;
         transition: all 0.2s ease;
-        margin-bottom: 12px;
-        color: inherit;
       }
 
       @media (prefers-color-scheme: dark) {
         input {
-          background-color: rgba(255, 255, 255, 0.05);
+          background-color: rgba(255, 255, 255, 0.08);
         }
       }
 
       input::placeholder {
-        color: #86868b;
+        color: rgba(60, 60, 67, 0.6);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        input::placeholder {
+          color: rgba(235, 235, 245, 0.6);
+        }
       }
 
       input:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 125, 250, 0.6);
-        background-color: rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+        background-color: rgba(0, 0, 0, 0.07);
       }
 
       @media (prefers-color-scheme: dark) {
         input:focus {
-          background-color: rgba(255, 255, 255, 0.1);
+          background-color: rgba(255, 255, 255, 0.12);
         }
       }
 
@@ -110,24 +131,39 @@
         border: none;
         cursor: pointer;
         position: absolute;
-        right: 45px;
-        top: 8px;
-        padding: 0;
-        opacity: 0.5;
-        transition: opacity 0.2s ease;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 4px;
+        opacity: 0.6;
+        transition: all 0.2s ease;
+        border-radius: 4px;
       }
 
       .toggle-visibility:hover {
         opacity: 1;
+        background-color: rgba(60, 60, 67, 0.1);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .toggle-visibility:hover {
+          background-color: rgba(235, 235, 245, 0.1);
+        }
       }
 
       .toggle-visibility .svg {
         width: 20px;
         height: 20px;
+        display: block;
       }
 
+      @media (prefers-color-scheme: dark) {
+        .toggle-visibility .svg {
+          filter: brightness(0) invert(1);
+        }
+      }
       a {
-        color: #0a84ff;
+        color: #007aff;
         font-size: 13px;
         text-decoration: none;
         transition: opacity 0.2s ease;
@@ -139,39 +175,39 @@
 
       .language-switch {
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
       .language-switch label {
         font-size: 14px;
+        font-weight: 500;
       }
 
       select {
+        min-width: 120px;
         padding: 6px 10px;
         font-size: 14px;
         border: none;
-        border-radius: 8px;
+        border-radius: 6px;
         background-color: rgba(0, 0, 0, 0.05);
-        color: inherit;
-        transition: all 0.2s ease;
       }
 
       @media (prefers-color-scheme: dark) {
         select {
-          background-color: rgba(255, 255, 255, 0.05);
+          background-color: rgba(255, 255, 255, 0.08);
         }
       }
 
       select:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 125, 250, 0.6);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
       }
 
       button {
-        background-color: #0a84ff;
+        background-color: #007aff;
         color: white;
         border: none;
         border-radius: 8px;
@@ -183,43 +219,84 @@
       }
 
       button:hover {
-        background-color: #0071e3;
+        background-color: #0066d6;
       }
 
       button:active {
         transform: scale(0.98);
       }
 
-      .settings-section {
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      .button-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .settings-section {
-          border-top-color: rgba(255, 255, 255, 0.1);
+      .button-content svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
         }
       }
 
-      .setting-item {
+      @keyframes slideOut {
+        from {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+      }
+
+      .save-feedback {
+        position: absolute;
+        inset: 0;
         display: flex;
-        flex-direction: column;
-        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        background: inherit;
+        animation: slideIn 0.2s ease forwards;
+      }
+
+      .save-feedback.hide {
+        animation: slideOut 0.2s ease forwards;
+      }
+
+
+      .setting-item {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
       .setting-title {
+        margin-bottom: 4px;
         display: flex;
         align-items: center;
-        gap: 3px;
-        font-weight: 500;
-        font-size: 14px;
       }
 
       .setting-description {
         font-size: 12px;
-        color: #86868b;
+        color: rgba(60, 60, 67, 0.6);
         line-height: 1.4;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .setting-description {
+          color: rgba(235, 235, 245, 0.6);
+        }
       }
 
       .link-button {
@@ -228,65 +305,51 @@
         gap: 4px;
       }
 
-      .setting-icon  {
+      .setting-icon {
         width: 18px;
         height: 18px;
-        fill: black;
+        fill: rgba(0, 0, 0, 0.6);
       }
       @media (prefers-color-scheme: dark) {
-        .setting-icon  {
-          fill: #86868b; /* 夜间模式下的浅色 */
+        .setting-icon {
+          fill: rgba(255, 255, 255, 0.6);
         }
       }
       .shortcut-tip {
         margin-top: 16px;
         padding: 12px;
-        background-color: rgba(10, 132, 255, 0.1);
+        background-color: rgba(0, 122, 255, 0.08);
         border-radius: 8px;
         font-size: 13px;
         line-height: 1.4;
       }
 
+      @media (prefers-color-scheme: dark) {
+        .shortcut-tip {
+          background-color: rgba(0, 122, 255, 0.12);
+        }
+      }
+
       .shortcut-tip a {
-        color: #0a84ff;
+        color: #007aff;
         text-decoration: underline;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .shortcut-tip {
-          background-color: rgba(10, 132, 255, 0.2);
-        }
-      }
-
       .help-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .help-link {
-          border-top-color: rgba(255, 255, 255, 0.1);
-        }
+        text-align: center;
       }
 
       .help-link a {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        color: #0a84ff;
-        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
         font-size: 14px;
-        padding: 8px 12px;
-        border-radius: 6px;
-        transition: all 0.2s ease;
       }
 
       .help-link a:hover {
-        background-color: rgba(10, 132, 255, 0.1);
+        background-color: rgba(60, 60, 67, 0.1);
       }
 
       .help-link svg {
@@ -296,20 +359,171 @@
 
       .language-toggle {
         position: absolute;
-        top: 20px;
+        top: 12px;
         right: 20px;
         cursor: pointer;
         background: none;
         border: none;
-        padding: 0;
+        padding: 4px;
         z-index: 1000;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .language-toggle:hover {
+        background-color: rgba(60, 60, 67, 0.1);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .language-toggle:hover {
+          background-color: rgba(235, 235, 245, 0.1);
+        }
       }
 
       .language-toggle svg {
         width: 24px;
         height: 24px;
         fill: currentColor;
-        color: #b4afaf;
+        color: rgba(60, 60, 67, 0.6);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .language-toggle svg {
+          color: rgba(235, 235, 245, 0.6);
+        }
+      }
+
+      .balance-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+      }
+
+      .balance-text {
+        color: rgba(60, 60, 67, 0.6);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .balance-text {
+          color: rgba(235, 235, 245, 0.6);
+        }
+      }
+
+      .balance-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .balance-content {
+        display: none;
+        align-items: center;
+        gap: 4px;
+        animation: fadeIn 0.2s ease;
+      }
+
+      .balance-content.show {
+        display: flex;
+      }
+
+      .balance-toggle,
+      .balance-refresh {
+        background: none;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        opacity: 0.6;
+      }
+
+      .balance-toggle:hover,
+      .balance-refresh:hover {
+        opacity: 1;
+        background-color: rgba(60, 60, 67, 0.1);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .balance-toggle:hover,
+        .balance-refresh:hover {
+          background-color: rgba(235, 235, 245, 0.1);
+        }
+      }
+
+      .balance-toggle img {
+        width: 16px;
+        height: 16px;
+      }
+
+      .balance-refresh svg {
+        width: 14px;
+        height: 14px;
+        fill: rgba(60, 60, 67, 0.6);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .balance-toggle img,
+        .balance-refresh svg {
+          filter: brightness(0) invert(1);
+          opacity: 0.6;
+        }
+      }
+
+      .balance-value {
+        color: #007aff;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .balance-value:hover {
+        background-color: rgba(60, 60, 67, 0.1);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .balance-value:hover {
+          background-color: rgba(235, 235, 245, 0.1);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .loading {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #007aff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 4px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .loading {
+          border-color: rgba(255, 255, 255, 0.1);
+          border-left-color: #007aff;
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -334,14 +548,16 @@
       </div>
 
       <div class="key">
-        <a
-          href="https://platform.deepseek.com/api_keys"
-          target="_blank"
-          rel="noopener noreferrer"
-          id="apiKeyLink"
-        >
-          前往获取 API Key
-        </a>
+        <div class="key-header">
+          <a
+            href="https://platform.deepseek.com/api_keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            id="apiKeyLink"
+          >
+            前往获取 API Key
+          </a>
+        </div>
         <div class="error-message" id="errorMessage"></div>
         <div class="input-container">
           <input
@@ -353,6 +569,29 @@
           <button class="toggle-visibility" id="toggleVisibility">
             <img class="svg" src="../icons/show.svg" alt="" id="iconSwitch" />
           </button>
+        </div>
+
+        <div class="balance-section">
+          <span class="balance-text" id="balanceText">余额</span>
+          <div class="balance-right">
+            <div class="balance-content" id="balanceContent">
+              <span class="balance-value" id="totalBalance">--</span>
+              <button
+                class="balance-refresh"
+                id="balanceRefresh"
+                title="刷新余额"
+              >
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                  />
+                </svg>
+              </button>
+            </div>
+            <button class="balance-toggle" id="balanceToggle">
+              <img src="../icons/hiddle.svg" alt="" id="balanceIcon" />
+            </button>
+          </div>
         </div>
 
         <div class="language-switch">
@@ -371,12 +610,30 @@
             <option value="hi">हिन्दी</option>
           </select>
         </div>
-        <button id="saveButton">保存</button>
+
+        <button id="saveButton">
+          <span class="button-content">保存</span>
+        </button>
       </div>
+
       <div class="settings-section">
         <div class="setting-item">
           <div class="setting-title">
-            <svg t="1737192355038" class="setting-icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6074" width="200" height="200"><path d="M853.333333 213.333333a85.333333 85.333333 0 0 1 85.333334 85.333334v426.666666a85.333333 85.333333 0 0 1-85.333334 85.333334H170.666667a85.333333 85.333333 0 0 1-85.333334-85.333334V298.666667a85.333333 85.333333 0 0 1 85.333334-85.333334h682.666666z m0 42.666667H170.666667a42.666667 42.666667 0 0 0-42.666667 42.666667v426.666666a42.666667 42.666667 0 0 0 42.666667 42.666667h682.666666a42.666667 42.666667 0 0 0 42.666667-42.666667V298.666667a42.666667 42.666667 0 0 0-42.666667-42.666667z m-202.666666 362.666667a32 32 0 1 1 0 64h-277.333334a32 32 0 1 1 0-64h277.333334zM256 469.333333a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334zM256 341.333333a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z"  p-id="6075"></path></svg>
+            <svg
+              t="1737192355038"
+              class="setting-icon"
+              viewBox="0 0 1024 1024"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
+              p-id="6074"
+              width="200"
+              height="200"
+            >
+              <path
+                d="M853.333333 213.333333a85.333333 85.333333 0 0 1 85.333334 85.333334v426.666666a85.333333 85.333333 0 0 1-85.333334 85.333334H170.666667a85.333333 85.333333 0 0 1-85.333334-85.333334V298.666667a85.333333 85.333333 0 0 1 85.333334-85.333334h682.666666z m0 42.666667H170.666667a42.666667 42.666667 0 0 0-42.666667 42.666667v426.666666a42.666667 42.666667 0 0 0 42.666667 42.666667h682.666666a42.666667 42.666667 0 0 0 42.666667-42.666667V298.666667a42.666667 42.666667 0 0 0-42.666667-42.666667z m-202.666666 362.666667a32 32 0 1 1 0 64h-277.333334a32 32 0 1 1 0-64h277.333334zM256 469.333333a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334zM256 341.333333a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z m128 0a42.666667 42.666667 0 1 1 0 85.333334 42.666667 42.666667 0 0 1 0-85.333334z"
+                p-id="6075"
+              ></path>
+            </svg>
             <a href="#" id="shortcutSettings" class="link-button">
               <?xml version="1.0" encoding="UTF-8"?>
               <span id="shortcutSettingsText">快捷键设置</span>
@@ -387,6 +644,7 @@
           </div>
         </div>
       </div>
+
       <div class="help-link">
         <a href="#" id="instructionsLink">
           <svg
