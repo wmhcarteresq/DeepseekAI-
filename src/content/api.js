@@ -34,9 +34,19 @@ export async function getAIResponse(
   });
 
   if (!apiKey) {
-    const textNode = document.createTextNode("Please set your API key in the extension popup.");
+    const linkElement = document.createElement("a");
+    linkElement.href = "#";
+    linkElement.textContent = "Please first set your API key in extension popup.";
+    linkElement.style.color = "#0066cc";
+    linkElement.style.textDecoration = "underline";
+    linkElement.style.cursor = "pointer";
+    linkElement.addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.runtime.sendMessage({ action: "openPopup" });
+    });
+
     responseElement.textContent = "";
-    responseElement.appendChild(textNode);
+    responseElement.appendChild(linkElement);
     if (existingIconContainer) {
       responseElement.appendChild(existingIconContainer);
     }

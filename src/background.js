@@ -8,6 +8,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ apiKey: data.apiKey, language: data.language || "auto" });
     });
     return true;
+  } else if (request.action === "openPopup") {
+    chrome.action.openPopup();
+    return true;
   }
 });
 
