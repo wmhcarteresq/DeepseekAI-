@@ -4,12 +4,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const toggleButton = document.getElementById("toggleVisibility");
   const iconSwitch = document.getElementById("iconSwitch");
   const languageSelect = document.getElementById("language");
+  const modelSelect = document.getElementById("model");
   const selectionEnabled = document.getElementById("selectionEnabled");
   const currentLang = getCurrentLang();
   let lastValidatedValue = '';
 
-  // Load saved API key, language preference and selection enabled state
-  chrome.storage.sync.get(["apiKey", "language", "selectionEnabled"], function (data) {
+  // Load saved API key, language preference, model and selection enabled state
+  chrome.storage.sync.get(["apiKey", "language", "model", "selectionEnabled"], function (data) {
     if (data.apiKey) {
       apiKeyInput.value = data.apiKey;
       lastValidatedValue = data.apiKey;
@@ -17,6 +18,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     if (data.language) {
       languageSelect.value = data.language;
+    }
+    if (data.model) {
+      modelSelect.value = data.model;
+    } else {
+      // 默认使用 R1 模型
+      modelSelect.value = 'r1';
+      chrome.storage.sync.set({ model: 'r1' });
     }
     if (typeof data.selectionEnabled !== 'undefined') {
       selectionEnabled.checked = data.selectionEnabled;
@@ -94,6 +102,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // 语言选择自动保存
   languageSelect.addEventListener("change", function () {
     chrome.storage.sync.set({ language: languageSelect.value });
+  });
+
+  // 模型选择自动保存
+  modelSelect.addEventListener("change", function () {
+    chrome.storage.sync.set({ model: modelSelect.value });
   });
 
   // 快捷按钮开关自动保存
@@ -255,6 +268,7 @@ const translations = {
     apiKeyPlaceholder: "在此输入 API Key",
     apiKeyLink: "前往获取 API Key",
     preferredLanguageLabel: "首选语言",
+    modelLabel: "模型选择",
     saveButton: "保存",
     shortcutSettingsText: "快捷键设置",
     shortcutDescription: "请前往设置快捷键",
@@ -274,6 +288,7 @@ const translations = {
     apiKeyPlaceholder: "Enter API Key here",
     apiKeyLink: "Get API Key",
     preferredLanguageLabel: "Preferred Language",
+    modelLabel: "Model Selection",
     saveButton: "Save",
     shortcutSettingsText: "Shortcut Settings",
     shortcutDescription: "Please configure shortcut keys",
@@ -305,6 +320,7 @@ const updateContent = () => {
     'apiKey': { placeholder: langData.apiKeyPlaceholder },
     'apiKeyLink': langData.apiKeyLink,
     'preferredLanguageLabel': langData.preferredLanguageLabel,
+    'modelLabel': langData.modelLabel,
     'saveButton': langData.saveButton,
     'shortcutSettingsText': langData.shortcutSettingsText,
     'shortcutDescription': langData.shortcutDescription,

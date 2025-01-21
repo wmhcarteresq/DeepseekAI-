@@ -5,11 +5,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     chrome.storage.sync.get(["apiKey", "language"], function (data) {
       console.log('data', data);
 
-      sendResponse({ apiKey: data.apiKey, language: data.language || "auto" });
+      sendResponse({
+        apiKey: data.apiKey || "",
+        language: data.language || "auto",
+      });
+    });
+    return true;
+  } else if (request.action === "getModel") {
+    chrome.storage.sync.get(["model"], function (data) {
+      sendResponse({
+        model: data.model || "r1", // 默认使用 R1 模型
+      });
     });
     return true;
   } else if (request.action === "openPopup") {
-    chrome.action.openPopup();
+    chrome.runtime.openOptionsPage();
     return true;
   }
 });

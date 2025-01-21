@@ -101,11 +101,13 @@
         background-color: rgba(0, 0, 0, 0.05);
         border: none;
         transition: all 0.2s ease;
+        color: rgba(0, 0, 0, 0.85);
       }
 
       @media (prefers-color-scheme: dark) {
         input {
           background-color: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.85);
         }
       }
 
@@ -191,23 +193,45 @@
       }
 
       select {
-        min-width: 120px;
+        min-width: 80px;
         padding: 6px 10px;
         font-size: 14px;
         border: none;
         border-radius: 6px;
         background-color: rgba(0, 0, 0, 0.05);
+        color: rgba(0, 0, 0, 0.85);
+        -webkit-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+        padding-right: 32px;
       }
 
       @media (prefers-color-scheme: dark) {
         select {
           background-color: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.85);
+          background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         }
       }
 
       select:focus {
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+      }
+
+      select option {
+        background-color: #ffffff;
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        select option {
+          background-color: #1c1c1e;
+          color: rgba(255, 255, 255, 0.85);
+        }
       }
 
       button {
@@ -561,9 +585,9 @@
         width: 44px;
         height: 26px;
         border-radius: 34px;
-        background-color: rgba(120, 120, 128, 0.16);
+        background-color: rgba(120, 120, 128, 0.32);
         cursor: pointer;
-        transition: background-color 0.2s;
+        transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .switch-label:before {
@@ -574,9 +598,9 @@
         border-radius: 50%;
         top: 2px;
         left: 2px;
-        background-color: white;
+        background-color: #ffffff;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .switch-input:checked + .switch-label {
@@ -588,12 +612,40 @@
       }
 
       @media (prefers-color-scheme: dark) {
+        .switch-label {
+          background-color: rgba(120, 120, 128, 0.32);
+        }
+
         .switch-label:before {
-          background-color: #636366;
+          background-color: rgba(255, 255, 255, 0.85);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        }
+
+        .switch-input:checked + .switch-label {
+          background-color: #30D158;
         }
 
         .switch-input:checked + .switch-label:before {
           background-color: #ffffff;
+        }
+      }
+
+      /* 添加悬停和焦点状态 */
+      .switch-label:hover:before {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .switch-input:focus + .switch-label:before {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(0, 122, 255, 0.2);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .switch-label:hover:before {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .switch-input:focus + .switch-label:before {
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(0, 122, 255, 0.3);
         }
       }
 
@@ -689,19 +741,35 @@
         </div>
 
         <div class="language-switch">
+          <label for="model" id="modelLabel">模型选择</label>
+          <select id="model">
+            <option value="v3">V3</option>
+            <option value="r1">R1</option>
+          </select>
+        </div>
+
+        <div class="language-switch">
           <label for="language" id="preferredLanguageLabel">首选语言</label>
           <select id="language">
             <option value="auto">Auto</option>
             <option value="zh">中文</option>
             <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
             <option value="es">Español</option>
             <option value="fr">Français</option>
+            <option value="ar">العربية</option>
+            <option value="bn">বাংলা</option>
+            <option value="ru">Русский</option>
+            <option value="pt">Português</option>
+            <option value="ur">اردو</option>
             <option value="de">Deutsch</option>
             <option value="ja">日本語</option>
-            <option value="ko">한국어</option>
-            <option value="ru">Русский</option>
-            <option value="ar">العربية</option>
-            <option value="hi">हिन्दी</option>
+            <option value="pa">ਪੰਜਾਬੀ</option>
+            <option value="mr">मराठी</option>
+            <option value="te">తెలుగు</option>
+            <option value="tr">Türkçe</option>
+            <option value="ta">தமிழ்</option>
+            <option value="vi">Tiếng Việt</option>
           </select>
         </div>
 

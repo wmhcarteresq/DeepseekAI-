@@ -33,6 +33,10 @@ export async function getAIResponse(
     chrome.runtime.sendMessage({ action: "getApiKeyAndLanguage" }, resolve);
   });
 
+  const { model } = await new Promise((resolve) => {
+    chrome.runtime.sendMessage({ action: "getModel" }, resolve);
+  });
+
   if (!apiKey) {
     const linkElement = document.createElement("a");
     linkElement.href = "#";
@@ -64,6 +68,7 @@ export async function getAIResponse(
     // 创建新的AbortController并保存到全局
     window.currentAbortController = new AbortController();
     console.log('language', language);
+    console.log('model', model);
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
@@ -71,7 +76,7 @@ export async function getAIResponse(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: model === "r1" ? "deepseek-reasoner" : "deepseek-chat",
         messages: [
           {
             role: "system",
