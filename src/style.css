@@ -1,61 +1,61 @@
 /* 日间模式样式 */
 .theme-adaptive {
-  /* 基础颜色 */
-  --bg-primary: rgba(246, 246, 246, 0.8);
-  --bg-secondary: rgba(239, 239, 239, 0.75);
-  --text-primary: #262626;
-  --text-secondary: #737373;
+  /* 基础颜色 - 更新为苹果风格的配色 */
+  --bg-primary: rgba(250, 250, 250, 0.95);
+  --bg-secondary: rgba(245, 245, 247, 0.9);
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
 
-  /* 交互元素 */
-  --accent-color: #007aff;
-  --accent-hover: #0063cc;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --divider-color: rgba(0, 0, 0, 0.06);
+  /* 交互元素 - 使用苹果标准蓝 */
+  --accent-color: #0066cc;
+  --accent-hover: #004499;
+  --border-color: rgba(0, 0, 0, 0.1);
+  --divider-color: rgba(0, 0, 0, 0.05);
 
   /* 组件特定颜色 */
-  --header-bg: rgba(239, 239, 239, 0.85);
-  --input-bg: rgba(255, 255, 255, 0.9);
-  --ai-answer-bg: rgba(255, 255, 255, 0.6);
-  --user-question-bg: #007aff;
-  --code-block-bg: rgba(250, 250, 250, 0.8);
+  --header-bg: rgba(250, 250, 250, 0.95);
+  --input-bg: rgba(255, 255, 255, 0.8);
+  --ai-answer-bg: rgba(255, 255, 255, 0.7);
+  --user-question-bg: #0066cc;
+  --code-block-bg: rgba(245, 245, 247, 0.8);
 
   /* 滚动条 */
-  --scrollbar-bg: rgba(0, 0, 0, 0.03);
-  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-bg: rgba(0, 0, 0, 0.05);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
 
-  /* 阴影效果 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  /* 阴影效果 - 更柔和的阴影 */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
 
   /* 应用基础样式 */
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 /* 暗色模式样式 */
 .theme-adaptive.dark-mode {
-  /* 基础颜色 */
-  --bg-primary: rgba(32, 32, 32, 0.8);
-  --bg-secondary: rgba(40, 40, 40, 0.75);
-  --text-primary: #e4e4e4;
-  --text-secondary: #a1a1a1;
+  /* 基础颜色 - 更新为苹果深色模式风格 */
+  --bg-primary: rgba(28, 28, 30, 0.95);
+  --bg-secondary: rgba(44, 44, 46, 0.9);
+  --text-primary: #f5f5f7;
+  --text-secondary: #86868b;
 
   /* 交互元素 */
   --accent-color: #0a84ff;
   --accent-hover: #409cff;
-  --border-color: rgba(255, 255, 255, 0.08);
-  --divider-color: rgba(255, 255, 255, 0.06);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --divider-color: rgba(255, 255, 255, 0.05);
 
   /* 组件特定颜色 */
-  --header-bg: rgba(40, 40, 40, 0.85);
-  --input-bg: rgba(50, 50, 50, 0.9);
-  --ai-answer-bg: rgba(45, 45, 45, 0.6);
+  --header-bg: rgba(28, 28, 30, 0.95);
+  --input-bg: rgba(58, 58, 60, 0.8);
+  --ai-answer-bg: rgba(44, 44, 46, 0.7);
   --user-question-bg: #0a84ff;
-  --code-block-bg: rgba(35, 35, 35, 0.8);
+  --code-block-bg: rgba(28, 28, 30, 0.8);
 
   /* 滚动条 */
   --scrollbar-bg: rgba(255, 255, 255, 0.03);
@@ -79,20 +79,18 @@
   position: fixed;
   width: 580px;
   height: 380px;
-  padding-top: 20px;
+  padding-top: 16px;
   background-color: var(--bg-primary);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: 16px;
   z-index: 2147483647;
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   contain: layout style paint;
-  transition: none;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
 .theme-adaptive #ai-popup.dragging {
@@ -172,31 +170,27 @@
 .theme-adaptive .user-question {
   background-color: var(--accent-color);
   color: white;
-  padding: 8px 12px;
-  border-radius: 18px 18px 4px 18px;
+  padding: 10px 14px;
+  margin: 6px 12px;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.4;
   max-width: 85%;
   margin-left: auto;
-  margin-right: 10px;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  word-wrap: break-word;
-  font-size: 14px;
-  line-height: 1.4;
+  border-bottom-right-radius: 4px;
 }
 
 .theme-adaptive .ai-answer {
   background-color: var(--ai-answer-bg);
   color: var(--text-primary);
-  padding: 8px 12px;
-  border-radius: 18px 18px 18px 4px;
+  padding: 10px 14px;
+  margin: 6px 12px;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.4;
   max-width: 85%;
   margin-right: auto;
-  margin-left: 10px;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  word-wrap: break-word;
-  font-size: 14px;
-  line-height: 1.4;
+  border-bottom-left-radius: 4px;
 }
 
 /* 调整消息内容的间距 */
@@ -223,46 +217,84 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* 输入框样式 */
+/* 输入框样式优化 */
 .theme-adaptive .expandable-textarea {
-  /* 基础样式 */
   width: 100%;
-  min-height: 40px;
+  min-height: 44px;
   max-height: 120px;
-  padding: 10px 40px 10px 16px;
+  padding: 12px 44px 12px 16px;
   margin: 0;
-
-  /* 重置样式，确保在不同网站下保持一致 */
   box-sizing: border-box !important;
-  font: inherit;
-  font-size: 14px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 15px !important;
   line-height: 1.4 !important;
-
-  /* 外观样式 */
   background-color: var(--input-bg);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
-
-  /* 功能样式 */
+  border-radius: 12px;
   resize: none;
   overflow-y: auto;
-  -webkit-appearance: none;
-  appearance: none;
-
-  /* 动画效果 */
   transition: all 0.2s ease;
+  word-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
 }
 
-/* 输入框焦点和悬停状态 */
 .theme-adaptive .expandable-textarea:focus {
-  border-color: var(--accent-color);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--accent-color), 0.1);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.2);
 }
 
-.theme-adaptive .expandable-textarea:hover {
-  border-color: var(--accent-hover);
+/* 输入框容器样式 */
+.input-container-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px 16px;
+  background: inherit;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.input-container {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.textarea-default {
+  width: calc(100% - 40px);
+  height: 44px;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 12px 44px 12px 16px;
+  margin: 0;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  resize: none;
+  overflow-y: auto;
+  transition: all 0.2s ease;
+  word-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+  -webkit-hyphens: none;
+  -ms-hyphens: none;
 }
 
 /* 代码块基础样式 */

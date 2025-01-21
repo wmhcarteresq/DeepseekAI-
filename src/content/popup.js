@@ -612,7 +612,7 @@ function createQuestionInputContainer(aiResponseContainer) {
 
     // 空内容直接重置
     if (!valueToCheck.trim()) {
-      element.style.height = "40px";
+      element.style.height = "44px";
       return;
     }
 
@@ -621,20 +621,36 @@ function createQuestionInputContainer(aiResponseContainer) {
     const selectionEnd = element.selectionEnd;
     const scrollTop = element.scrollTop;
 
-    // 检查是否有手动换行
-    const hasNewline = valueToCheck.includes('\n');
+    // 计算内容行数
+    const lines = valueToCheck.split('\n');
+    const lineCount = lines.length;
 
-    // 检查是否需要自动换行
-    element.style.height = "40px";
-    // 考虑padding的影响，一行文字的实际高度是20px (40px - 上下padding各10px)
-    const needsWrap = element.scrollHeight > 40;
+    // 计算每行的预估宽度（使用canvas计算更准确的宽度）
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = getComputedStyle(element).font;
 
-    if (hasNewline || needsWrap) {
+    const containerWidth = element.clientWidth - 32; // 减去padding
+    let needsExpand = false;
+
+    // 检查是否有任何行需要换行
+    for (const line of lines) {
+      const metrics = context.measureText(line);
+      if (metrics.width > containerWidth) {
+        needsExpand = true;
+        break;
+      }
+    }
+
+    // 根据内容决定是否需要扩展高度
+    if (lineCount > 1 || needsExpand) {
       element.style.height = 'auto';
-      const newHeight = Math.min(Math.max(element.scrollHeight, 40), 120);
+      const newHeight = Math.min(Math.max(element.scrollHeight, 44), 120);
       element.style.height = `${newHeight}px`;
       element.scrollTop = scrollTop;
       element.setSelectionRange(selectionStart, selectionEnd);
+    } else {
+      element.style.height = "44px";
     }
   };
 
@@ -717,8 +733,8 @@ function createQuestionInputContainer(aiResponseContainer) {
   setupEventListeners(textarea);
 
   // 设置初始样式
-  textarea.style.height = "40px";
-  textarea.style.minHeight = "40px";
+  textarea.style.height = "44px";
+  textarea.style.minHeight = "44px";
   textarea.style.maxHeight = "120px";
 
   const style = document.createElement('style');
@@ -828,9 +844,9 @@ function createQuestionInputContainer(aiResponseContainer) {
     if (question) {
       sendQuestionToAI(question);
       textarea.value = "";
-      textarea.style.height = "40px";
-      textarea.style.minHeight = "40px";
-      state.lastHeight = 40;
+      textarea.style.height = "44px";
+      textarea.style.minHeight = "44px";
+      state.lastHeight = 44;
     }
   }
 
