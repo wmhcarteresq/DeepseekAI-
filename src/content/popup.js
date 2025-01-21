@@ -601,72 +601,40 @@ function createQuestionInputContainer(aiResponseContainer) {
     return textareaState.get(element) || initTextareaState(element);
   };
 
-  // 更新高度的核心逻辑
-  const updateHeight = (() => {
-    let rafId = null;
-    let updateQueued = false;
-
-    return (element) => {
-      const state = getState(element);
-      if (state.lock) return;
-
-      // 如果正在输入法编辑，延迟更新高度
-      if (state.isComposing) {
-        if (!updateQueued) {
-          updateQueued = true;
-          rafId = requestAnimationFrame(() => {
-            updateQueued = false;
-            performHeightUpdate(element);
-          });
-        }
-        return;
-      }
-
-      performHeightUpdate(element);
-    };
-  })();
-
   // 实际执行高度更新的函数
   const performHeightUpdate = (element) => {
     const state = getState(element);
-
-    // 获取当前滚动位置和选择范围
-    const selectionStart = element.selectionStart;
-    const selectionEnd = element.selectionEnd;
-    const scrollTop = element.scrollTop;
-
-    const currentHeight = element.style.height;
-    element.style.height = "40px";
-    const scrollHeight = element.scrollHeight;
+    if (state.lock) return;
 
     const valueToCheck = state.isComposing
       ? element.value + state.compositionText
       : element.value;
 
+    // 空内容直接重置
     if (!valueToCheck.trim()) {
       element.style.height = "40px";
-      element.style.minHeight = "40px";
-      state.lastHeight = 40;
-    } else {
-      const newHeight = Math.min(Math.max(scrollHeight, 60), 120);
-      if (newHeight !== state.lastHeight) {
-        // 在高度变化前锁定状态
-        state.lock = true;
-        element.style.height = `${newHeight}px`;
-        element.style.minHeight = "60px";
-        state.lastHeight = newHeight;
+      return;
+    }
 
-        // 恢复滚动位置和选择范围
-        element.scrollTop = scrollTop;
-        element.setSelectionRange(selectionStart, selectionEnd);
+    // 保存当前状态
+    const selectionStart = element.selectionStart;
+    const selectionEnd = element.selectionEnd;
+    const scrollTop = element.scrollTop;
 
-        // 使用 RAF 延迟解锁，确保渲染完成
-        requestAnimationFrame(() => {
-          state.lock = false;
-        });
-      } else {
-        element.style.height = currentHeight;
-      }
+    // 检查是否有手动换行
+    const hasNewline = valueToCheck.includes('\n');
+
+    // 检查是否需要自动换行
+    element.style.height = "40px";
+    // 考虑padding的影响，一行文字的实际高度是20px (40px - 上下padding各10px)
+    const needsWrap = element.scrollHeight > 40;
+
+    if (hasNewline || needsWrap) {
+      element.style.height = 'auto';
+      const newHeight = Math.min(Math.max(element.scrollHeight, 40), 120);
+      element.style.height = `${newHeight}px`;
+      element.scrollTop = scrollTop;
+      element.setSelectionRange(selectionStart, selectionEnd);
     }
   };
 
@@ -694,7 +662,7 @@ function createQuestionInputContainer(aiResponseContainer) {
         state.lock = false;
         // 使用 RAF 确保输入法完全结束后再更新高度
         requestAnimationFrame(() => {
-          updateHeight(event.target);
+          performHeightUpdate(event.target);
         });
       }
     };
@@ -721,7 +689,7 @@ function createQuestionInputContainer(aiResponseContainer) {
       const state = getState(event.target);
       if (!state.isComposing) {
         requestAnimationFrame(() => {
-          updateHeight(event.target);
+          performHeightUpdate(event.target);
         });
       }
     }, options);
@@ -729,10 +697,17 @@ function createQuestionInputContainer(aiResponseContainer) {
     // 按键事件
     element.addEventListener("keydown", (event) => {
       const state = getState(event.target);
-      if (event.key === "Enter" && !event.shiftKey && !state.isComposing) {
-        event.preventDefault();
-        if (!getIsGenerating()) {
-          sendQuestion();
+      if (event.key === "Enter") {
+        if (!event.shiftKey && !state.isComposing) {
+          event.preventDefault();
+          if (!getIsGenerating()) {
+            sendQuestion();
+          }
+        } else {
+          // 当按下 Shift+Enter 时，立即触发高度更新
+          requestAnimationFrame(() => {
+            performHeightUpdate(event.target);
+          });
         }
       }
     });
@@ -748,16 +723,45 @@ function createQuestionInputContainer(aiResponseContainer) {
 
   const style = document.createElement('style');
   style.textContent = `
+    .input-container-wrapper {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 10px 16px;
+      background: inherit;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 2;
+      box-sizing: border-box;
+    }
+
+    .input-container {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     .textarea-default {
-      height: 60px;
-      min-height: 60px;
+      width: calc(100% - 40px);
+      height: 40px;
+      min-height: 40px;
       max-height: 120px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       resize: none;
       padding: 10px;
-      line-height: 1.5;
+      line-height: 20px;
       font-size: 14px;
+      word-wrap: break-word;
+      word-break: break-all;
+      white-space: pre-wrap;
+      box-sizing: border-box;
+      border-radius: 8px;
     }
 
     .loading-icon-wrapper {
@@ -1486,12 +1490,12 @@ const styles = `
     bottom: 0;
     left: 0;
     width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
+    padding: 10px 16px;
     background: inherit;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     z-index: 2;
+    box-sizing: border-box;
   }
 
   #ai-popup .resizable {
@@ -1584,7 +1588,8 @@ const styles = `
 
   .input-container {
     position: relative;
-    width: calc(100% - 20px);
+    width: 100%;
+    max-width: 520px;
     margin: 0 auto;
     display: flex;
     justify-content: center;
@@ -1592,12 +1597,12 @@ const styles = `
   }
 
   .expandable-textarea {
-    width: calc(100% - 65px);
+    width: calc(100% - 40px);
     height: 40px;
     min-height: 40px;
-    max-height: 80px;
-    padding: 10px 40px 10px 10px;
-    border-radius: 10px;
+    max-height: 120px;
+    padding: 10px;
+    border-radius: 8px;
     resize: none;
     overflow-y: auto;
     transition: all 0.3s ease;
