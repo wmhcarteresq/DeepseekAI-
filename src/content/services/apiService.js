@@ -1,5 +1,5 @@
-import { md } from "./markdown";
-import { getAllowAutoScroll, scrollToBottom } from "./scrollControl";
+import { getAllowAutoScroll, scrollToBottom } from "../utils/scrollManager";
+import { md } from "../utils/markdownRenderer";
 
 let conversation = [];
 let isGenerating = false;
@@ -17,6 +17,9 @@ export async function getAIResponse(
   aiResponseContainer,
   isRefresh = false
 ) {
+  isGenerating = true;
+  window.currentAbortController = signal?.controller || new AbortController();
+
   const existingIconContainer = responseElement.querySelector('.icon-container');
   const originalClassName = responseElement.className;
 
@@ -58,17 +61,12 @@ export async function getAIResponse(
   }
 
   try {
-    isGenerating = true;
     if(isRefresh){
       conversation = conversation.slice(0, -1);
     }else{
       conversation.push({ role: "user", content: text });
     }
 
-    // 创建新的AbortController并保存到全局
-    window.currentAbortController = new AbortController();
-    console.log('language', language);
-    console.log('model', model);
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
       headers: {
@@ -158,7 +156,6 @@ export async function getAIResponse(
       }
     } catch (error) {
       if (error.name === 'AbortError') {
-        // 请求被中断，保留已生成的内容
         console.log('Request aborted, keeping generated content');
       } else {
         throw error;
@@ -166,7 +163,6 @@ export async function getAIResponse(
     }
 
     conversation.push({ role: "assistant", content: aiResponse });
-    isGenerating = false;
 
     requestAnimationFrame(() => {
       if (window.addIconsToElement) {
@@ -186,9 +182,10 @@ export async function getAIResponse(
         responseElement.appendChild(existingIconContainer);
       }
     }
-    isGenerating = false;
   } finally {
+    isGenerating = false;
     window.currentAbortController = null;
+    if (ps) ps.update();
   }
 }
 

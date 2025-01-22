@@ -1,10 +1,9 @@
-// 检测当前页面是否为暗色模式
+import { THEME_CLASSES } from './constants';
+
 export function isDarkMode() {
-  // 获取背景色
   const bodyBg = window.getComputedStyle(document.body).backgroundColor;
   const htmlBg = window.getComputedStyle(document.documentElement).backgroundColor;
 
-  // 解析RGB值并检查是否为透明
   function parseColor(color) {
     const match = color.match(/\d+/g);
     if (!match) return null;
@@ -19,35 +18,26 @@ export function isDarkMode() {
     };
   }
 
-  // 分析背景色
   const bodyColor = parseColor(bodyBg);
   const htmlColor = parseColor(htmlBg);
 
-
-
-  // 如果body背景是透明的，使用html背景
   const effectiveColor = bodyColor?.isTransparent ? htmlColor : bodyColor;
 
-  // 如果两个背景都是透明的，默认使用亮色模式
   if (!effectiveColor || effectiveColor.isTransparent) {
     return false;
   }
 
   const isDark = effectiveColor.brightness < 128;
 
-
-
   return isDark;
 }
 
-// 监听主题变化
 export function watchThemeChanges(callback) {
   const observer = new MutationObserver(() => {
     const isDark = isDarkMode();
     callback(isDark);
   });
 
-  // 监听 body 和 html 的变化
   observer.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['style', 'class'],
@@ -62,17 +52,13 @@ export function watchThemeChanges(callback) {
     subtree: false
   });
 
-  // 立即进行初始检查
   const initialTheme = isDarkMode();
   callback(initialTheme);
 
   return () => observer.disconnect();
 }
 
-// 应用主题到popup
 export function applyTheme(popup, isDark) {
-
-
   if (isDark) {
     popup.classList.add('dark-mode');
   } else {

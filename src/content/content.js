@@ -1,4 +1,5 @@
-import { createIcon } from "./icon";
+import './styles/style.css';
+import { createSvgIcon, createIcon } from "./components/IconManager";
 import { createPopup } from "./popup";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 
@@ -6,9 +7,12 @@ let currentIcon = null;
 let isCreatingPopup = false;
 let isHandlingIconClick = false;
 let isSelectionEnabled = true; // 默认启用
+let selectedText = "";
+let currentPopup = null; // 新增：跟踪当前弹窗
 
 const link = document.createElement("link");
 link.rel = "stylesheet";
+link.type = "text/css";
 link.href = chrome.runtime.getURL("style.css");
 document.head.appendChild(link);
 
@@ -37,19 +41,27 @@ function removeIcon() {
 }
 
 function handlePopupCreation(selectedText, rect, hideQuestion = false) {
-
   if (isCreatingPopup) {
     return;
   }
 
   isCreatingPopup = true;
 
-  const existingPopup = document.querySelector('#ai-popup');
-  if (existingPopup) {
-    document.body.removeChild(existingPopup);
+  // 如果存在当前弹窗，先移除
+  if (currentPopup && document.body.contains(currentPopup)) {
+    // 触发清理逻辑
+    const closeButton = currentPopup.querySelector('.close-button');
+    if (closeButton) {
+      closeButton.click();
+    } else {
+      document.body.removeChild(currentPopup);
+    }
+    currentPopup = null;
   }
 
-  createPopup(selectedText, rect, hideQuestion);
+  // 创建新弹窗
+  currentPopup = createPopup(selectedText, rect, hideQuestion);
+  document.body.appendChild(currentPopup);
 
   setTimeout(() => {
     isCreatingPopup = false;
@@ -128,5 +140,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 优先使用选中的文本，其次使用请求中的文本，最后使用问候语
     const text = selectedText || request.selectedText || request.message;
     handlePopupCreation(text, rect, !(selectedText || request.selectedText));
+  } else if (request.action === "getSelectedText") {
+    sendResponse({ selectedText });
   }
 });

@@ -7,7 +7,7 @@ export class StorageManager {
           resolve({
             apiKey: data.apiKey || '',
             language: data.language || 'zh',
-            model: data.model || 'r1',
+            model: data.model || 'v3',
             selectionEnabled: typeof data.selectionEnabled === 'undefined' ? true : data.selectionEnabled
           });
         }

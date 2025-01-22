@@ -46,7 +46,6 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // 全局注册命令监听器
 chrome.commands.onCommand.addListener(async (command) => {
-  console.log('command', command);
   if (command === "toggle-popup") {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab || tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
