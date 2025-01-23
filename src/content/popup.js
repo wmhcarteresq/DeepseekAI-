@@ -166,33 +166,51 @@ export function createPopup(text, rect, hideQuestion = false) {
   // 设置关闭按钮的处理逻辑
   const closeButton = popup.querySelector('.close-button');
   if (closeButton) {
-    closeButton.onclick = () => {
-      // 移除主题监听器
-      if (popup._removeThemeListener) {
-        popup._removeThemeListener();
+    closeButton.onclick = async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      try {
+        // 移除主题监听器
+        if (popup._removeThemeListener) {
+          popup._removeThemeListener();
+        }
+
+        // 清理滚动条实例
+        if (window.aiResponseContainer?.perfectScrollbar) {
+          window.aiResponseContainer.perfectScrollbar.destroy();
+          delete window.aiResponseContainer.perfectScrollbar;
+        }
+
+        // 清理滚动状态管理器
+        if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
+          window.aiResponseContainer.scrollStateManager.cleanup();
+        }
+
+        // 移除事件监听器
+        if (window.aiResponseContainer?.cleanup) {
+          window.aiResponseContainer.cleanup();
+        }
+
+        // 确保popup还存在于文档中
+        if (document.body.contains(popup)) {
+          // 使用 requestAnimationFrame 确保在下一帧执行移除操作
+          requestAnimationFrame(() => {
+            if (document.body.contains(popup)) {
+              document.body.removeChild(popup);
+            }
+            // 清理全局引用
+            window.aiResponseContainer = null;
+          });
+        }
+      } catch (error) {
+        console.warn('Error during popup cleanup:', error);
+        // 如果出错，仍然尝试移除popup
+        if (document.body.contains(popup)) {
+          document.body.removeChild(popup);
+        }
+        window.aiResponseContainer = null;
       }
-
-      // 清理滚动条实例
-      if (window.aiResponseContainer?.perfectScrollbar) {
-        window.aiResponseContainer.perfectScrollbar.destroy();
-        delete window.aiResponseContainer.perfectScrollbar;
-      }
-
-      // 清理滚动状态管理器
-      if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
-        window.aiResponseContainer.scrollStateManager.cleanup();
-      }
-
-      // 移除事件监听器
-      if (window.aiResponseContainer?.cleanup) {
-        window.aiResponseContainer.cleanup();
-      }
-
-      // 移除弹窗
-      document.body.removeChild(popup);
-
-      // 清理全局引用
-      window.aiResponseContainer = null;
     };
   }
 

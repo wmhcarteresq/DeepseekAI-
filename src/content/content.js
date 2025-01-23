@@ -53,31 +53,61 @@ function removeIcon() {
 function safeRemovePopup() {
   if (!currentPopup) return;
 
-  // 保存窗口大小
-  if (isRememberWindowSize && currentPopup.offsetWidth > 100 && currentPopup.offsetHeight > 100) {
-    const width = currentPopup.offsetWidth;
-    const height = currentPopup.offsetHeight;
-    chrome.storage.sync.set({ windowSize: { width, height } });
-  }
-
-  // 清理所有观察者
-  if (currentPopup._resizeObserver) {
-    currentPopup._resizeObserver.disconnect();
-  }
-  if (currentPopup._mutationObserver) {
-    currentPopup._mutationObserver.disconnect();
-  }
-
-  // 安全地移除弹窗
   try {
+    // 保存窗口大小
+    if (isRememberWindowSize && currentPopup.offsetWidth > 100 && currentPopup.offsetHeight > 100) {
+      const width = currentPopup.offsetWidth;
+      const height = currentPopup.offsetHeight;
+      chrome.storage.sync.set({ windowSize: { width, height } });
+    }
+
+    // 清理所有观察者
+    if (currentPopup._resizeObserver) {
+      currentPopup._resizeObserver.disconnect();
+    }
+    if (currentPopup._mutationObserver) {
+      currentPopup._mutationObserver.disconnect();
+    }
+
+    // 移除主题监听器
+    if (currentPopup._removeThemeListener) {
+      currentPopup._removeThemeListener();
+    }
+
+    // 清理滚动条实例
+    if (window.aiResponseContainer?.perfectScrollbar) {
+      window.aiResponseContainer.perfectScrollbar.destroy();
+      delete window.aiResponseContainer.perfectScrollbar;
+    }
+
+    // 清理滚动状态管理器
+    if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
+      window.aiResponseContainer.scrollStateManager.cleanup();
+    }
+
+    // 移除事件监听器
+    if (window.aiResponseContainer?.cleanup) {
+      window.aiResponseContainer.cleanup();
+    }
+
+    // 使用 requestAnimationFrame 确保在下一帧执行移除操作
+    requestAnimationFrame(() => {
+      if (document.body.contains(currentPopup)) {
+        document.body.removeChild(currentPopup);
+      }
+      // 清理全局引用
+      window.aiResponseContainer = null;
+      currentPopup = null;
+    });
+  } catch (error) {
+    console.warn('Failed to remove popup:', error);
+    // 如果出错，仍然尝试移除popup
     if (document.body.contains(currentPopup)) {
       document.body.removeChild(currentPopup);
     }
-  } catch (error) {
-    console.warn('Failed to remove popup:', error);
+    window.aiResponseContainer = null;
+    currentPopup = null;
   }
-
-  currentPopup = null;
 }
 
 function handlePopupCreation(selectedText, rect, hideQuestion = false) {

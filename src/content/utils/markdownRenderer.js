@@ -162,7 +162,6 @@ md.render = function(text) {
 // 优化代码块渲染器
 md.renderer.rules.fence = (() => {
   const defaultFence = md.renderer.rules.fence;
-  const codeBlockTemplate = document.createElement('template');
 
   return function(tokens, idx, options, env, self) {
     const token = tokens[idx];
@@ -171,57 +170,37 @@ md.renderer.rules.fence = (() => {
 
     const rawHtml = defaultFence(tokens, idx, options, env, self);
 
-    codeBlockTemplate.innerHTML = `
+    return `
       <div class="code-block-wrapper">
         <pre class="code-wrap">${rawHtml}</pre>
-        <button class="copy-button">
+        <button class="copy-button" data-code="${encodeURIComponent(code)}">
           <img src="${chrome.runtime.getURL("icons/copy.svg")}" alt="Copy" />
         </button>
       </div>
     `.trim();
-
-    const element = codeBlockTemplate.content.firstElementChild.cloneNode(true);
-
-    // 使用 IntersectionObserver 优化代码高亮
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const code = entry.target.querySelector('code');
-          if (code && lang && hljs.getLanguage(lang)) {
-            try {
-              const result = hljs.highlight(code.textContent, { language: lang });
-              code.innerHTML = result.value;
-              code.classList.add('hljs', 'code-wrap');
-            } catch (e) {
-              console.warn('Failed to highlight:', e);
-            }
-          }
-          observer.disconnect();
-        }
-      });
-    });
-
-    observer.observe(element);
-
-    // 优化复制按钮事件
-    const copyButton = element.querySelector('.copy-button');
-    copyButton?.addEventListener('click', async () => {
-      const codeText = element.querySelector('code')?.textContent;
-      if (codeText) {
-        try {
-          await navigator.clipboard.writeText(codeText);
-          const img = copyButton.querySelector('img');
-          if (img) {
-            img.src = chrome.runtime.getURL("icons/copy.svg");
-          }
-        } catch (error) {
-          console.error('Failed to copy:', error);
-        }
-      }
-    }, { passive: true });
-
-    return element.outerHTML;
   };
 })();
+
+// 使用事件委托处理复制按钮点击
+document.addEventListener('click', async function(event) {
+  const copyButton = event.target.closest('.copy-button');
+  if (!copyButton) return;
+
+  console.log('copy button clicked');
+  event.preventDefault();
+  event.stopPropagation();
+
+  const code = decodeURIComponent(copyButton.dataset.code);
+  if (code) {
+    try {
+      await navigator.clipboard.writeText(code);
+      console.log('copied text:', code);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  } else {
+    console.warn('No code text found to copy');
+  }
+}, true);
 
 export { md };
