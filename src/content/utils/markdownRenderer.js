@@ -2,119 +2,106 @@ import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
 import mathjax3 from "markdown-it-mathjax3";
 
-// 用于收集所有需要处理的文本
-let pendingTexts = [];
+// 使用 WeakMap 来缓存已处理过的数学公式
+const mathCache = new WeakMap();
+const processedTexts = new Map();
+
+// 使用 Memoization 优化预处理数学公式
+const memoizedPreprocessMath = (() => {
+  const cache = new Map();
+  return (text) => {
+    if (cache.has(text)) {
+      return cache.get(text);
+    }
+    const result = preprocessMath(text);
+    cache.set(text, result);
+    return result;
+  };
+})();
 
 // 预处理数学公式
 function preprocessMath(text) {
-  // 辅助函数：检查括号是否匹配
-  function checkBrackets(str) {
+  // 使用正则表达式优化：减少重复处理
+  const patterns = {
+    brackets: /[{([})\]]/g,
+    blockFormula: /\\\[([\s\S]*?)\\\]/g,
+    inlineFormula: /\\\(([\s\S]*?)\\\)/g,
+    subscripts: /(\d+|[a-zA-Z])([_^])(\d+)(?!\})/g,
+    specialSymbols: /\\(pm|mp|times|div|gamma|ln|int|infty|leq|geq|neq|approx)\b/g,
+  };
+
+  // 优化括号匹配检查
+  const checkBrackets = (str) => {
     const stack = [];
-    const brackets = { '{': '}', '[': ']', '(': ')' };
-    for (let char of str) {
+    const pairs = { '{': '}', '[': ']', '(': ')' };
+    for (const char of str.match(patterns.brackets) || []) {
       if ('{(['.includes(char)) {
         stack.push(char);
-      } else if ('})]'.includes(char)) {
-        if (stack.length === 0) return false;
-        const last = stack.pop();
-        if (brackets[last] !== char) return false;
+      } else if (stack.length === 0 || pairs[stack.pop()] !== char) {
+        return false;
       }
     }
     return stack.length === 0;
-  }
-
-  // 预处理：清理多余的空行和空格
-  text = text.replace(/\n{3,}/g, '\n\n')
-             .replace(/[ \t]+$/gm, '');
-
-  // 处理块级公式 \[...\]
-  text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, p1) => {
-    p1 = p1.trim().replace(/\n\s+/g, '\n');
-    return `\n$$${p1}$$\n`;
-  });
-
-  // 处理行内公式 \(...\)
-  text = text.replace(/\\\(([\s\S]*?)\\\)/g, (_, p1) => `$${p1.trim()}$`);
-
-  // 处理数字的上下标
-  text = text.replace(/(\d+)([_^])(\d+)(?!\})/g, '$1$2{$3}');
-  text = text.replace(/([a-zA-Z])_(\d+)(?!\})/g, '$1_{$2}');
-
-  // 处理行内公式
-  text = text.replace(/\$([^$]+?)\$/g, (match, p1) => {
-    // 处理括号不匹配的情况
-    if (!checkBrackets(p1)) {
-      p1 = p1.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '\\frac{$1}{$2}');
-      p1 = p1.replace(/\\sqrt\{([^{}]+)\}/g, '\\sqrt{$1}');
-    }
-
-    // 处理特殊字符和空格
-    p1 = p1.replace(/\\(pm|mp|times|div|gamma|ln|int|infty|leq|geq|neq|approx)\b/g, '\\$1 ');
-
-    // 处理分数
-    p1 = p1.replace(/\\frac([^{])/g, '\\frac{$1}');
-
-    // 处理上下标
-    p1 = p1.replace(/([_^])([^{])/g, '$1{$2}');
-
-    return `$${p1.trim()}$`;
-  });
-
-  // 处理块级公式
-  text = text.replace(/\$\$([\s\S]+?)\$\$/g, (match, p1) => {
-    // 清理公式内部的格式
-    p1 = p1.trim()
-           .replace(/\n\s+/g, '\n')
-           .replace(/\\(gamma|ln)\b/g, '\\$1 ');
-
-    // 确保公式前后有适当的空行
-    return `\n$$${p1}$$\n`;
-  });
-
-  // 处理特殊符号
-  const specialChars = {
-    '∫': '\\int ',
-    '±': '\\pm ',
-    '∓': '\\mp ',
-    '×': '\\times ',
-    '÷': '\\div ',
-    '∞': '\\infty ',
-    '≤': '\\leq ',
-    '≥': '\\geq ',
-    '≠': '\\neq ',
-    '≈': '\\approx '
   };
 
-  // 修复 \infty 的错误处理
-  text = text.replace(/\\?\}infty/g, '\\infty')
-             .replace(/\{\}infty/g, '\\infty');
+  // 批量处理文本替换
+  let processed = text
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+$/gm, '');
 
-  for (const [char, replacement] of Object.entries(specialChars)) {
-    text = text.replace(new RegExp(char, 'g'), replacement);
+  // 优化块级公式处理
+  processed = processed.replace(patterns.blockFormula, (_, p1) =>
+    `\n$$${p1.trim().replace(/\n\s+/g, '\n')}$$\n`
+  );
+
+  // 优化行内公式处理
+  processed = processed.replace(patterns.inlineFormula, (_, p1) =>
+    `$${p1.trim()}$`
+  );
+
+  // 优化上下标处理
+  processed = processed.replace(patterns.subscripts, '$1$2{$3}');
+
+  // 使用 Map 优化特殊字符替换
+  const specialChars = new Map([
+    ['∫', '\\int '],
+    ['±', '\\pm '],
+    ['∓', '\\mp '],
+    ['×', '\\times '],
+    ['÷', '\\div '],
+    ['∞', '\\infty '],
+    ['≤', '\\leq '],
+    ['≥', '\\geq '],
+    ['≠', '\\neq '],
+    ['≈', '\\approx ']
+  ]);
+
+  // 批量处理特殊字符
+  for (const [char, replacement] of specialChars) {
+    processed = processed.replaceAll(char, replacement);
   }
 
-  // 最终清理：规范化空行和列表格式
-  return text.replace(/\n{3,}/g, '\n\n')
-             .replace(/(\d+\.)\s+(\*\*[^*]+\*\*：)\s*\n+\s*\n+(\$\$)/g, '$1 $2\n$3');
+  return processed;
 }
 
-// 创建 MarkdownIt 实例
+// 创建 MarkdownIt 实例并优化配置
 const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        const highlighted = hljs.highlight(str, { language: lang }).value;
-        return `<div class="code-wrap">${highlighted}</div>`;
-      } catch (__) {}
+  highlight: (str, lang) => {
+    if (!lang || !hljs.getLanguage(lang)) {
+      return `<div class="code-wrap">${md.utils.escapeHtml(str)}</div>`;
     }
-    return `<div class="code-wrap">${md.utils.escapeHtml(str)}</div>`;
+    try {
+      return `<div class="code-wrap">${hljs.highlight(str, { language: lang }).value}</div>`;
+    } catch {
+      return `<div class="code-wrap">${md.utils.escapeHtml(str)}</div>`;
+    }
   }
 });
 
-// 配置 mathjax3 插件
+// 优化 mathjax 配置
 const mathjaxOptions = {
   tex: {
     inlineMath: [['$', '$']],
@@ -136,96 +123,105 @@ const mathjaxOptions = {
   }
 };
 
-// 使用 mathjax3 插件
 md.use(mathjax3, mathjaxOptions);
 
-// 重写 render 方法，添加错误处理
+// 优化渲染方法
 const originalRender = md.render.bind(md);
 md.render = function(text) {
   try {
-    const preprocessedText = preprocessMath(text);
-    // 收集文本而不是立即输出
-    pendingTexts.push({
-      original: text,
-      processed: preprocessedText
+    // 使用缓存的预处理结果
+    const preprocessedText = memoizedPreprocessMath(text);
+
+    if (processedTexts.has(preprocessedText)) {
+      return processedTexts.get(preprocessedText);
+    }
+
+    // 使用 Promise 和 requestAnimationFrame 优化渲染时机
+    const renderPromise = new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        const result = originalRender(preprocessedText)
+          .replace(/\$\$([\s\S]+?)\$\$/g, (_, p1) =>
+            `<div class="math-block">$$${p1}$$</div>`
+          )
+          .replace(/\$([^$]+?)\$/g, (_, p1) =>
+            `<span class="math-inline">$${p1}$</span>`
+          );
+
+        processedTexts.set(preprocessedText, result);
+        resolve(result);
+      });
     });
 
-    // 确保公式被正确处理
-    const result = originalRender(preprocessedText)
-      .replace(/\$\$([\s\S]+?)\$\$/g, (_, p1) => `<div class="math-block">$$${p1}$$</div>`)
-      .replace(/\$([^$]+?)\$/g, (_, p1) => `<span class="math-inline">$${p1}$</span>`);
-
-    // AI响应完成后，一次性输出所有收集的文本
-    setTimeout(() => {
-      if (pendingTexts.length > 0) {
-        pendingTexts.forEach((item, index) => {
-        });
-        pendingTexts = []; // 清空收集的文本
-      }
-    }, 0);
-
-    return result;
+    return renderPromise;
   } catch (error) {
     console.error('渲染错误:', error);
     return originalRender(text);
   }
 };
 
-// 保存原始的 fence 渲染器
-const defaultFence = md.renderer.rules.fence;
+// 优化代码块渲染器
+md.renderer.rules.fence = (() => {
+  const defaultFence = md.renderer.rules.fence;
+  const codeBlockTemplate = document.createElement('template');
 
-// 修改 fence 渲染器
-md.renderer.rules.fence = function (tokens, idx, options, env, self) {
-  const token = tokens[idx];
-  const code = token.content.trim();
-  const lang = token.info.trim(); // 获取语言
+  return function(tokens, idx, options, env, self) {
+    const token = tokens[idx];
+    const code = token.content.trim();
+    const lang = token.info.trim();
 
-  // 使用默认渲染器生成基础 HTML
-  const rawHtml = defaultFence(tokens, idx, options, env, self);
+    const rawHtml = defaultFence(tokens, idx, options, env, self);
 
-  // 包装生成的 HTML，添加自动换行的样式类
-  const wrappedHtml = `
-    <div class="code-block-wrapper">
-      <pre class="code-wrap">${rawHtml}</pre>
-      <button class="copy-button">
-        <img src="${chrome.runtime.getURL("icons/copy.svg")}" alt="Copy" />
-      </button>
-    </div>
-  `;
+    codeBlockTemplate.innerHTML = `
+      <div class="code-block-wrapper">
+        <pre class="code-wrap">${rawHtml}</pre>
+        <button class="copy-button">
+          <img src="${chrome.runtime.getURL("icons/copy.svg")}" alt="Copy" />
+        </button>
+      </div>
+    `.trim();
 
-  // 在下一个事件循环中初始化复制按钮
-  requestAnimationFrame(() => {
-    const codeBlocks = document.querySelectorAll(".code-block-wrapper");
-    codeBlocks.forEach((block) => {
-      const pre = block.querySelector("pre");
-      const code = block.querySelector("code");
+    const element = codeBlockTemplate.content.firstElementChild.cloneNode(true);
 
-      // 确保代码高亮
-      if (lang && hljs.getLanguage(lang)) {
+    // 使用 IntersectionObserver 优化代码高亮
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const code = entry.target.querySelector('code');
+          if (code && lang && hljs.getLanguage(lang)) {
+            try {
+              const result = hljs.highlight(code.textContent, { language: lang });
+              code.innerHTML = result.value;
+              code.classList.add('hljs', 'code-wrap');
+            } catch (e) {
+              console.warn('Failed to highlight:', e);
+            }
+          }
+          observer.disconnect();
+        }
+      });
+    });
+
+    observer.observe(element);
+
+    // 优化复制按钮事件
+    const copyButton = element.querySelector('.copy-button');
+    copyButton?.addEventListener('click', async () => {
+      const codeText = element.querySelector('code')?.textContent;
+      if (codeText) {
         try {
-          const result = hljs.highlight(code.textContent, { language: lang });
-          code.innerHTML = result.value;
-          code.classList.add('hljs', 'code-wrap');
-        } catch (e) {
-          console.warn('Failed to highlight:', e);
+          await navigator.clipboard.writeText(codeText);
+          const img = copyButton.querySelector('img');
+          if (img) {
+            img.src = chrome.runtime.getURL("icons/copy.svg");
+          }
+        } catch (error) {
+          console.error('Failed to copy:', error);
         }
       }
+    }, { passive: true });
 
-      // 设置复制按钮事件
-      const copyButton = block.querySelector(".copy-button");
-      copyButton.addEventListener("click", () => {
-        navigator.clipboard.writeText(code.textContent).then(() => {
-          requestAnimationFrame(() => {
-            copyButton.querySelector("img").src = chrome.runtime.getURL(
-              "icons/copy.svg"
-            );
-          });
-        });
-      }, { passive: true });
-    });
-  });
-
-  return wrappedHtml;
-};
+    return element.outerHTML;
+  };
+})();
 
 export { md };

@@ -3,9 +3,102 @@ import { md } from "../utils/markdownRenderer";
 
 let conversation = [];
 let isGenerating = false;
+let renderQueue = [];
+let isProcessingQueue = false;
+
+// 使用 Performance API 优化性能监控
+const performance = window.performance;
 
 export function getIsGenerating() {
   return isGenerating;
+}
+
+// 使用 Worker 优化文本处理
+const textProcessingWorker = new Worker(
+  URL.createObjectURL(
+    new Blob(
+      [
+        `
+        onmessage = function(e) {
+          const { text, type } = e.data;
+          let processed = text;
+
+          if (type === 'cleanup') {
+            processed = text.trim().replace(/\s+/g, ' ');
+          }
+
+          postMessage({ processed, type });
+        }
+      `
+      ],
+      { type: "text/javascript" }
+    )
+  )
+);
+
+// 优化渲染队列处理
+async function processRenderQueue(responseElement, ps, aiResponseContainer) {
+  if (isProcessingQueue || renderQueue.length === 0) return;
+
+  isProcessingQueue = true;
+  const startTime = performance.now();
+
+  while (renderQueue.length > 0) {
+    const currentChunk = renderQueue.shift();
+
+    try {
+      const renderedContent = await md.render(currentChunk);
+
+      if (responseElement && !responseElement.isConnected) {
+        console.warn('Response element was removed from DOM');
+        break;
+      }
+
+      // 使用 DocumentFragment 优化 DOM 操作
+      const fragment = document.createDocumentFragment();
+      const temp = document.createElement('div');
+      temp.innerHTML = renderedContent;
+
+      while (temp.firstChild) {
+        fragment.appendChild(temp.firstChild);
+      }
+
+      // 保存原有的图标容器
+      const iconContainer = responseElement.querySelector('.icon-container');
+
+      // 清空内容并添加新内容
+      responseElement.textContent = '';
+      responseElement.appendChild(fragment);
+
+      // 恢复图标容器
+      if (iconContainer) {
+        responseElement.appendChild(iconContainer);
+      }
+
+      // 性能优化：使用 requestAnimationFrame 处理滚动
+      if (getAllowAutoScroll()) {
+        requestAnimationFrame(() => {
+          scrollToBottom(aiResponseContainer);
+        });
+      }
+
+      // 更新自定义滚动条
+      if (ps) {
+        requestAnimationFrame(() => {
+          ps.update();
+        });
+      }
+
+      // 性能监控：如果处理时间过长，让出主线程
+      if (performance.now() - startTime > 16) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+    } catch (error) {
+      console.error('Error processing render queue:', error);
+    }
+  }
+
+  isProcessingQueue = false;
 }
 
 export async function getAIResponse(
@@ -20,6 +113,7 @@ export async function getAIResponse(
 ) {
   isGenerating = true;
   window.currentAbortController = signal?.controller || new AbortController();
+  renderQueue = [];
 
   const existingIconContainer = responseElement.querySelector('.icon-container');
   const originalClassName = responseElement.className;
@@ -31,40 +125,39 @@ export async function getAIResponse(
 
   responseElement.className = originalClassName;
 
-  let allowAutoScroll = true;
-
-  const { apiKey, language } = await new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action: "getApiKeyAndLanguage" }, resolve);
-  });
-
-  const { model } = await new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action: "getModel" }, resolve);
-  });
-
-  if (!apiKey) {
-    const linkElement = document.createElement("a");
-    linkElement.href = "#";
-    linkElement.textContent = "Please first set your API key in extension popup.";
-    linkElement.style.color = "#0066cc";
-    linkElement.style.textDecoration = "underline";
-    linkElement.style.cursor = "pointer";
-    linkElement.addEventListener("click", (e) => {
-      e.preventDefault();
-      chrome.runtime.sendMessage({ action: "openPopup" });
-    });
-
-    responseElement.textContent = "";
-    responseElement.appendChild(linkElement);
-    if (existingIconContainer) {
-      responseElement.appendChild(existingIconContainer);
-    }
-    return;
-  }
-
   try {
-    if(isRefresh){
+    const [{ apiKey, language }, { model }] = await Promise.all([
+      new Promise(resolve => {
+        chrome.runtime.sendMessage({ action: "getApiKeyAndLanguage" }, resolve);
+      }),
+      new Promise(resolve => {
+        chrome.runtime.sendMessage({ action: "getModel" }, resolve);
+      })
+    ]);
+
+    if (!apiKey) {
+      const linkElement = document.createElement("a");
+      linkElement.href = "#";
+      linkElement.textContent = "Please first set your API key in extension popup.";
+      linkElement.style.color = "#0066cc";
+      linkElement.style.textDecoration = "underline";
+      linkElement.style.cursor = "pointer";
+      linkElement.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: "openPopup" });
+      });
+
+      responseElement.textContent = "";
+      responseElement.appendChild(linkElement);
+      if (existingIconContainer) {
+        responseElement.appendChild(existingIconContainer);
+      }
+      return;
+    }
+
+    if (isRefresh) {
       conversation = conversation.slice(0, -1);
-    }else{
+    } else {
       conversation.push({ role: "user", content: text });
     }
 
@@ -101,6 +194,7 @@ export async function getAIResponse(
     const reader = response.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let aiResponse = "";
+    let lastProcessTime = performance.now();
 
     try {
       while (true) {
@@ -117,36 +211,15 @@ export async function getAIResponse(
 
             try {
               const data = JSON.parse(jsonLine);
-              if (
-                data.choices &&
-                data.choices[0].delta &&
-                data.choices[0].delta.content
-              ) {
+              if (data.choices?.[0]?.delta?.content) {
                 aiResponse += data.choices[0].delta.content;
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = md.render(aiResponse);
+                renderQueue.push(aiResponse);
 
-                const codeBlocks = tempDiv.querySelectorAll('pre code');
-                codeBlocks.forEach(codeBlock => {
-                  codeBlock.classList.add('code-wrap');
-                });
-
-                const className = responseElement.className;
-                const iconContainer = responseElement.querySelector('.icon-container');
-
-                responseElement.textContent = "";
-                while (tempDiv.firstChild) {
-                  responseElement.appendChild(tempDiv.firstChild);
-                }
-
-                responseElement.className = className;
-                if (iconContainer) {
-                  responseElement.appendChild(iconContainer);
-                }
-
-                ps.update();
-                if (getAllowAutoScroll()) {
-                  scrollToBottom(aiResponseContainer);
+                // 性能优化：控制渲染频率
+                const currentTime = performance.now();
+                if (currentTime - lastProcessTime > 32) {
+                  await processRenderQueue(responseElement, ps, aiResponseContainer);
+                  lastProcessTime = currentTime;
                 }
               }
             } catch (e) {
@@ -163,45 +236,51 @@ export async function getAIResponse(
       }
     }
 
+    // 确保处理完所有剩余的渲染队列
+    await processRenderQueue(responseElement, ps, aiResponseContainer);
     conversation.push({ role: "assistant", content: aiResponse });
 
-    requestAnimationFrame(() => {
+    // 使用 requestIdleCallback 优化图标更新
+    requestIdleCallback(() => {
       if (window.addIconsToElement) {
         window.addIconsToElement(responseElement);
       }
       if (window.updateLastAnswerIcons) {
         window.updateLastAnswerIcons();
       }
-    });
+    }, { timeout: 1000 });
 
-    // 先显示按钮
+    // 优化按钮显示逻辑
     if (iconContainer) {
       iconContainer.style.display = 'flex';
       iconContainer.dataset.initialShow = 'true';
+
+      // 使用 IntersectionObserver 优化按钮位置调整
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const buttonContainer = responseElement.querySelector('.icon-container');
+            if (buttonContainer && aiResponseContainer) {
+              const buttonRect = buttonContainer.getBoundingClientRect();
+              const containerRect = aiResponseContainer.getBoundingClientRect();
+              const buttonBottom = buttonRect.bottom - containerRect.top;
+
+              if (buttonBottom > aiResponseContainer.clientHeight) {
+                const extraScroll = buttonBottom - aiResponseContainer.clientHeight + 40;
+                aiResponseContainer.scrollTop += extraScroll;
+                if (ps) ps.update();
+              }
+            }
+            observer.disconnect();
+          }
+        });
+      });
+
+      observer.observe(iconContainer);
     }
 
-    // 使用 requestAnimationFrame 确保在按钮显示后再计算位置
-    requestAnimationFrame(() => {
-      // 确保按钮完全可见
-      const container = aiResponseContainer;
-      const buttonContainer = responseElement.querySelector('.icon-container');
-      if (buttonContainer && container) {
-        // 计算按钮底部位置
-        const buttonRect = buttonContainer.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const buttonBottom = buttonRect.bottom - containerRect.top;
-
-        // 如果按钮底部超出可视区域，调整滚动位置
-        if (buttonBottom > container.clientHeight) {
-          const extraScroll = buttonBottom - container.clientHeight + 40; // 增加到40px的空间
-          container.scrollTop += extraScroll;
-          if (ps) ps.update();
-        }
-      }
-    });
-
     if (onComplete) {
-      onComplete();
+      requestIdleCallback(() => onComplete(), { timeout: 1000 });
     }
   } catch (error) {
     console.error("Fetch error:", error);
