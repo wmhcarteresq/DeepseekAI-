@@ -7,7 +7,8 @@ export class I18nManager {
         apiKeyInvalid: 'API Key 无效',
         noBalance: '暂无余额',
         noApiKey: '请先设置 API Key',
-        fetchError: '获取失败'
+        fetchError: '获取失败',
+        rememberWindowSize: '保存窗口大小'
       },
       en: {
         validating: 'Validating...',
@@ -15,13 +16,14 @@ export class I18nManager {
         apiKeyInvalid: 'Invalid API Key',
         noBalance: 'No balance',
         noApiKey: 'Please set API Key first',
-        fetchError: 'Failed to fetch'
+        fetchError: 'Failed to fetch',
+        rememberWindowSize: 'Save window size'
       }
     };
   }
 
   getCurrentLang() {
-    return localStorage.getItem('preferredLang') || 'zh';
+    return localStorage.getItem('preferredLang') || 'en';
   }
 
   setCurrentLang(lang) {

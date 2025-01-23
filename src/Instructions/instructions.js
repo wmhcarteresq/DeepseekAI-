@@ -119,7 +119,7 @@ const translations = {
   },
 };
 
-let currentLang = "zh";
+let currentLang = "en";
 
 const toggleLanguage = () => {
   // 移除console.log("toggleLanguage")这种简单的日志

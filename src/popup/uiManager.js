@@ -7,6 +7,7 @@ export class UiManager {
       languageSelect: document.getElementById("language"),
       modelSelect: document.getElementById("model"),
       selectionEnabled: document.getElementById("selectionEnabled"),
+      rememberWindowSize: document.getElementById("rememberWindowSize"),
       balanceToggle: document.getElementById('balanceToggle'),
       balanceIcon: document.getElementById('balanceIcon'),
       balanceContent: document.getElementById('balanceContent'),

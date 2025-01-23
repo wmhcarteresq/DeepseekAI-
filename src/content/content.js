@@ -9,6 +9,7 @@ let isHandlingIconClick = false;
 let isSelectionEnabled = true; // 默认启用
 let selectedText = "";
 let currentPopup = null; // 新增：跟踪当前弹窗
+let isRememberWindowSize = false; // 默认不记住窗口大小
 
 const link = document.createElement("link");
 link.rel = "stylesheet";
@@ -17,18 +18,26 @@ link.href = chrome.runtime.getURL("style.css");
 document.head.appendChild(link);
 
 // 加载设置
-chrome.storage.sync.get(['selectionEnabled'], function(data) {
+chrome.storage.sync.get(['selectionEnabled', 'rememberWindowSize', 'windowSize'], function(data) {
   if (typeof data.selectionEnabled !== 'undefined') {
     isSelectionEnabled = data.selectionEnabled;
+  }
+  if (typeof data.rememberWindowSize !== 'undefined') {
+    isRememberWindowSize = data.rememberWindowSize;
   }
 });
 
 // 监听设置变化
 chrome.storage.onChanged.addListener(function(changes, namespace) {
-  if (namespace === 'sync' && changes.selectionEnabled) {
-    isSelectionEnabled = changes.selectionEnabled.newValue;
-    if (!isSelectionEnabled) {
-      removeIcon();
+  if (namespace === 'sync') {
+    if (changes.selectionEnabled) {
+      isSelectionEnabled = changes.selectionEnabled.newValue;
+      if (!isSelectionEnabled) {
+        removeIcon();
+      }
+    }
+    if (changes.rememberWindowSize) {
+      isRememberWindowSize = changes.rememberWindowSize.newValue;
     }
   }
 });
@@ -40,6 +49,37 @@ function removeIcon() {
   }
 }
 
+// 添加安全的弹窗移除函数
+function safeRemovePopup() {
+  if (!currentPopup) return;
+
+  // 保存窗口大小
+  if (isRememberWindowSize && currentPopup.offsetWidth > 100 && currentPopup.offsetHeight > 100) {
+    const width = currentPopup.offsetWidth;
+    const height = currentPopup.offsetHeight;
+    chrome.storage.sync.set({ windowSize: { width, height } });
+  }
+
+  // 清理所有观察者
+  if (currentPopup._resizeObserver) {
+    currentPopup._resizeObserver.disconnect();
+  }
+  if (currentPopup._mutationObserver) {
+    currentPopup._mutationObserver.disconnect();
+  }
+
+  // 安全地移除弹窗
+  try {
+    if (document.body.contains(currentPopup)) {
+      document.body.removeChild(currentPopup);
+    }
+  } catch (error) {
+    console.warn('Failed to remove popup:', error);
+  }
+
+  currentPopup = null;
+}
+
 function handlePopupCreation(selectedText, rect, hideQuestion = false) {
   if (isCreatingPopup) {
     return;
@@ -47,25 +87,91 @@ function handlePopupCreation(selectedText, rect, hideQuestion = false) {
 
   isCreatingPopup = true;
 
-  // 如果存在当前弹窗，先移除
-  if (currentPopup && document.body.contains(currentPopup)) {
-    // 触发清理逻辑
-    const closeButton = currentPopup.querySelector('.close-button');
-    if (closeButton) {
-      closeButton.click();
-    } else {
-      document.body.removeChild(currentPopup);
+  try {
+    // 先移除现有弹窗
+    safeRemovePopup();
+
+    // 创建新弹窗
+    currentPopup = createPopup(selectedText, rect, hideQuestion);
+
+    // 设置最小尺寸以确保可用性
+    currentPopup.style.minWidth = '300px';
+    currentPopup.style.minHeight = '200px';
+
+    // 如果启用了记住窗口大小，应用保存的大小
+    if (isRememberWindowSize) {
+      chrome.storage.sync.get(['windowSize'], function(data) {
+        if (data.windowSize &&
+            data.windowSize.width >= 300 &&
+            data.windowSize.height >= 200 &&
+            currentPopup) {
+          requestAnimationFrame(() => {
+            currentPopup.style.width = `${data.windowSize.width}px`;
+            currentPopup.style.height = `${data.windowSize.height}px`;
+          });
+        }
+      });
     }
-    currentPopup = null;
+
+    document.body.appendChild(currentPopup);
+
+    // 如果启用了记住窗口大小，监听大小变化
+    if (isRememberWindowSize && currentPopup) {
+      const resizeObserver = new ResizeObserver(debounce((entries) => {
+        const entry = entries[0];
+        if (entry.contentRect.width >= 300 && entry.contentRect.height >= 200) {
+          chrome.storage.sync.set({
+            windowSize: {
+              width: entry.contentRect.width,
+              height: entry.contentRect.height
+            }
+          });
+        }
+      }, 500));
+
+      // 保存观察者引用以便清理
+      currentPopup._resizeObserver = resizeObserver;
+      resizeObserver.observe(currentPopup);
+
+      // 监听弹窗移除
+      const mutationObserver = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          for (const node of mutation.removedNodes) {
+            if (node === currentPopup) {
+              resizeObserver.disconnect();
+              mutationObserver.disconnect();
+              currentPopup = null;
+              return;
+            }
+          }
+        }
+      });
+
+      // 保存观察者引用以便清理
+      currentPopup._mutationObserver = mutationObserver;
+      mutationObserver.observe(document.body, { childList: true });
+    }
+  } catch (error) {
+    console.error('Error in handlePopupCreation:', error);
+    safeRemovePopup();
+  } finally {
+    setTimeout(() => {
+      isCreatingPopup = false;
+    }, 100);
   }
+}
 
-  // 创建新弹窗
-  currentPopup = createPopup(selectedText, rect, hideQuestion);
-  document.body.appendChild(currentPopup);
-
-  setTimeout(() => {
-    isCreatingPopup = false;
-  }, 100);
+// 添加防抖函数
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 
 function handleIconClick(e, selectedText, rect, selection) {

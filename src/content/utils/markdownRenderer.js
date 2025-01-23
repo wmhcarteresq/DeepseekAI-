@@ -158,13 +158,8 @@ md.render = function(text) {
     // AI响应完成后，一次性输出所有收集的文本
     setTimeout(() => {
       if (pendingTexts.length > 0) {
-        console.log('=== 数学公式处理结果 ===');
         pendingTexts.forEach((item, index) => {
-          console.log(`\n--- 公式 ${index + 1} ---`);
-          console.log('原始文本：\n' + item.original);
-          console.log('\n处理后：\n' + item.processed);
         });
-        console.log('\n=== 处理结束 ===');
         pendingTexts = []; // 清空收集的文本
       }
     }, 0);

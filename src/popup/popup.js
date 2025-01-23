@@ -28,6 +28,7 @@ class PopupManager {
     this.uiManager.elements.languageSelect.value = settings.language;
     this.uiManager.elements.modelSelect.value = settings.model;
     this.uiManager.elements.selectionEnabled.checked = settings.selectionEnabled;
+    this.uiManager.elements.rememberWindowSize.checked = settings.rememberWindowSize;
   }
 
   initializeEventListeners() {
@@ -59,6 +60,12 @@ class PopupManager {
     this.uiManager.elements.selectionEnabled.addEventListener(
       "change",
       (e) => this.storageManager.saveSelectionEnabled(e.target.checked)
+    );
+
+    // Remember window size toggle
+    this.uiManager.elements.rememberWindowSize.addEventListener(
+      "change",
+      (e) => this.storageManager.saveRememberWindowSize(e.target.checked)
     );
 
     // Balance toggle
@@ -167,6 +174,8 @@ class PopupManager {
 
 document.addEventListener("DOMContentLoaded", () => {
   new PopupManager();
+  // 初始化界面语言
+  updateContent();
 });
 
 // 语言切换功能
@@ -190,6 +199,7 @@ const translations = {
     saveSuccess: "设置已保存",
     selectionEnabledLabel: "快捷按钮",
     validating: "正在验证...",
+    rememberWindowSizeLabel: "保存窗口大小"
   },
   en: {
     headerTitle: "DeepSeek AI",
@@ -210,11 +220,12 @@ const translations = {
     saveSuccess: "Settings saved",
     selectionEnabledLabel: "Quick Button",
     validating: "Validating...",
+    rememberWindowSizeLabel: "Save Window Size"
   },
 };
 
 // 使用localStorage存储语言偏好
-const getCurrentLang = () => localStorage.getItem('preferredLang') || 'zh';
+const getCurrentLang = () => localStorage.getItem('preferredLang') || 'en';
 const setCurrentLang = (lang) => localStorage.setItem('preferredLang', lang);
 
 // 更新页面内容
@@ -235,6 +246,7 @@ const updateContent = () => {
     'instructionsText': langData.instructionsText,
     'balanceText': langData.balanceText,
     'selectionEnabledLabel': langData.selectionEnabledLabel,
+    'rememberWindowSizeLabel': langData.rememberWindowSizeLabel
   };
 
   // 批量更新DOM

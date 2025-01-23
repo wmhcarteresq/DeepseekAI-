@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -701,7 +701,7 @@
             rel="noopener noreferrer"
             id="apiKeyLink"
           >
-            前往获取 API Key
+            Get API Key
           </a>
         </div>
         <div class="error-message" id="errorMessage"></div>
@@ -710,7 +710,7 @@
             type="password"
             id="apiKey"
             required
-            placeholder="在此输入 API Key"
+            placeholder="Enter API Key here"
           />
           <button class="toggle-visibility" id="toggleVisibility">
             <img class="svg" src="../icons/show.svg" alt="" id="iconSwitch" />
@@ -718,14 +718,14 @@
         </div>
 
         <div class="balance-section">
-          <span class="balance-text" id="balanceText">余额</span>
+          <span class="balance-text" id="balanceText">Balance</span>
           <div class="balance-right">
             <div class="balance-content" id="balanceContent">
               <span class="balance-value" id="totalBalance">--</span>
               <button
                 class="balance-refresh"
                 id="balanceRefresh"
-                title="刷新余额"
+                title="Refresh Balance"
               >
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -741,7 +741,7 @@
         </div>
 
         <div class="language-switch">
-          <label for="model" id="modelLabel">模型选择</label>
+          <label for="model" id="modelLabel">Model Selection</label>
           <select id="model">
             <option value="v3">V3</option>
             <option value="r1">R1</option>
@@ -749,7 +749,7 @@
         </div>
 
         <div class="language-switch">
-          <label for="language" id="preferredLanguageLabel">首选语言</label>
+          <label for="language" id="preferredLanguageLabel">Preferred Language</label>
           <select id="language">
             <option value="auto">Auto</option>
             <option value="zh">中文</option>
@@ -774,10 +774,18 @@
         </div>
 
         <div class="selection-switch">
-          <label for="selectionEnabled" id="selectionEnabledLabel">快捷按钮</label>
+          <label for="selectionEnabled" id="selectionEnabledLabel">Quick Button</label>
           <div class="switch-wrapper">
             <input type="checkbox" id="selectionEnabled" class="switch-input" />
             <label for="selectionEnabled" class="switch-label"></label>
+          </div>
+        </div>
+
+        <div class="selection-switch">
+          <label for="rememberWindowSize" id="rememberWindowSizeLabel">Save Window Size</label>
+          <div class="switch-wrapper">
+            <input type="checkbox" id="rememberWindowSize" class="switch-input" />
+            <label for="rememberWindowSize" class="switch-label"></label>
           </div>
         </div>
       </div>
@@ -802,11 +810,11 @@
             </svg>
             <a href="#" id="shortcutSettings" class="link-button">
               <?xml version="1.0" encoding="UTF-8"?>
-              <span id="shortcutSettingsText">快捷键设置</span>
+              <span id="shortcutSettingsText">Shortcut Settings</span>
             </a>
           </div>
           <div class="setting-description" id="shortcutDescription">
-            请前往设置快捷键
+            Please go to set shortcuts
           </div>
         </div>
       </div>
@@ -826,7 +834,7 @@
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
             <line x1="12" y1="17" x2="12" y2="17"></line>
           </svg>
-          <span id="instructionsText">使用说明</span>
+          <span id="instructionsText">Instructions</span>
         </a>
       </div>
     </div>
