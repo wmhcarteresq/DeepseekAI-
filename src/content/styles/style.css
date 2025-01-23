@@ -451,11 +451,13 @@
   white-space: pre-wrap !important;
   word-wrap: break-word !important;
   word-break: break-all !important;
+  color: #24292f;  /* 添加默认文本颜色 */
 }
 
-/* 暗色模式下的代码块背景 */
+/* 暗色模式下的代码块基础样式 */
 .theme-adaptive.dark-mode pre.hljs {
   background-color: #161b22;  /* GitHub 暗色主题背景色 */
+  color: #e6edf3;  /* 暗色模式下的默认文本颜色 */
 }
 
 /* 代码自动换行样式 */
@@ -498,6 +500,7 @@
   line-height: 1.5;
   overflow-x: auto;
   border-radius: 12px;
+  color: inherit;  /* 继承父元素的文本颜色 */
 }
 
 .code-block-wrapper code {
@@ -505,83 +508,79 @@
   font-size: 14px;
   line-height: 1.5;
   tab-size: 4;
+  color: inherit;  /* 继承父元素的文本颜色 */
 }
 
 /* 明亮模式代码高亮 */
 .theme-adaptive .hljs {
-  color: #383a42;
+  color: #24292f;  /* GitHub 风格的基础文本颜色 */
   background: transparent;
-  font-family: "SF Mono", Monaco, Menlo, Consolas, "Ubuntu Mono", monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  tab-size: 2; /* 设置制表符宽度 */
-  -moz-tab-size: 2;
 }
 
 .theme-adaptive .hljs-comment,
 .theme-adaptive .hljs-quote {
-  color: #a0a1a7;
+  color: #6e7781;  /* 更深的注释颜色 */
   font-style: italic;
 }
 
-.theme-adaptive .hljs-doctag,
 .theme-adaptive .hljs-keyword,
-.theme-adaptive .hljs-formula {
-  color: #a626a4;
-}
-
-.theme-adaptive .hljs-section,
-.theme-adaptive .hljs-name,
 .theme-adaptive .hljs-selector-tag,
-.theme-adaptive .hljs-deletion,
 .theme-adaptive .hljs-subst {
-  color: #e45649;
+  color: #cf222e;  /* 关键字使用红色 */
+  font-weight: 600;
 }
 
-.theme-adaptive .hljs-literal {
-  color: #0184bb;
+.theme-adaptive .hljs-number,
+.theme-adaptive .hljs-literal,
+.theme-adaptive .hljs-variable,
+.theme-adaptive .hljs-template-variable,
+.theme-adaptive .hljs-tag .hljs-attr {
+  color: #0550ae;  /* 数字和变量使用蓝色 */
 }
 
 .theme-adaptive .hljs-string,
-.theme-adaptive .hljs-regexp,
-.theme-adaptive .hljs-addition,
-.theme-adaptive .hljs-attribute,
-.theme-adaptive .hljs-meta .hljs-string {
-  color: #50a14f;
+.theme-adaptive .hljs-doctag {
+  color: #0a3069;  /* 字符串使用深蓝色 */
 }
 
-.theme-adaptive .hljs-attr,
-.theme-adaptive .hljs-variable,
-.theme-adaptive .hljs-template-variable,
+.theme-adaptive .hljs-title,
+.theme-adaptive .hljs-section,
+.theme-adaptive .hljs-selector-id {
+  color: #8250df;  /* 标题和选择器使用紫色 */
+  font-weight: 600;
+}
+
 .theme-adaptive .hljs-type,
-.theme-adaptive .hljs-selector-class,
-.theme-adaptive .hljs-selector-attr,
-.theme-adaptive .hljs-selector-pseudo,
-.theme-adaptive .hljs-number {
-  color: #986801;
+.theme-adaptive .hljs-class .hljs-title {
+  color: #953800;  /* 类型使用棕色 */
+  font-weight: 600;
+}
+
+.theme-adaptive .hljs-regexp,
+.theme-adaptive .hljs-link {
+  color: #116329;  /* 正则表达式使用绿色 */
 }
 
 .theme-adaptive .hljs-symbol,
-.theme-adaptive .hljs-bullet,
-.theme-adaptive .hljs-link,
-.theme-adaptive .hljs-meta,
-.theme-adaptive .hljs-selector-id,
-.theme-adaptive .hljs-title {
-  color: #4078f2;
+.theme-adaptive .hljs-bullet {
+  color: #0550ae;  /* 符号使用蓝色 */
 }
 
 .theme-adaptive .hljs-built_in,
-.theme-adaptive .hljs-title.class_,
-.theme-adaptive .hljs-class .hljs-title {
-  color: #c18401;
+.theme-adaptive .hljs-builtin-name {
+  color: #8250df;  /* 内置函数使用紫色 */
 }
 
-.theme-adaptive .hljs-emphasis {
-  font-style: italic;
+.theme-adaptive .hljs-meta {
+  color: #6e7781;  /* 元信息使用灰色 */
 }
 
-.theme-adaptive .hljs-strong {
-  font-weight: bold;
+.theme-adaptive .hljs-deletion {
+  color: #cf222e;  /* 删除的内容使用红色 */
+}
+
+.theme-adaptive .hljs-addition {
+  color: #116329;  /* 添加的内容使用绿色 */
 }
 
 /* 暗色模式代码高亮 */
@@ -1025,6 +1024,7 @@
   line-height: 1.5;
   overflow-x: auto;
   border-radius: 12px;
+  color: inherit;  /* 继承父元素的文本颜色 */
 }
 
 .user-question,
