@@ -71,6 +71,15 @@ chrome.commands.onCommand.addListener(async (command) => {
         message: getGreeting()
       });
     }
+  } else if (command === "close-chat") {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab || tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
+      return;
+    }
+
+    chrome.tabs.sendMessage(tab.id, {
+      action: "closeChat"
+    });
   }
 });
 

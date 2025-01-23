@@ -246,6 +246,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     // 优先使用选中的文本，其次使用请求中的文本，最后使用问候语
     const text = selectedText || request.selectedText || request.message;
     handlePopupCreation(text, rect, !(selectedText || request.selectedText));
+  } else if (request.action === "closeChat") {
+    safeRemovePopup();
   } else if (request.action === "getSelectedText") {
     sendResponse({ selectedText });
   }

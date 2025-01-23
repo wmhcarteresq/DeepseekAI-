@@ -70,6 +70,14 @@
         "windows": "Ctrl+Shift+D"
       },
       "description": "Open the DeepSeek chat window."
+    },
+    "close-chat": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X",
+        "windows": "Ctrl+Shift+X"
+      },
+      "description": "Close the DeepSeek chat window."
     }
   },
   "host_permissions": [
