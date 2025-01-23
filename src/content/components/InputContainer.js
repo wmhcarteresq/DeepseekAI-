@@ -109,35 +109,38 @@ const setupTextarea = (textarea) => {
       case 'compositionstart':
         state.isComposing = true;
         state.compositionText = event.data || '';
-        state.lock = true;
+        state.originalValue = event.target.value;
         break;
       case 'compositionupdate':
         state.compositionText = event.data || '';
+        state.isComposing = true;
         break;
       case 'compositionend':
         state.isComposing = false;
         state.compositionText = '';
-        state.lock = false;
+        event.target.value = state.originalValue + event.data;
         requestAnimationFrame(() => {
           performHeightUpdate(event.target);
         });
         break;
     }
+    textareaState.set(event.target, state);
   };
 
-  textarea.addEventListener("compositionstart", handleComposition, { passive: true });
-  textarea.addEventListener("compositionupdate", handleComposition, { passive: true });
-  textarea.addEventListener("compositionend", handleComposition, { passive: true });
+  textarea.addEventListener("compositionstart", handleComposition);
+  textarea.addEventListener("compositionupdate", handleComposition);
+  textarea.addEventListener("compositionend", handleComposition);
 
   textarea.addEventListener("input", (event) => {
     const state = getState(event.target);
     if (!state.isComposing) {
+      state.originalValue = event.target.value;
       requestAnimationFrame(() => {
         performHeightUpdate(event.target);
       });
     }
     updateHasContent(event.target);
-  }, { passive: true });
+  });
 
   textarea.addEventListener("keydown", (event) => {
     const state = getState(event.target);

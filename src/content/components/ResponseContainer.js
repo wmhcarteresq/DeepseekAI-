@@ -12,7 +12,7 @@ export function styleResponseContainer(container) {
     overflowY: "auto",
     overflowX: "hidden",
     padding: "20px 10px",
-    paddingBottom: "40px",
+    paddingBottom: "60px",
     boxSizing: "border-box",
     userSelect: "text",
     "-webkit-user-select": "text",
@@ -44,7 +44,9 @@ export function styleResponseContainer(container) {
           if (lastMessage) {
             const containerRect = container.getBoundingClientRect();
             const messageRect = lastMessage.getBoundingClientRect();
-            const extraScroll = Math.max(0, messageRect.bottom + SCROLL_CONSTANTS.BUTTON_SPACE - containerRect.bottom);
+            const BUTTON_SPACE = 100;
+            const HOVER_BUTTON_HEIGHT = 40;
+            const extraScroll = Math.max(0, messageRect.bottom + BUTTON_SPACE + HOVER_BUTTON_HEIGHT - containerRect.bottom);
             if (extraScroll > 0) {
               container.scrollTop += extraScroll;
               container.perfectScrollbar?.update();

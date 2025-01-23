@@ -15,7 +15,8 @@ export async function getAIResponse(
   ps,
   iconContainer,
   aiResponseContainer,
-  isRefresh = false
+  isRefresh = false,
+  onComplete
 ) {
   isGenerating = true;
   window.currentAbortController = signal?.controller || new AbortController();
@@ -172,6 +173,36 @@ export async function getAIResponse(
         window.updateLastAnswerIcons();
       }
     });
+
+    // 先显示按钮
+    if (iconContainer) {
+      iconContainer.style.display = 'flex';
+      iconContainer.dataset.initialShow = 'true';
+    }
+
+    // 使用 requestAnimationFrame 确保在按钮显示后再计算位置
+    requestAnimationFrame(() => {
+      // 确保按钮完全可见
+      const container = aiResponseContainer;
+      const buttonContainer = responseElement.querySelector('.icon-container');
+      if (buttonContainer && container) {
+        // 计算按钮底部位置
+        const buttonRect = buttonContainer.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const buttonBottom = buttonRect.bottom - containerRect.top;
+
+        // 如果按钮底部超出可视区域，调整滚动位置
+        if (buttonBottom > container.clientHeight) {
+          const extraScroll = buttonBottom - container.clientHeight + 40; // 增加到40px的空间
+          container.scrollTop += extraScroll;
+          if (ps) ps.update();
+        }
+      }
+    });
+
+    if (onComplete) {
+      onComplete();
+    }
   } catch (error) {
     console.error("Fetch error:", error);
     if (error.name !== 'AbortError') {

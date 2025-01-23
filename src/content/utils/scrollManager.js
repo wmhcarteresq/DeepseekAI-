@@ -131,13 +131,7 @@ export function scrollToBottom(container) {
   if (!container) return;
 
   requestAnimationFrame(() => {
-    const scrollHeight = container.scrollHeight;
-    const clientHeight = container.clientHeight;
-    const maxScroll = scrollHeight - clientHeight;
-
-    // 直接增加固定的额外滚动空间，确保按钮完全可见
-    const EXTRA_SCROLL_SPACE = 40; // 固定的额外滚动空间
-    container.scrollTop = maxScroll + EXTRA_SCROLL_SPACE;
+    container.scrollTop = container.scrollHeight;
 
     if (container.perfectScrollbar) {
       container.perfectScrollbar.update();

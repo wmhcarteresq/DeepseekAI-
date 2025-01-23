@@ -89,6 +89,7 @@ export function addIconsToElement(element) {
 
   const iconContainer = document.createElement("div");
   iconContainer.className = "icon-container";
+  iconContainer.style.display = "none";
 
   const copyWrapper = document.createElement("div");
   copyWrapper.className = "icon-wrapper tooltip";
@@ -113,9 +114,14 @@ export function addIconsToElement(element) {
 
     navigator.clipboard.writeText(textContent).then(() => {
       copyIcon.style.transform = "scale(1.2)";
+      copyIcon.title = "Copied!";
+      copyTooltip.textContent = "Copied!";
+
       setTimeout(() => {
         copyIcon.style.transform = "";
-      }, 200);
+        copyIcon.title = "Copy";
+        copyTooltip.textContent = "Copy";
+      }, 1000);
     });
   });
 
@@ -169,8 +175,7 @@ export function addIconsToElement(element) {
   }
 
   element.style.position = "relative";
-
-  iconContainer.style.display = "none";
+  element.appendChild(iconContainer);
 
   element.addEventListener("mouseenter", () => {
     iconContainer.style.display = "flex";
@@ -180,7 +185,29 @@ export function addIconsToElement(element) {
     iconContainer.style.display = "none";
   });
 
-  element.appendChild(iconContainer);
+  // 添加鼠标移出事件处理
+  element.addEventListener('mouseleave', (event) => {
+    // 检查是否是首次显示的按钮
+    if (iconContainer.dataset.initialShow === 'true') {
+      // 移除首次显示标记
+      delete iconContainer.dataset.initialShow;
+      // 隐藏按钮
+      iconContainer.style.display = 'none';
+
+      // 添加常规的悬浮显示逻辑
+      element.addEventListener('mouseenter', () => {
+        if (!iconContainer.dataset.initialShow) {
+          iconContainer.style.display = 'flex';
+        }
+      });
+
+      element.addEventListener('mouseleave', () => {
+        if (!iconContainer.dataset.initialShow) {
+          iconContainer.style.display = 'none';
+        }
+      });
+    }
+  });
 
   requestAnimationFrame(() => {
     updateLastAnswerIcons();
