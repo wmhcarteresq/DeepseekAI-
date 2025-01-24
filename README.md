@@ -4,6 +4,7 @@
 
 <img src="src/icons/logo.webp" alt="DeepSeekAI Logo" width="200" />
 
+
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/bjjobdlpgglckcmhgmmecijpfobmcpap)](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap)
 [![License](https://img.shields.io/github/license/DeepLifeStudio/DeepSeekAI)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/DeepLifeStudio/DeepSeekAI)](https://github.com/DeepLifeStudio/DeepSeekAI/stargazers)
@@ -103,6 +104,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Project Issues: [GitHub Issues](https://github.com/DeepLifeStudio/DeepSeekAI/issues)
 - Email: [1024jianghu@gmail.com]
+- Twitter/X: [@DeepLifeStudio](https://x.com/DeepLifeStudio)
+- rednote: [@DeepLifeStudio](https://www.xiaohongshu.com/user/profile/60463f5f000000000100a655)
 
 ---
 
