@@ -106,8 +106,6 @@ pnpm run build
 - 项目问题: [GitHub Issues](https://github.com/DeepLifeStudio/DeepSeekAI/issues)
 - 邮件联系: [1024jianghu@gmail.com]
 - Twitter/X: [@DeepLifeStudio](https://x.com/DeepLifeStudio)
-- 小红书: [@江上来信](https://www.xiaohongshu.com/user/profile/60463f5f000000000100a655)
-
 ---
 
 <div align="center">
