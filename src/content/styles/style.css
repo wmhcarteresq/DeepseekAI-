@@ -1258,17 +1258,45 @@
   }
 }
 
-/* 添加主题切换时的过渡效果 */
+/* 优化主题切换过渡效果 */
 .theme-adaptive,
-.theme-adaptive * {
-  transition: background-color 0.3s ease, color 0.3s ease,
-    border-color 0.3s ease, box-shadow 0.3s ease;
+.theme-adaptive *:not(script):not(style) {
+  transition-property: background-color, color, border-color, box-shadow, opacity, transform;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: auto;
 }
 
-/* 确保滚动条样式也随主题切换 */
+/* 确保滚动条和其他UI元素的过渡效果 */
 .theme-adaptive .ps__rail-y,
-.theme-adaptive .ps__thumb-y {
-  transition: background-color 0.3s ease;
+.theme-adaptive .ps__thumb-y,
+.theme-adaptive .icon-container,
+.theme-adaptive .code-block-wrapper,
+.theme-adaptive pre.hljs,
+.theme-adaptive .copy-button,
+.theme-adaptive .input-container-wrapper {
+  transition-property: background-color, color, border-color, box-shadow, opacity, transform;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: auto;
+}
+
+/* 优化代码高亮过渡效果 */
+.theme-adaptive .hljs,
+.theme-adaptive .hljs *,
+.theme-adaptive pre.hljs * {
+  transition-property: color, background-color;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 优化数学公式过渡效果 */
+.theme-adaptive mjx-container,
+.theme-adaptive .math-inline,
+.theme-adaptive .math-block {
+  transition-property: filter;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 数学公式样式 */

@@ -194,6 +194,34 @@ function debounce(func, wait) {
   };
 }
 
+// 添加 ResizeObserver 设置函数
+function setupResizeObserver(popup) {
+  if (!popup) return;
+
+  // 如果已存在观察者，先断开连接
+  if (popup._resizeObserver) {
+    popup._resizeObserver.disconnect();
+  }
+
+  // 创建防抖的保存尺寸函数
+  const debouncedSaveSize = debounce((width, height) => {
+    if (width >= 300 && height >= 200) {
+      chrome.storage.sync.set({ windowSize: { width, height } });
+    }
+  }, 500);
+
+  // 创建新的 ResizeObserver
+  popup._resizeObserver = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const { width, height } = entry.contentRect;
+      debouncedSaveSize(width, height);
+    }
+  });
+
+  // 开始观察
+  popup._resizeObserver.observe(popup);
+}
+
 function handleIconClick(e, selectedText, rect, selection) {
   e.stopPropagation();
   e.preventDefault();

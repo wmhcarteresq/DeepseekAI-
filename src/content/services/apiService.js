@@ -140,9 +140,15 @@ export async function getAIResponse(
       linkElement.style.color = "#0066cc";
       linkElement.style.textDecoration = "underline";
       linkElement.style.cursor = "pointer";
-      linkElement.addEventListener("click", (e) => {
+      linkElement.addEventListener("click", async (e) => {
         e.preventDefault();
-        chrome.runtime.sendMessage({ action: "openPopup" });
+        try {
+          await chrome.runtime.sendMessage({ action: "openPopup" });
+        } catch (error) {
+          console.error('Failed to open popup:', error);
+          // 如果发送消息失败，尝试使用备用方法
+          chrome.runtime.sendMessage({ action: "getSelectedText" });
+        }
       });
 
       responseElement.textContent = "";

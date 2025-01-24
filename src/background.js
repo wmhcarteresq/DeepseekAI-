@@ -14,12 +14,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "getModel") {
     chrome.storage.sync.get(["model"], function (data) {
       sendResponse({
-        model: data.model || "r1", // 默认使用 R1 模型
+        model: data.model || "V3", // 默认使用 R1 模型
       });
     });
     return true;
   } else if (request.action === "openPopup") {
-    chrome.runtime.openOptionsPage();
+    chrome.action.openPopup();
     return true;
   }
 });
