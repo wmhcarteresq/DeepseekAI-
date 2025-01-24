@@ -46,7 +46,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
 // 全局注册命令监听器
 chrome.commands.onCommand.addListener(async (command) => {
-  if (command === "toggle-popup") {
+  if (command === "toggle-chat") {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (!tab || tab.url.startsWith('chrome://') || tab.url.startsWith('edge://')) {
       return;
@@ -60,13 +60,13 @@ chrome.commands.onCommand.addListener(async (command) => {
       });
 
       chrome.tabs.sendMessage(tab.id, {
-        action: "createPopup",
+        action: "toggleChat",
         selectedText: result || null,
         message: result || getGreeting()
       });
     } catch (error) {
       chrome.tabs.sendMessage(tab.id, {
-        action: "createPopup",
+        action: "toggleChat",
         selectedText: null,
         message: getGreeting()
       });

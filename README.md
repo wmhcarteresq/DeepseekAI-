@@ -33,7 +33,7 @@ DeepSeekAI is an unofficial browser extension powered by the [DeepSeek](https://
 - **Window Memory**: Remember chat window size and position
 - **One-click Copy**: Easy copying of response content
 - **Regenerate**: Support for regenerating AI responses
-- **Keyboard Shortcuts**: Built-in shortcuts (Ctrl/Command+Shift+D to open, Ctrl/Command+Shift+X to close)
+- **Keyboard Shortcuts**: Built-in shortcut (Ctrl/Command+Shift+D to open/close)
 - **Balance Query**: Real-time API balance checking
 - **User Guide**: Built-in detailed usage instructions
 
@@ -71,7 +71,7 @@ pnpm run build
 4. Start using! You can:
    - Click the popup icon after selecting text
    - Right-click and select "DeepSeek AI" after text selection
-   - Use Ctrl/Command+Shift+D to open the chat window
+   - Use the shortcut Ctrl/Command+Shift+D to open the dialog window/close the session window.
 
 ## 🛠️ Tech Stack
 

@@ -33,7 +33,7 @@ DeepSeekAI 是一款非官方的浏览器扩展插件，基于 [DeepSeek](https:
 - **窗口记忆**: 支持记住对话窗口的大小和位置
 - **一键复制**: 便捷的回复内容复制功能
 - **重新生成**: 支持重新生成 AI 回复
-- **快捷键支持**: 内置快捷键（Ctrl/Command+Shift+D 打开，Ctrl/Command+Shift+X 关闭）
+- **快捷键支持**: 内置快捷键（Ctrl/Command+Shift+D 打开/关闭）
 - **余额查询**: 支持实时查询 API 余额
 - **使用说明**: 内置详细的使用教程
 
@@ -71,7 +71,8 @@ pnpm run build
 4. 开始使用！您可以：
    - 选择网页文本后点击弹出的图标
    - 选择文本后右键选择 "DeepSeek AI"
-   - 使用快捷键 Ctrl/Command+Shift+D 打开对话窗口
+   - 使用快捷键 Ctrl/Command+Shift+D 打开对话窗口/关闭会话窗口
+   
 
 ## 🛠️ 技术栈
 
