@@ -13,28 +13,26 @@ export function getIsGenerating() {
   return isGenerating;
 }
 
-// 使用 Worker 优化文本处理
-const textProcessingWorker = new Worker(
-  URL.createObjectURL(
-    new Blob(
-      [
-        `
-        onmessage = function(e) {
-          const { text, type } = e.data;
-          let processed = text;
+// 使用防抖优化文本处理
+const processTextDebounced = (() => {
+  let timeout;
+  return (text, type, callback) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => {
+      const result = processText(text, type);
+      callback(result);
+    }, 100);
+  };
+})();
 
-          if (type === 'cleanup') {
-            processed = text.trim().replace(/\s+/g, ' ');
-          }
-
-          postMessage({ processed, type });
-        }
-      `
-      ],
-      { type: "text/javascript" }
-    )
-  )
-);
+function processText(text, type) {
+  if (type === 'cleanup') {
+    return text.trim().replace(/\s+/g, ' ');
+  }
+  return text;
+}
 
 // 优化渲染队列处理
 async function processRenderQueue(responseElement, ps, aiResponseContainer) {

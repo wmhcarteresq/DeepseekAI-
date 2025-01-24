@@ -1,47 +1,111 @@
-# 基于 DeepSeek AI 大模型的浏览器扩展插件
+# DeepSeekAI - Smart Web Assistant
 
-这是一个浏览器扩展插件，旨在通过选择网页上的文本并调用[DeepSeek](https://deepseek.com)大模型来为用户提供 AI 回复。该扩展插件让你可以直接在网页上与 AI 互动，获取选中文本的总结或解答，提升你的浏览体验。
-## 功能特点
+<div align="center">
 
-- [x] **上下文文本选择**：在网页上高亮显示任何文本，一个弹出窗口将会出现，让您快速获得 AI 驱动的响应。
-- [x] **API Key 集成**：支持用户填入自己的 API Key 以访问 DeepSeek 模型。
-- [x] **可拖拽和调整大小的窗口**：回复窗口可以拖拽并调整大小，用户可以根据需要将其放置在屏幕的任意位置。
-- [x] **AI 流式回复**：支持 AI 模型的流式回复，使用户可以在 AI 生成回复的同时实时互动。
-- [x] **Markdown 渲染**：支持以 Markdown 格式渲染 AI 回复，便于查看包括列表、代码块等格式化内容。
-- [x] **数学公式渲染**支持使用 LaTeX 语法渲染数学公式，方便查看数学表达式。
-- [x] **一键复制**：一键将 AI 回复复制到剪贴板，方便快速使用。
-- [x] **重新回答选项**：如果对 AI 回复不满意，用户可以轻松重新提问，获取新的回答。
-- [x] **代码复制功能**：增强代码片段复制功能。
-- [x] **语言切换功能**：允许用户根据偏好切换回答的语言类型。
-- [x] **多轮对话**：支持多轮对话功能，使用户可以与 AI 进行连续的深度互动，不局限于一次性问题。
-- [x] **快捷键**: 支持通过自定义快捷键快速呼出会话窗口。
+![DeepSeekAI Logo](assets/logo.png)
 
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/bjjobdlpgglckcmhgmmecijpfobmcpap)](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap)
+[![License](https://img.shields.io/github/license/DeepLifeStudio/DeepSeekAI)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/DeepLifeStudio/DeepSeekAI)](https://github.com/DeepLifeStudio/DeepSeekAI/stargazers)
 
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-## 即将实现的功能
+</div>
 
-- [ ] **更多功能**：根据用户的需求和反馈，我们将在未来的版本中添加更多功能。
+## 📖 Introduction
 
-## 安装步骤
+DeepSeekAI is an unofficial browser extension powered by the [DeepSeek](https://deepseek.com) API, designed to enhance your web browsing experience with intelligent interactions. Through simple text selection, you can instantly receive AI-driven responses, making your web browsing more efficient and intelligent.
 
-1. **通过 Chrome Web Store 安装**：访问 [Chrome Web Store](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap) 并点击"添加到 Chrome"按钮进行安装。
+> **Note**: This extension is a third-party development, not an official DeepSeek product. You need your own DeepSeek API Key to use this extension.
 
-2. **通过 Edge Add-ons 安装**：访问 [Microsoft Edge Add-ons](您的Edge商店链接) 并点击"获取"按钮进行安装。
+## ✨ Core Features
 
-3. **手动安装**：
-   - 克隆仓库：`git clone https://github.com/DeepLifeStudio/DeepSeekAI.git`
-   - 安装依赖：`npm install`
-   - 构建扩展程序：`npm run build`
+### 🎯 Smart Interaction
+- **Intelligent Text Analysis**: Select any text on web pages for instant AI analysis and responses
+- **Multi-turn Dialogue**: Support for continuous conversation interactions
+- **Quick Access**: Three ways to invoke the chat window - text selection, right-click menu, and keyboard shortcuts
+- **Streaming Response**: Real-time streaming display of AI responses
+- **Model Selection**: Choose between DeepSeek V3 and DeepSeek R1 models
 
-## 配置
+### 💎 User Experience
+- **Draggable Interface**: Freely drag and resize the chat window
+- **Window Memory**: Remember chat window size and position
+- **One-click Copy**: Easy copying of response content
+- **Regenerate**: Support for regenerating AI responses
+- **Keyboard Shortcuts**: Built-in shortcuts (Ctrl/Command+Shift+D to open, Ctrl/Command+Shift+X to close)
+- **Balance Query**: Real-time API balance checking
+- **User Guide**: Built-in detailed usage instructions
 
-1. 打开扩展程序弹出窗口并输入您的 DeepSeek API 密钥。
-2. 现在扩展程序就可以使用了! 选择网页上的任何文本，AI 驱动的响应将会出现在弹出窗口中。
+### 🎨 Content Display
+- **Markdown Rendering**: Support for rich Markdown formatting, including code blocks, lists, and mathematical formulas (MathJax)
+- **Code Highlighting**: Syntax highlighting for multiple programming languages with copy functionality
+- **Multi-language Support**: UI in English/Chinese, AI responses with auto-language detection or specified language
+- **Dark Mode**: Automatic dark mode support based on system preferences
 
-## 贡献
+## 🚀 Quick Start
 
-欢迎对 DeepSeekAI 项目的贡献。如果您发现任何问题或有新功能的想法，请随时开一个 issue 或提交一个拉取请求。
+### Installation
 
-## 许可证
+#### 1. Install from Store (Recommended)
+- [Chrome Web Store](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap)
+- [Microsoft Edge Add-ons](Coming soon)
 
-该项目采用 [MIT 许可证](LICENSE)。
+#### 2. Manual Installation
+```bash
+# Clone the repository
+git clone https://github.com/DeepLifeStudio/DeepSeekAI.git
+
+# Install dependencies
+pnpm install
+
+# Build the project
+pnpm run build
+```
+
+### Configuration
+
+1. Click the extension icon in your browser toolbar
+2. Enter your DeepSeek API Key in the popup window
+3. Configure language, model, and other preferences
+4. Start using! You can:
+   - Click the popup icon after selecting text
+   - Right-click and select "DeepSeek AI" after text selection
+   - Use Ctrl/Command+Shift+D to open the chat window
+
+## 🛠️ Tech Stack
+
+- **Frontend Framework**: JavaScript
+- **Build Tool**: Webpack
+- **API Integration**: DeepSeek API
+- **Styling**: CSS3
+- **Code Standard**: ESLint
+
+## 🔜 Roadmap
+
+- [ ] Local history record feature
+- [ ] Custom prompt template support
+
+## 🤝 Contributing
+
+All forms of contributions are welcome, whether it's new features, bug fixes, or documentation improvements.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## 📮 Contact Us
+
+- Project Issues: [GitHub Issues](https://github.com/DeepLifeStudio/DeepSeekAI/issues)
+- Email: [1024jianghu@gmail.com]
+
+---
+
+<div align="center">
+If this project helps you, please consider giving it a ⭐️
+</div>

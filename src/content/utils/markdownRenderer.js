@@ -186,7 +186,6 @@ document.addEventListener('click', async function(event) {
   const copyButton = event.target.closest('.copy-button');
   if (!copyButton) return;
 
-  console.log('copy button clicked');
   event.preventDefault();
   event.stopPropagation();
 
@@ -194,7 +193,6 @@ document.addEventListener('click', async function(event) {
   if (code) {
     try {
       await navigator.clipboard.writeText(code);
-      console.log('copied text:', code);
     } catch (error) {
       console.error('Failed to copy:', error);
     }
@@ -202,5 +200,4 @@ document.addEventListener('click', async function(event) {
     console.warn('No code text found to copy');
   }
 }, true);
-
 export { md };
