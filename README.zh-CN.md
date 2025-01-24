@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![DeepSeekAI Logo](assets/logo.png)
+![DeepSeekAI Logo](src/icons/logo.webp)
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/bjjobdlpgglckcmhgmmecijpfobmcpap)](https://chromewebstore.google.com/detail/bjjobdlpgglckcmhgmmecijpfobmcpap)
 [![License](https://img.shields.io/github/license/DeepLifeStudio/DeepSeekAI)](LICENSE)
