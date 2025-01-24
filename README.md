@@ -100,15 +100,3 @@ All forms of contributions are welcome, whether it's new features, bug fixes, or
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
-## 📮 Contact Us
-
-- Project Issues: [GitHub Issues](https://github.com/DeepLifeStudio/DeepSeekAI/issues)
-- Email: [1024jianghu@gmail.com]
-- Twitter/X: [@DeepLifeStudio](https://x.com/DeepLifeStudio)
-- rednote: [@DeepLifeStudio](https://www.xiaohongshu.com/user/profile/60463f5f000000000100a655)
-
----
-
-<div align="center">
-If this project helps you, please consider giving it a ⭐️
-</div>
