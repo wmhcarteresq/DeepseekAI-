@@ -55,7 +55,7 @@ export function resizeMoveListener(event) {
   }
 }
 
-export function createDragHandle() {
+export function createDragHandle(removeCallback) {
   const dragHandle = document.createElement("div");
   Object.assign(dragHandle.style, {
     position: "absolute",
@@ -132,34 +132,8 @@ export function createDragHandle() {
 
   closeButton.addEventListener("click", (event) => {
     event.stopPropagation();
-    const popup = document.querySelector("#ai-popup");
-    if (popup) {
-      // 移除主题监听器
-      if (popup._removeThemeListener) {
-        popup._removeThemeListener();
-      }
-
-      // 清理滚动条实例
-      if (window.aiResponseContainer?.perfectScrollbar) {
-        window.aiResponseContainer.perfectScrollbar.destroy();
-        delete window.aiResponseContainer.perfectScrollbar;
-      }
-
-      // 清理滚动状态管理器
-      if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
-        window.aiResponseContainer.scrollStateManager.cleanup();
-      }
-
-      // 移除事件监听器
-      if (window.aiResponseContainer?.cleanup) {
-        window.aiResponseContainer.cleanup();
-      }
-
-      // 移除弹窗
-      document.body.removeChild(popup);
-
-      // 清理全局引用
-      window.aiResponseContainer = null;
+    if (typeof removeCallback === 'function') {
+      removeCallback();
     }
   });
 

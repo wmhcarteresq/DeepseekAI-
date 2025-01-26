@@ -2,15 +2,14 @@ import './styles/style.css';
 import { createSvgIcon, createIcon } from "./components/IconManager";
 import { createPopup } from "./popup";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
+import { popupStateManager } from './utils/popupStateManager';
 
 let currentIcon = null;
-let isCreatingPopup = false;
 let isHandlingIconClick = false;
 let isSelectionEnabled = true; // 默认启用
 let selectedText = "";
 let currentPopup = null; // 新增：跟踪当前弹窗
 let isRememberWindowSize = false; // 默认不记住窗口大小
-let isPopupVisible = false;
 
 const link = document.createElement("link");
 link.rel = "stylesheet";
@@ -52,10 +51,10 @@ function removeIcon() {
 
 // 更新安全的弹窗移除函数
 function safeRemovePopup() {
+  // 立即重置所有状态
+  popupStateManager.reset();
+
   if (!currentPopup) {
-    // 即使没有当前弹窗，也要确保状态被重置
-    isPopupVisible = false;
-    isCreatingPopup = false;
     window.aiResponseContainer = null;
     return;
   }
@@ -71,12 +70,15 @@ function safeRemovePopup() {
     // 清理所有观察者和事件监听器
     if (currentPopup._resizeObserver) {
       currentPopup._resizeObserver.disconnect();
+      delete currentPopup._resizeObserver;
     }
     if (currentPopup._mutationObserver) {
       currentPopup._mutationObserver.disconnect();
+      delete currentPopup._mutationObserver;
     }
     if (currentPopup._removeThemeListener) {
       currentPopup._removeThemeListener();
+      delete currentPopup._removeThemeListener;
     }
 
     // 清理滚动相关实例
@@ -86,9 +88,11 @@ function safeRemovePopup() {
     }
     if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
       window.aiResponseContainer.scrollStateManager.cleanup();
+      delete window.aiResponseContainer.scrollStateManager;
     }
     if (window.aiResponseContainer?.cleanup) {
       window.aiResponseContainer.cleanup();
+      delete window.aiResponseContainer.cleanup;
     }
 
     // 使用 try-catch 包装 DOM 操作
@@ -103,8 +107,6 @@ function safeRemovePopup() {
     // 确保状态被重置
     window.aiResponseContainer = null;
     currentPopup = null;
-    isPopupVisible = false;
-    isCreatingPopup = false;
   } catch (error) {
     console.warn('Failed to remove popup:', error);
     // 确保在出错时也能重置所有状态
@@ -115,21 +117,28 @@ function safeRemovePopup() {
         console.warn('Error removing popup in catch block:', e);
       }
     }
+    // 重置所有状态
     window.aiResponseContainer = null;
     currentPopup = null;
-    isPopupVisible = false;
-    isCreatingPopup = false;
   }
+
+  // 最后再次确保所有状态都被重置
+  popupStateManager.reset();
 }
 
 function handlePopupCreation(selectedText, rect, hideQuestion = false) {
-  if (isCreatingPopup) return;
+  if (popupStateManager.isCreating()) return;
 
-  isCreatingPopup = true;
+  popupStateManager.setCreating(true);
 
   try {
+    // 先移除快捷按钮
+    removeIcon();
+    // 清除选中的文本
+    window.getSelection().removeAllRanges();
+
     safeRemovePopup();
-    currentPopup = createPopup(selectedText, rect, hideQuestion);
+    currentPopup = createPopup(selectedText, rect, hideQuestion, safeRemovePopup);
     currentPopup.style.minWidth = '300px';
     currentPopup.style.minHeight = '200px';
 
@@ -148,7 +157,7 @@ function handlePopupCreation(selectedText, rect, hideQuestion = false) {
     }
 
     document.body.appendChild(currentPopup);
-    isPopupVisible = true;  // 更新状态
+    popupStateManager.setVisible(true);  // 更新状态
 
     // 设置窗口大小监听
     if (isRememberWindowSize && currentPopup) {
@@ -159,25 +168,35 @@ function handlePopupCreation(selectedText, rect, hideQuestion = false) {
     safeRemovePopup();
   } finally {
     setTimeout(() => {
-      isCreatingPopup = false;
+      popupStateManager.setCreating(false);
     }, 100);
   }
 }
 
-// 添加切换窗口显示状态的函数
 function togglePopup(selectedText, rect, hideQuestion = false) {
+  // 如果正在处理中，直接返回
+  if (popupStateManager.isCreating()) return;
+
   try {
-    if (isPopupVisible) {
+    if (popupStateManager.isVisible()) {
       safeRemovePopup();
+      // 添加一个短暂的延迟，确保状态完全重置
+      setTimeout(() => {
+        popupStateManager.reset();
+      }, 100);
     } else {
       // 在创建新弹窗前确保清理旧的状态
       safeRemovePopup();
-      handlePopupCreation(selectedText, rect, hideQuestion);
+      // 添加一个短暂的延迟，确保旧状态完全清理
+      setTimeout(() => {
+        handlePopupCreation(selectedText, rect, hideQuestion);
+      }, 100);
     }
   } catch (error) {
     console.warn('Error in togglePopup:', error);
     // 确保在出错时重置状态
     safeRemovePopup();
+    popupStateManager.reset();
   }
 }
 
@@ -237,7 +256,7 @@ function handleIconClick(e, selectedText, rect, selection) {
 }
 
 document.addEventListener("mouseup", function (event) {
-  if (!isSelectionEnabled || isCreatingPopup || isHandlingIconClick) return;
+  if (!isSelectionEnabled || popupStateManager.isCreating() || isHandlingIconClick) return;
 
   const selection = window.getSelection();
   const selectedText = selection.toString().trim();

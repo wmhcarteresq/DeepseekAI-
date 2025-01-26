@@ -8,6 +8,7 @@ import { addIconsToElement, updateLastAnswerIcons } from "./components/IconManag
 import { createScrollManager, getAllowAutoScroll, setAllowAutoScroll, updateAllowAutoScroll, handleUserScroll, setupScrollHandlers, scrollToBottom } from './utils/scrollManager';
 import { isDarkMode, watchThemeChanges, applyTheme } from './utils/themeManager';
 import { STYLE_CONSTANTS } from './utils/constants';
+import { popupStateManager } from './utils/popupStateManager';
 
 // 将aiResponseContainer移动到window对象上
 window.aiResponseContainer = null;
@@ -71,7 +72,13 @@ const getPopupInitialStyle = (rect) => ({
   ...adjustPopupPosition(rect)
 });
 
-export function createPopup(text, rect, hideQuestion = false) {
+export function createPopup(text, rect, hideQuestion = false, removeCallback) {
+  // 确保移除快捷按钮
+  if (window.currentIcon && document.body.contains(window.currentIcon)) {
+    document.body.removeChild(window.currentIcon);
+    window.currentIcon = null;
+  }
+
   const popup = document.createElement("div");
   popup.id = "ai-popup";
   popup.classList.add('theme-adaptive');
@@ -80,6 +87,22 @@ export function createPopup(text, rect, hideQuestion = false) {
   applyTheme(popup, currentTheme);
 
   Object.assign(popup.style, getPopupInitialStyle(rect));
+
+  // 添加点击事件监听
+  document.addEventListener('mousedown', async (event) => {
+    // 检查是否启用了固定窗口
+    const isPinned = await chrome.storage.sync.get('pinWindow').then(result => result.pinWindow || false);
+
+    // 如果启用了固定窗口,或者点击的是弹窗内部,则不关闭
+    if (isPinned || event.target.closest('#ai-popup')) {
+      return;
+    }
+
+    // 关闭弹窗
+    if (typeof removeCallback === 'function') {
+      removeCallback();
+    }
+  });
 
   const aiResponseElement = document.createElement("div");
   window.aiResponseContainer = document.createElement("div");
@@ -158,61 +181,10 @@ export function createPopup(text, rect, hideQuestion = false) {
     window.aiResponseContainer
   );
 
-  const dragHandle = createDragHandle();
+  const dragHandle = createDragHandle(removeCallback);
   popup.appendChild(dragHandle);
 
   setupInteractions(popup, dragHandle, window.aiResponseContainer);
-
-  // 设置关闭按钮的处理逻辑
-  const closeButton = popup.querySelector('.close-button');
-  if (closeButton) {
-    closeButton.onclick = async (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      try {
-        // 移除主题监听器
-        if (popup._removeThemeListener) {
-          popup._removeThemeListener();
-        }
-
-        // 清理滚动条实例
-        if (window.aiResponseContainer?.perfectScrollbar) {
-          window.aiResponseContainer.perfectScrollbar.destroy();
-          delete window.aiResponseContainer.perfectScrollbar;
-        }
-
-        // 清理滚动状态管理器
-        if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
-          window.aiResponseContainer.scrollStateManager.cleanup();
-        }
-
-        // 移除事件监听器
-        if (window.aiResponseContainer?.cleanup) {
-          window.aiResponseContainer.cleanup();
-        }
-
-        // 确保popup还存在于文档中
-        if (document.body.contains(popup)) {
-          // 使用 requestAnimationFrame 确保在下一帧执行移除操作
-          requestAnimationFrame(() => {
-            if (document.body.contains(popup)) {
-              document.body.removeChild(popup);
-            }
-            // 清理全局引用
-            window.aiResponseContainer = null;
-          });
-        }
-      } catch (error) {
-        console.warn('Error during popup cleanup:', error);
-        // 如果出错，仍然尝试移除popup
-        if (document.body.contains(popup)) {
-          document.body.removeChild(popup);
-        }
-        window.aiResponseContainer = null;
-      }
-    };
-  }
 
   const questionInputContainer = createQuestionInputContainer(window.aiResponseContainer);
   popup.appendChild(questionInputContainer);

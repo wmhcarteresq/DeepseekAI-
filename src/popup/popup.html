@@ -9,8 +9,9 @@
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
           "Helvetica Neue", sans-serif;
         margin: 0;
-        padding: 16px;
+        padding: 12px;
         width: 320px;
+        height: auto;
         color: rgba(0, 0, 0, 0.85);
         background-color: #ffffff;
       }
@@ -25,7 +26,8 @@
       .container {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 12px;
+        height: auto;
       }
 
       .header {
@@ -33,8 +35,8 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding-bottom: 12px;
-        margin-bottom: 4px;
+        padding-bottom: 8px;
+        margin-bottom: 2px;
         border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
@@ -52,7 +54,8 @@
       .key {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
+        flex: 1;
       }
 
       .key-header {
@@ -90,7 +93,7 @@
         align-items: center;
         width: 100%;
         position: relative;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
       }
 
       input {
@@ -183,7 +186,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 0;
+        padding: 6px 0;
         border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
@@ -305,7 +308,7 @@
 
 
       .setting-item {
-        padding: 12px 0;
+        padding: 8px 0;
         border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
@@ -365,6 +368,7 @@
 
       .help-link {
         text-align: center;
+        padding: 4px 0;
       }
 
       .help-link a {
@@ -425,9 +429,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 0;
+        padding: 6px 0;
         border-bottom: 1px solid rgba(60, 60, 67, 0.12);
-        margin-top: -4px;
+        margin-top: -2px;
       }
 
       .balance-text {
@@ -559,7 +563,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 0;
+        padding: 6px 0;
         border-bottom: 1px solid rgba(60, 60, 67, 0.12);
       }
 
@@ -671,6 +675,50 @@
       .verify-button:active {
         transform: translateY(-50%) scale(0.98);
       }
+
+      /* 添加提示样式 */
+      .switch-label-text {
+        position: relative;
+        cursor: default;
+      }
+
+      .switch-label-text:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: -8px;
+        bottom: calc(100% + 4px);
+        background: rgba(35, 37, 40, 0.95);
+        color: rgba(238, 238, 238, 0.95);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        line-height: 1.3;
+        white-space: normal;
+        width: 300px;
+        z-index: 1000;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        animation: tooltipFadeIn 0.2s ease;
+        pointer-events: none;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .switch-label-text:hover::after {
+          background: rgba(45, 47, 50, 0.95);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+      }
+
+      @keyframes tooltipFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
     </style>
   </head>
   <body>
@@ -774,7 +822,7 @@
         </div>
 
         <div class="selection-switch">
-          <label for="selectionEnabled" id="selectionEnabledLabel">Quick Button</label>
+          <label for="selectionEnabled" id="selectionEnabledLabel" class="switch-label-text" data-tooltip="Show a quick button when text is selected to open the chat window">Quick Button</label>
           <div class="switch-wrapper">
             <input type="checkbox" id="selectionEnabled" class="switch-input" />
             <label for="selectionEnabled" class="switch-label"></label>
@@ -782,10 +830,18 @@
         </div>
 
         <div class="selection-switch">
-          <label for="rememberWindowSize" id="rememberWindowSizeLabel">Save Window Size</label>
+          <label for="rememberWindowSize" id="rememberWindowSizeLabel" class="switch-label-text" data-tooltip="Remember your preferred chat window size for future sessions">Save Window Size</label>
           <div class="switch-wrapper">
             <input type="checkbox" id="rememberWindowSize" class="switch-input" />
             <label for="rememberWindowSize" class="switch-label"></label>
+          </div>
+        </div>
+
+        <div class="selection-switch">
+          <label for="pinWindow" id="pinWindowLabel" class="switch-label-text" data-tooltip="When enabled, clicking outside the window won't close it">Pin Window</label>
+          <div class="switch-wrapper">
+            <input type="checkbox" id="pinWindow" class="switch-input" />
+            <label for="pinWindow" class="switch-label"></label>
           </div>
         </div>
       </div>

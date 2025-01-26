@@ -29,6 +29,7 @@ class PopupManager {
     this.uiManager.elements.modelSelect.value = settings.model;
     this.uiManager.elements.selectionEnabled.checked = settings.selectionEnabled;
     this.uiManager.elements.rememberWindowSize.checked = settings.rememberWindowSize;
+    this.uiManager.elements.pinWindow.checked = settings.pinWindow;
   }
 
   initializeEventListeners() {
@@ -66,6 +67,12 @@ class PopupManager {
     this.uiManager.elements.rememberWindowSize.addEventListener(
       "change",
       (e) => this.storageManager.saveRememberWindowSize(e.target.checked)
+    );
+
+    // Pin window toggle
+    this.uiManager.elements.pinWindow.addEventListener(
+      "change",
+      (e) => this.storageManager.savePinWindow(e.target.checked)
     );
 
     // Balance toggle
@@ -198,8 +205,12 @@ const translations = {
     apiKeyInvalid: "API Key 无效",
     saveSuccess: "设置已保存",
     selectionEnabledLabel: "快捷按钮",
+    selectionEnabledTip: "选中文本后显示快捷按钮，点击可快速打开会话窗口",
     validating: "正在验证...",
-    rememberWindowSizeLabel: "保存窗口大小"
+    rememberWindowSizeLabel: "保存窗口大小",
+    rememberWindowSizeTip: "记住您调整后的会话窗口大小，下次打开时将保持相同尺寸",
+    pinWindowLabel: "固定窗口",
+    pinWindowTip: "开启后，点击窗口外部不会自动关闭会话窗口"
   },
   en: {
     headerTitle: "DeepSeek AI",
@@ -219,8 +230,12 @@ const translations = {
     apiKeyInvalid: "Invalid API Key",
     saveSuccess: "Settings saved",
     selectionEnabledLabel: "Quick Button",
+    selectionEnabledTip: "Show a quick button when text is selected to open the chat window",
     validating: "Validating...",
-    rememberWindowSizeLabel: "Save Window Size"
+    rememberWindowSizeLabel: "Save Window Size",
+    rememberWindowSizeTip: "Remember your preferred chat window size for future sessions",
+    pinWindowLabel: "Pin Window",
+    pinWindowTip: "When enabled, clicking outside the window won't close it"
   },
 };
 
@@ -246,7 +261,8 @@ const updateContent = () => {
     'instructionsText': langData.instructionsText,
     'balanceText': langData.balanceText,
     'selectionEnabledLabel': langData.selectionEnabledLabel,
-    'rememberWindowSizeLabel': langData.rememberWindowSizeLabel
+    'rememberWindowSizeLabel': langData.rememberWindowSizeLabel,
+    'pinWindowLabel': langData.pinWindowLabel
   };
 
   // 批量更新DOM
@@ -260,6 +276,20 @@ const updateContent = () => {
       } else {
         element.textContent = value;
       }
+    }
+  });
+
+  // 更新开关按钮的提示文本
+  const switchTips = {
+    'selectionEnabledLabel': langData.selectionEnabledTip,
+    'rememberWindowSizeLabel': langData.rememberWindowSizeTip,
+    'pinWindowLabel': langData.pinWindowTip
+  };
+
+  Object.entries(switchTips).forEach(([id, tip]) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.setAttribute('data-tooltip', tip);
     }
   });
 
