@@ -88,22 +88,6 @@ export function createPopup(text, rect, hideQuestion = false, removeCallback) {
 
   Object.assign(popup.style, getPopupInitialStyle(rect));
 
-  // 添加点击事件监听
-  document.addEventListener('mousedown', async (event) => {
-    // 检查是否启用了固定窗口
-    const isPinned = await chrome.storage.sync.get('pinWindow').then(result => result.pinWindow || false);
-
-    // 如果启用了固定窗口,或者点击的是弹窗内部,则不关闭
-    if (isPinned || event.target.closest('#ai-popup')) {
-      return;
-    }
-
-    // 关闭弹窗
-    if (typeof removeCallback === 'function') {
-      removeCallback();
-    }
-  });
-
   const aiResponseElement = document.createElement("div");
   window.aiResponseContainer = document.createElement("div");
   styleResponseContainer(window.aiResponseContainer);

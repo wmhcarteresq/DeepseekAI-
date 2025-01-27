@@ -292,6 +292,30 @@ document.addEventListener("mousedown", function(e) {
   }
 }, { passive: true });
 
+// 添加全局点击事件监听
+document.addEventListener('mousedown', async (event) => {
+  // 如果没有当前弹窗，直接返回
+  if (!currentPopup) return;
+
+  // 检查是否启用了固定窗口
+  const isPinned = await chrome.storage.sync.get('pinWindow').then(result => result.pinWindow || false);
+
+  // 如果启用了固定窗口，直接返回
+  if (isPinned) return;
+
+  // 检查点击区域
+  const isClickInside = event.target.closest('#ai-popup') ||
+                       event.target.closest('.icon-wrapper') ||
+                       event.target.closest('.icon-container') ||
+                       event.target.closest('.regenerate-icon');
+
+  // 如果点击在弹窗内部或相关元素上，不关闭
+  if (isClickInside) return;
+
+  // 关闭弹窗
+  safeRemovePopup();
+});
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "toggleChat") {
     try {
