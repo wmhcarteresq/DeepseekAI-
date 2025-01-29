@@ -60,6 +60,42 @@ function safeRemovePopup() {
   }
 
   try {
+    // 中止正在进行的 AI 响应
+    if (window.currentAbortController) {
+      window.currentAbortController.abort();
+      window.currentAbortController = null;
+    }
+
+    // 如果正在生成回答但被中断，清理最后一条不完整的消息
+    if (window.aiResponseContainer && window.aiResponseContainer.isGenerating) {
+      // 通过消息传递来清理消息历史
+      window.dispatchEvent(new CustomEvent('cleanupIncompleteMessage'));
+    }
+
+    // 移除所有事件监听器和引用
+    if (window.aiResponseContainer) {
+      // 清理滚动相关实例
+      if (window.aiResponseContainer.perfectScrollbar) {
+        window.aiResponseContainer.perfectScrollbar.destroy();
+        delete window.aiResponseContainer.perfectScrollbar;
+      }
+
+      if (window.aiResponseContainer.scrollStateManager?.cleanup) {
+        window.aiResponseContainer.scrollStateManager.cleanup();
+        delete window.aiResponseContainer.scrollStateManager;
+      }
+
+      if (window.aiResponseContainer.cleanup) {
+        window.aiResponseContainer.cleanup();
+        delete window.aiResponseContainer.cleanup;
+      }
+
+      // 移除所有事件监听器
+      const clone = window.aiResponseContainer.cloneNode(true);
+      window.aiResponseContainer.parentNode.replaceChild(clone, window.aiResponseContainer);
+      window.aiResponseContainer = clone;
+    }
+
     // 保存窗口大小
     if (isRememberWindowSize && currentPopup.offsetWidth > 100 && currentPopup.offsetHeight > 100) {
       const width = currentPopup.offsetWidth;
@@ -81,23 +117,11 @@ function safeRemovePopup() {
       delete currentPopup._removeThemeListener;
     }
 
-    // 清理滚动相关实例
-    if (window.aiResponseContainer?.perfectScrollbar) {
-      window.aiResponseContainer.perfectScrollbar.destroy();
-      delete window.aiResponseContainer.perfectScrollbar;
-    }
-    if (window.aiResponseContainer?.scrollStateManager?.cleanup) {
-      window.aiResponseContainer.scrollStateManager.cleanup();
-      delete window.aiResponseContainer.scrollStateManager;
-    }
-    if (window.aiResponseContainer?.cleanup) {
-      window.aiResponseContainer.cleanup();
-      delete window.aiResponseContainer.cleanup;
-    }
-
     // 使用 try-catch 包装 DOM 操作
     try {
       if (document.body.contains(currentPopup)) {
+        // 在移除之前先将内容清空，避免触发不必要的事件
+        currentPopup.innerHTML = '';
         document.body.removeChild(currentPopup);
       }
     } catch (e) {
@@ -112,6 +136,7 @@ function safeRemovePopup() {
     // 确保在出错时也能重置所有状态
     if (document.body.contains(currentPopup)) {
       try {
+        currentPopup.innerHTML = '';
         document.body.removeChild(currentPopup);
       } catch (e) {
         console.warn('Error removing popup in catch block:', e);

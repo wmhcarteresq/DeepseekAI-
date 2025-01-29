@@ -216,8 +216,13 @@ export function addIconsToElement(element) {
 
 export function updateLastAnswerIcons() {
   const aiResponseElement = document.getElementById("ai-response");
+  if (!aiResponseElement) return;
+
   const answers = aiResponseElement.getElementsByClassName("ai-answer");
+  if (!answers || answers.length === 0) return;
+
   const aiResponseContainer = document.getElementById("ai-response-container");
+  if (!aiResponseContainer) return;
 
   Array.from(answers).forEach(answer => {
     const iconContainer = answer.querySelector('.icon-container');
@@ -232,60 +237,60 @@ export function updateLastAnswerIcons() {
     }
   });
 
-  if (answers.length > 0) {
-    const lastAnswer = answers[answers.length - 1];
-    const userQuestion = lastAnswer.previousElementSibling;
-    const iconContainer = lastAnswer.querySelector('.icon-container');
+  const lastAnswer = answers[answers.length - 1];
+  if (!lastAnswer) return;
 
-    if (iconContainer && !iconContainer.querySelector('img[src*="regenerate"]') &&
-        userQuestion && userQuestion.classList.contains("user-question")) {
-      iconContainer.style.display = 'flex';
-      const regenerateWrapper = document.createElement("div");
-      regenerateWrapper.className = "icon-wrapper tooltip";
+  const userQuestion = lastAnswer.previousElementSibling;
+  const iconContainer = lastAnswer.querySelector('.icon-container');
 
-      const regenerateIcon = document.createElement("img");
-      regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
-      regenerateIcon.title = "Regenerate";
+  if (iconContainer && !iconContainer.querySelector('img[src*="regenerate"]') &&
+      userQuestion && userQuestion.classList.contains("user-question")) {
+    iconContainer.style.display = 'flex';
+    const regenerateWrapper = document.createElement("div");
+    regenerateWrapper.className = "icon-wrapper tooltip";
 
-      const regenerateTooltip = document.createElement("span");
-      regenerateTooltip.className = "tooltiptext";
-      regenerateTooltip.textContent = "Regenerate";
+    const regenerateIcon = document.createElement("img");
+    regenerateIcon.src = chrome.runtime.getURL("icons/regenerate.svg");
+    regenerateIcon.title = "Regenerate";
 
-      regenerateWrapper.appendChild(regenerateIcon);
-      regenerateWrapper.appendChild(regenerateTooltip);
+    const regenerateTooltip = document.createElement("span");
+    regenerateTooltip.className = "tooltiptext";
+    regenerateTooltip.textContent = "Regenerate";
 
-      regenerateWrapper.addEventListener("click", (event) => {
-        event.stopPropagation();
-        const questionText = userQuestion.textContent;
-        lastAnswer.textContent = "";
-        const abortController = new AbortController();
-        let ps = aiResponseContainer.ps;
-        if (!ps) {
-          ps = new PerfectScrollbar(aiResponseContainer, {
-            suppressScrollX: true,
-            wheelPropagation: false,
-          });
-          aiResponseContainer.ps = ps;
-        }
+    regenerateWrapper.appendChild(regenerateIcon);
+    regenerateWrapper.appendChild(regenerateTooltip);
 
-        requestAnimationFrame(() => {
-          const questionTop = userQuestion.offsetTop;
-          aiResponseContainer.scrollTop = Math.max(0, questionTop - 20);
-          ps.update();
+    regenerateWrapper.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const questionText = userQuestion.textContent;
+      lastAnswer.textContent = "";
+      const abortController = new AbortController();
+      let ps = aiResponseContainer.ps;
+      if (!ps) {
+        ps = new PerfectScrollbar(aiResponseContainer, {
+          suppressScrollX: true,
+          wheelPropagation: false,
         });
+        aiResponseContainer.ps = ps;
+      }
 
-        getAIResponse(
-          questionText,
-          lastAnswer,
-          abortController.signal,
-          ps,
-          null,
-          aiResponseContainer,
-          true
-        );
+      requestAnimationFrame(() => {
+        const questionTop = userQuestion.offsetTop;
+        aiResponseContainer.scrollTop = Math.max(0, questionTop - 20);
+        ps.update();
       });
-      iconContainer.appendChild(regenerateWrapper);
-    }
+
+      getAIResponse(
+        questionText,
+        lastAnswer,
+        abortController.signal,
+        ps,
+        null,
+        aiResponseContainer,
+        true
+      );
+    });
+    iconContainer.appendChild(regenerateWrapper);
   }
 }
 

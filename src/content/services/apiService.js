@@ -1,12 +1,13 @@
 import { getAllowAutoScroll, scrollToBottom } from "../utils/scrollManager";
 import { md } from "../utils/markdownRenderer";
 
-let conversation = [];
+// 全局变量用于存储对话历史
+let messages = [];
 let isGenerating = false;
 let renderQueue = [];
 let isProcessingQueue = false;
 
-// 新增：用于存储当前响应的思维链内容
+// 用于存储当前响应的内容
 let currentReasoningContent = "";
 let currentContent = "";
 
@@ -45,94 +46,117 @@ async function processRenderQueue(responseElement, ps, aiResponseContainer) {
   isProcessingQueue = true;
   const startTime = performance.now();
 
-  while (renderQueue.length > 0) {
-    const currentChunk = renderQueue.shift();
-
-    try {
-      // 分别渲染思维链和最终答案
-      let renderedContent = "";
-
-      if (currentChunk.reasoningContent) {
-        const reasoningHtml = await md.render(currentChunk.reasoningContent);
-        renderedContent = `
-          <div class="reasoning-content expanded">
-            <div class="reasoning-header">
-              <div class="reasoning-toggle"></div>
-              <span>Reasoning process...</span>
-            </div>
-            <div class="reasoning-content-inner">${reasoningHtml}</div>
-          </div>
-        `;
-      }
-
-      if (currentChunk.content) {
-        const contentHtml = await md.render(currentChunk.content);
-        renderedContent += contentHtml;
-      }
-
-      if (responseElement && !responseElement.isConnected) {
-        console.warn('Response element was removed from DOM');
+  try {
+    while (renderQueue.length > 0) {
+      // 检查元素是否仍然存在于 DOM 中
+      if (!responseElement || !responseElement.isConnected || !aiResponseContainer || !aiResponseContainer.isConnected) {
+        console.log('Response element or container was removed from DOM, clearing render queue');
+        renderQueue = [];
         break;
-      }
+    }
 
-      // 使用 DocumentFragment 优化 DOM 操作
-      const fragment = document.createDocumentFragment();
-      const temp = document.createElement('div');
-      temp.innerHTML = renderedContent;
+      const currentChunk = renderQueue.shift();
 
-      // 添加收缩展开的事件监听
-      const reasoningContent = temp.querySelector('.reasoning-content');
-      if (reasoningContent) {
-        const reasoningHeader = reasoningContent.querySelector('.reasoning-header');
-        if (reasoningHeader) {
-          reasoningHeader.addEventListener('click', function(e) {
-            const container = this.closest('.reasoning-content');
+      try {
+        // 分别渲染思维链和最终答案
+        let renderedContent = "";
+
+        if (currentChunk.reasoningContent) {
+          const reasoningHtml = await md.render(currentChunk.reasoningContent);
+          renderedContent = `
+        <div class="reasoning-content expanded">
+          <div class="reasoning-header">
+            <div class="reasoning-toggle"></div>
+            <span>Reasoning process</span>
+          </div>
+          <div class="reasoning-content-inner">${reasoningHtml}</div>
+        </div>
+      `;
+    }
+
+        if (currentChunk.content) {
+          const contentHtml = await md.render(currentChunk.content);
+          renderedContent += contentHtml;
+    }
+
+        // 再次检查元素是否存在
+        if (!responseElement.isConnected) {
+          console.log('Response element was removed during rendering');
+          break;
+    }
+
+    // 使用 DocumentFragment 优化 DOM 操作
+    const fragment = document.createDocumentFragment();
+    const temp = document.createElement('div');
+        temp.innerHTML = renderedContent;
+
+        // 添加收缩展开的事件监听
+    const reasoningContent = temp.querySelector('.reasoning-content');
+    if (reasoningContent) {
+      const reasoningHeader = reasoningContent.querySelector('.reasoning-header');
+      if (reasoningHeader) {
+            reasoningHeader.addEventListener('click', function(e) {
+          const container = this.closest('.reasoning-content');
+          if (container) {
             container.classList.toggle('collapsed');
             container.classList.toggle('expanded');
+          }
+        });
+      }
+    }
+
+    while (temp.firstChild) {
+      fragment.appendChild(temp.firstChild);
+    }
+
+        // 保存原有的图标容器
+        const iconContainer = responseElement.querySelector('.icon-container');
+
+        // 清空内容并添加新内容
+        responseElement.textContent = '';
+    responseElement.appendChild(fragment);
+
+    // 恢复图标容器
+    if (iconContainer) {
+      responseElement.appendChild(iconContainer);
+    }
+
+        // 性能优化：使用 requestAnimationFrame 处理滚动
+        if (getAllowAutoScroll() && aiResponseContainer.isConnected) {
+          requestAnimationFrame(() => {
+            scrollToBottom(aiResponseContainer);
+          });
+    }
+
+        // 更新自定义滚动条
+        if (ps && aiResponseContainer.isConnected) {
+          requestAnimationFrame(() => {
+            ps.update();
           });
         }
+
+        // 性能监控：如果处理时间过长，让出主线程
+        if (performance.now() - startTime > 16) {
+          await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  } catch (error) {
+        console.error('Error processing render queue:', error);
+        break;
       }
+    }
+  } finally {
+    isProcessingQueue = false;
+  }
+}
 
-      while (temp.firstChild) {
-        fragment.appendChild(temp.firstChild);
-      }
-
-      // 保存原有的图标容器
-      const iconContainer = responseElement.querySelector('.icon-container');
-
-      // 清空内容并添加新内容
-      responseElement.textContent = '';
-      responseElement.appendChild(fragment);
-
-      // 恢复图标容器
-      if (iconContainer) {
-        responseElement.appendChild(iconContainer);
-      }
-
-      // 性能优化：使用 requestAnimationFrame 处理滚动
-      if (getAllowAutoScroll()) {
-        requestAnimationFrame(() => {
-          scrollToBottom(aiResponseContainer);
-        });
-      }
-
-      // 更新自定义滚动条
-      if (ps) {
-        requestAnimationFrame(() => {
-          ps.update();
-        });
-      }
-
-      // 性能监控：如果处理时间过长，让出主线程
-      if (performance.now() - startTime > 16) {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
-    } catch (error) {
-      console.error('Error processing render queue:', error);
+// 验证和清理消息历史
+function validateAndCleanMessages() {
+  // 如果发现连续的user消息，删除前一条
+  for (let i = messages.length - 1; i > 0; i--) {
+    if (messages[i].role === 'user' && messages[i-1].role === 'user') {
+      messages.splice(i-1, 1);
     }
   }
-
-  isProcessingQueue = false;
 }
 
 export async function getAIResponse(
@@ -145,9 +169,28 @@ export async function getAIResponse(
   isRefresh = false,
   onComplete
 ) {
+  if (!text) return;
+
   isGenerating = true;
   window.currentAbortController = signal?.controller || new AbortController();
   renderQueue = [];
+
+  // 处理消息历史
+  if (isRefresh) {
+    // 如果是刷新,只移除最后一条助手的回答,保留用户的问题
+    messages = messages.slice(0, -1);
+  }
+
+  // 在添加新消息前验证和清理历史消息
+  validateAndCleanMessages();
+
+  // 添加用户的新消息
+  if (!isRefresh) {
+    messages.push({ role: "user", content: text });
+  }
+
+  // 再次验证确保消息历史正确
+  validateAndCleanMessages();
 
   const existingIconContainer = responseElement.querySelector('.icon-container');
   const originalClassName = responseElement.className;
@@ -158,6 +201,16 @@ export async function getAIResponse(
   }
 
   responseElement.className = originalClassName;
+
+  // 在函数结束时确保清理
+  const cleanup = () => {
+    isGenerating = false;
+    window.currentAbortController = null;
+    renderQueue = [];  // 清空渲染队列
+    if (ps && ps.element && ps.element.isConnected) {
+      ps.update();
+    }
+  };
 
   try {
     const [{ apiKey, language }, { model }] = await Promise.all([
@@ -195,11 +248,25 @@ export async function getAIResponse(
       return;
     }
 
-    if (isRefresh) {
-      conversation = conversation.slice(0, -1);
-    } else {
-      conversation.push({ role: "user", content: text });
-    }
+    const requestBody = {
+      model: model === "r1" ? "deepseek-reasoner" : "deepseek-chat",
+      messages: [
+        {
+          role: "system",
+          content: `You are a helpful AI assistant. ${
+            language === "auto"
+              ? "Detect and respond in the same language as the user's input. If the user's input is in Chinese, respond in Chinese. If the user's input is in English, respond in English, etc."
+              : `You MUST respond ONLY in ${language}. This is a strict requirement. Do not use any other language except ${language}.`
+          }`,
+        },
+        ...messages // 使用完整的消息历史
+      ],
+      stream: true,
+      temperature: 0.5,
+    };
+
+    // 添加日志
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
     const response = await fetch("https://api.deepseek.com/chat/completions", {
       method: "POST",
@@ -207,22 +274,7 @@ export async function getAIResponse(
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: model === "r1" ? "deepseek-reasoner" : "deepseek-chat",
-        messages: [
-          {
-            role: "system",
-            content: `You are a helpful AI assistant. ${
-              language === "auto"
-                ? "Detect and respond in the same language as the user's input. If the user's input is in Chinese, respond in Chinese. If the user's input is in English, respond in English, etc."
-                : `You MUST respond ONLY in ${language}. This is a strict requirement. Do not use any other language except ${language}.`
-            }`,
-          },
-          ...conversation,
-        ],
-        stream: true,
-        temperature: 0.5,
-      }),
+      body: JSON.stringify(requestBody),
       signal: window.currentAbortController.signal,
     });
 
@@ -256,11 +308,13 @@ export async function getAIResponse(
               // 处理思维链内容（仅对R1模型）
               if (model === "r1" && data.choices?.[0]?.delta?.reasoning_content) {
                 reasoningContent += data.choices[0].delta.reasoning_content;
+                currentReasoningContent = reasoningContent;
               }
-              console.log(reasoningContent);
+
               // 处理最终答案内容
               if (data.choices?.[0]?.delta?.content) {
                 aiResponse += data.choices[0].delta.content;
+                currentContent = aiResponse;
               }
 
               // 将两种内容都加入渲染队列
@@ -292,8 +346,12 @@ export async function getAIResponse(
     // 确保处理完所有剩余的渲染队列
     await processRenderQueue(responseElement, ps, aiResponseContainer);
 
-    // 更新对话历史（注意：只保存最终答案，不保存思维链）
-    conversation.push({ role: "assistant", content: aiResponse });
+    // 更新消息历史（只保存最终答案，不保存思维链）
+    if (currentContent) {
+      messages.push({ role: "assistant", content: currentContent });
+      // 打印当前消息历史,用于调试
+      console.log('Current messages history:', JSON.stringify(messages, null, 2));
+    }
 
     // 使用 requestIdleCallback 优化图标更新
     requestIdleCallback(() => {
@@ -348,9 +406,7 @@ export async function getAIResponse(
       }
     }
   } finally {
-    isGenerating = false;
-    window.currentAbortController = null;
-    if (ps) ps.update();
+    cleanup();
   }
 }
 
