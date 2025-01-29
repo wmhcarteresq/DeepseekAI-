@@ -108,9 +108,16 @@ export function addIconsToElement(element) {
   copyWrapper.addEventListener("click", (event) => {
     event.stopPropagation();
     const textContent = Array.from(element.childNodes)
-      .filter(node => !node.classList || !node.classList.contains('icon-container'))
+      .filter(node => {
+        // 排除图标容器和reasoning content
+        return (!node.classList ||
+                (!node.classList.contains('icon-container') &&
+                 !node.classList.contains('reasoning-content')))
+      })
       .map(node => node.textContent)
-      .join('');
+      .join('')
+      .trim() // 去除首尾空白字符
+      .replace(/^\n+|\n+$/g, ''); // 去除开头和结尾的换行符
 
     navigator.clipboard.writeText(textContent).then(() => {
       copyIcon.style.transform = "scale(1.2)";

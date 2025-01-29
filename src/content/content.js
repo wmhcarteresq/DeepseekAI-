@@ -341,6 +341,18 @@ document.addEventListener('mousedown', async (event) => {
   safeRemovePopup();
 });
 
+// 添加事件委托处理reasoning content的点击
+document.addEventListener('click', (event) => {
+  const reasoningHeader = event.target.closest('.reasoning-header');
+  if (reasoningHeader) {
+    const container = reasoningHeader.closest('.reasoning-content');
+    if (container) {
+      container.classList.toggle('collapsed');
+      container.classList.toggle('expanded');
+    }
+  }
+}, true);
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "toggleChat") {
     try {

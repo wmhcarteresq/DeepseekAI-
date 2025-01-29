@@ -1441,18 +1441,41 @@
   line-height: 1.5;
   border-radius: 0 8px 8px 0;
   overflow: hidden;
-  transition: max-height 0.3s ease-out;
+  transition: all 0.3s ease-out;
 }
 
 /* 思维链收缩状态 */
 .theme-adaptive .reasoning-content.collapsed {
   max-height: 32px;
   cursor: pointer;
+  opacity: 0.8;
 }
 
 /* 思维链展开状态 */
 .theme-adaptive .reasoning-content.expanded {
-  max-height: 1000px;
+  max-height: none;
+  opacity: 1;
+}
+
+/* 思维链内容容器 */
+.theme-adaptive .reasoning-content-inner {
+  padding: 4px 0;
+  transition: opacity 0.3s ease-out;
+}
+
+/* 收缩状态下的文本省略 */
+.theme-adaptive .reasoning-content.collapsed .reasoning-content-inner {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.7;
+}
+
+/* 展开状态下的内容 */
+.theme-adaptive .reasoning-content.expanded .reasoning-content-inner {
+  white-space: normal;
+  overflow: visible;
+  opacity: 1;
 }
 
 /* 思维链头部容器 */
@@ -1464,6 +1487,7 @@
   color: var(--reasoning-text);
   font-size: 13px;
   cursor: pointer;
+  user-select: none;
 }
 
 /* 思维链切换按钮 */
@@ -1501,16 +1525,4 @@
 /* 展开状态的图标 */
 .theme-adaptive .reasoning-content.expanded .reasoning-toggle::before {
   transform: rotate(45deg);
-}
-
-/* 思维链内容容器 */
-.theme-adaptive .reasoning-content-inner {
-  padding: 4px 0;
-}
-
-/* 收缩状态下的文本省略 */
-.theme-adaptive .reasoning-content.collapsed .reasoning-content-inner {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }

@@ -53,80 +53,56 @@ async function processRenderQueue(responseElement, ps, aiResponseContainer) {
         console.log('Response element or container was removed from DOM, clearing render queue');
         renderQueue = [];
         break;
-    }
+      }
 
       const currentChunk = renderQueue.shift();
 
       try {
         // 分别渲染思维链和最终答案
-        let renderedContent = "";
-
         if (currentChunk.reasoningContent) {
-          const reasoningHtml = await md.render(currentChunk.reasoningContent);
-          renderedContent = `
-        <div class="reasoning-content expanded">
-          <div class="reasoning-header">
-            <div class="reasoning-toggle"></div>
-            <span>Reasoning process</span>
-          </div>
-          <div class="reasoning-content-inner">${reasoningHtml}</div>
-        </div>
-      `;
-    }
+          let reasoningContentElement = responseElement.querySelector('.reasoning-content');
+
+          if (!reasoningContentElement) {
+            // 如果不存在，创建新的reasoning content结构
+            reasoningContentElement = document.createElement('div');
+            reasoningContentElement.className = 'reasoning-content expanded';
+            reasoningContentElement.innerHTML = `
+              <div class="reasoning-header">
+                <div class="reasoning-toggle"></div>
+                <span>Reasoning process</span>
+              </div>
+              <div class="reasoning-content-inner"></div>
+            `;
+            responseElement.insertBefore(reasoningContentElement, responseElement.firstChild);
+          }
+
+          // 只更新内容部分
+          const reasoningInner = reasoningContentElement.querySelector('.reasoning-content-inner');
+          if (reasoningInner) {
+            const reasoningHtml = await md.render(currentChunk.reasoningContent);
+            reasoningInner.innerHTML = reasoningHtml;
+          }
+        }
 
         if (currentChunk.content) {
-          const contentHtml = await md.render(currentChunk.content);
-          renderedContent += contentHtml;
-    }
-
-        // 再次检查元素是否存在
-        if (!responseElement.isConnected) {
-          console.log('Response element was removed during rendering');
-          break;
-    }
-
-    // 使用 DocumentFragment 优化 DOM 操作
-    const fragment = document.createDocumentFragment();
-    const temp = document.createElement('div');
-        temp.innerHTML = renderedContent;
-
-        // 添加收缩展开的事件监听
-    const reasoningContent = temp.querySelector('.reasoning-content');
-    if (reasoningContent) {
-      const reasoningHeader = reasoningContent.querySelector('.reasoning-header');
-      if (reasoningHeader) {
-            reasoningHeader.addEventListener('click', function(e) {
-          const container = this.closest('.reasoning-content');
-          if (container) {
-            container.classList.toggle('collapsed');
-            container.classList.toggle('expanded');
+          // 查找或创建内容容器
+          let contentElement = responseElement.querySelector('.content-container');
+          if (!contentElement) {
+            contentElement = document.createElement('div');
+            contentElement.className = 'content-container';
+            responseElement.appendChild(contentElement);
           }
-        });
-      }
-    }
 
-    while (temp.firstChild) {
-      fragment.appendChild(temp.firstChild);
-    }
-
-        // 保存原有的图标容器
-        const iconContainer = responseElement.querySelector('.icon-container');
-
-        // 清空内容并添加新内容
-        responseElement.textContent = '';
-    responseElement.appendChild(fragment);
-
-    // 恢复图标容器
-    if (iconContainer) {
-      responseElement.appendChild(iconContainer);
-    }
+          const contentHtml = await md.render(currentChunk.content);
+          contentElement.innerHTML = contentHtml;
+        }
 
         // 性能优化：使用 requestAnimationFrame 处理滚动
         if (getAllowAutoScroll() && aiResponseContainer.isConnected) {
           requestAnimationFrame(() => {
             scrollToBottom(aiResponseContainer);
           });
-    }
+        }
 
         // 更新自定义滚动条
         if (ps && aiResponseContainer.isConnected) {
@@ -138,8 +114,8 @@ async function processRenderQueue(responseElement, ps, aiResponseContainer) {
         // 性能监控：如果处理时间过长，让出主线程
         if (performance.now() - startTime > 16) {
           await new Promise(resolve => setTimeout(resolve, 0));
-    }
-  } catch (error) {
+        }
+      } catch (error) {
         console.error('Error processing render queue:', error);
         break;
       }
