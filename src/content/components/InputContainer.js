@@ -8,7 +8,7 @@ export const createQuestionInputContainer = (aiResponseContainer) => {
 
   container.innerHTML = `
     <div class="input-container">
-      <textarea class="expandable-textarea" placeholder="输入您的问题..."></textarea>
+      <textarea class="expandable-textarea" placeholder="Enter your question..."></textarea>
       <svg class="send-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -17,7 +17,7 @@ export const createQuestionInputContainer = (aiResponseContainer) => {
         <svg class="loading-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="7" y="7" width="10" height="10" rx="1" stroke="currentColor" stroke-width="2" fill="none" />
         </svg>
-        <span class="tooltiptext">停止生成</span>
+        <span class="tooltiptext">Stop</span>
       </div>
     </div>
   `;
@@ -192,14 +192,14 @@ const setupUpdateButtonState = (container) => {
       loadingIcon.classList.add("active");
       textarea.style.cursor = "not-allowed";
       textarea.setAttribute("disabled", "disabled");
-      textarea.setAttribute("placeholder", "AI正在回答中...");
+      textarea.setAttribute("placeholder", "AI is responding...");
     } else {
       sendIcon.style.display = "block";
       loadingIconWrapper.style.display = "none";
       loadingIcon.classList.remove("active");
       textarea.style.cursor = "text";
       textarea.removeAttribute("disabled");
-      textarea.setAttribute("placeholder", "输入您的问题...");
+      textarea.setAttribute("placeholder", "Enter your question...");
     }
   };
 

@@ -369,6 +369,9 @@
       .help-link {
         text-align: center;
         padding: 4px 0;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
       }
 
       .help-link a {
@@ -378,15 +381,25 @@
         padding: 8px 16px;
         border-radius: 8px;
         font-size: 14px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s ease;
       }
 
       .help-link a:hover {
         background-color: rgba(60, 60, 67, 0.1);
+        color: var(--text-primary);
       }
 
       .help-link svg {
         width: 16px;
         height: 16px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .help-link a:hover {
+          background-color: rgba(235, 235, 245, 0.1);
+        }
       }
 
       .language-toggle {
@@ -891,6 +904,21 @@
             <line x1="12" y1="17" x2="12" y2="17"></line>
           </svg>
           <span id="instructionsText">Instructions</span>
+        </a>
+
+        <a href="https://status.deepseek.com/" target="_blank" rel="noopener noreferrer" id="statusLink">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span id="statusText">API Service Status</span>
         </a>
       </div>
     </div>

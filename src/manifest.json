@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "DeepSeek AI",
-  "description": "DeepSeek AI助手是一个免费开源的浏览器扩展工具（与DeepSeek官方无关），本扩展需要用户自行提供DeepSeek API Key才能使用，通过集成先进的人工智能大模型，用户可以轻松选择网页上的任何文本内容，并立即获得深度、准确的AI回答。",
-  "version": "1.8.6",
+  "description": "DeepSeek AI Assistant is a free and open-source browser extension tool (unrelated to DeepSeek official).",
+  "version": "1.8.8",
   "permissions": ["storage", "contextMenus", "scripting", "commands", "tabs"],
   "content_scripts": [
     {

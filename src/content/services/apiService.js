@@ -6,6 +6,10 @@ let isGenerating = false;
 let renderQueue = [];
 let isProcessingQueue = false;
 
+// 新增：用于存储当前响应的思维链内容
+let currentReasoningContent = "";
+let currentContent = "";
+
 // 使用 Performance API 优化性能监控
 const performance = window.performance;
 
@@ -45,7 +49,26 @@ async function processRenderQueue(responseElement, ps, aiResponseContainer) {
     const currentChunk = renderQueue.shift();
 
     try {
-      const renderedContent = await md.render(currentChunk);
+      // 分别渲染思维链和最终答案
+      let renderedContent = "";
+
+      if (currentChunk.reasoningContent) {
+        const reasoningHtml = await md.render(currentChunk.reasoningContent);
+        renderedContent = `
+          <div class="reasoning-content expanded">
+            <div class="reasoning-header">
+              <div class="reasoning-toggle"></div>
+              <span>Reasoning process...</span>
+            </div>
+            <div class="reasoning-content-inner">${reasoningHtml}</div>
+          </div>
+        `;
+      }
+
+      if (currentChunk.content) {
+        const contentHtml = await md.render(currentChunk.content);
+        renderedContent += contentHtml;
+      }
 
       if (responseElement && !responseElement.isConnected) {
         console.warn('Response element was removed from DOM');
@@ -56,6 +79,19 @@ async function processRenderQueue(responseElement, ps, aiResponseContainer) {
       const fragment = document.createDocumentFragment();
       const temp = document.createElement('div');
       temp.innerHTML = renderedContent;
+
+      // 添加收缩展开的事件监听
+      const reasoningContent = temp.querySelector('.reasoning-content');
+      if (reasoningContent) {
+        const reasoningHeader = reasoningContent.querySelector('.reasoning-header');
+        if (reasoningHeader) {
+          reasoningHeader.addEventListener('click', function(e) {
+            const container = this.closest('.reasoning-content');
+            container.classList.toggle('collapsed');
+            container.classList.toggle('expanded');
+          });
+        }
+      }
 
       while (temp.firstChild) {
         fragment.appendChild(temp.firstChild);
@@ -198,6 +234,7 @@ export async function getAIResponse(
     const reader = response.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let aiResponse = "";
+    let reasoningContent = "";
     let lastProcessTime = performance.now();
 
     try {
@@ -215,16 +252,28 @@ export async function getAIResponse(
 
             try {
               const data = JSON.parse(jsonLine);
+
+              // 处理思维链内容（仅对R1模型）
+              if (model === "r1" && data.choices?.[0]?.delta?.reasoning_content) {
+                reasoningContent += data.choices[0].delta.reasoning_content;
+              }
+              console.log(reasoningContent);
+              // 处理最终答案内容
               if (data.choices?.[0]?.delta?.content) {
                 aiResponse += data.choices[0].delta.content;
-                renderQueue.push(aiResponse);
+              }
 
-                // 性能优化：控制渲染频率
-                const currentTime = performance.now();
-                if (currentTime - lastProcessTime > 32) {
-                  await processRenderQueue(responseElement, ps, aiResponseContainer);
-                  lastProcessTime = currentTime;
-                }
+              // 将两种内容都加入渲染队列
+              renderQueue.push({
+                reasoningContent: model === "r1" ? reasoningContent : "",
+                content: aiResponse
+              });
+
+              // 性能优化：控制渲染频率
+              const currentTime = performance.now();
+              if (currentTime - lastProcessTime > 32) {
+                await processRenderQueue(responseElement, ps, aiResponseContainer);
+                lastProcessTime = currentTime;
               }
             } catch (e) {
               console.error("Error parsing JSON:", e);
@@ -242,6 +291,8 @@ export async function getAIResponse(
 
     // 确保处理完所有剩余的渲染队列
     await processRenderQueue(responseElement, ps, aiResponseContainer);
+
+    // 更新对话历史（注意：只保存最终答案，不保存思维链）
     conversation.push({ role: "assistant", content: aiResponse });
 
     // 使用 requestIdleCallback 优化图标更新
@@ -305,13 +356,13 @@ export async function getAIResponse(
 
 function handleError(status, responseElement) {
   const errorMessages = {
-    400: "请求体格式错误，请检查并修改。",
-    401: "API key 错误，认证失败。",
-    402: "账号余额不足，请充值。",
-    422: "请求体参数错误，请检查并修改。",
-    429: "请求速率达到上限，请稍后重试。",
-    500: "服务器内部故障，请稍后重试。",
-    503: "服务器负载过高，请稍后重试。",
+    400: "Request body format error, please check and modify.",
+    401: "API key error, authentication failed.",
+    402: "Insufficient account balance, please recharge.",
+    422: "Request body parameter error, please check and modify.",
+    429: "Request rate limit reached, please try again later.",
+    500: "Internal server error, please try again later.",
+    503: "Server overload, please try again later."
   };
   const textNode = document.createTextNode(errorMessages[status] || "请求失败，请稍后重试。");
   responseElement.textContent = "";

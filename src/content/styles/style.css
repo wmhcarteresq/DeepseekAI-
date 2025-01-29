@@ -49,6 +49,10 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
 
+  /* 思维链样式 */
+  --reasoning-border: rgba(60, 60, 67, 0.12);
+  --reasoning-text: #666666;
+
   /* 应用基础样式 */
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -107,6 +111,10 @@
   --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* 思维链样式 */
+  --reasoning-border: rgba(255, 255, 255, 0.15);
+  --reasoning-text: #98989d;
 
   /* 应用基础样式 */
   background-color: var(--bg-primary);
@@ -1420,4 +1428,89 @@
   line-height: 0 !important;
   position: relative !important;
   top: -0.1em !important;
+}
+
+/* 思维链样式 */
+.theme-adaptive .reasoning-content {
+  position: relative;
+  padding: 0px 6px;
+  margin: 8px 0;
+  border-left: 3px solid var(--reasoning-border);
+  color: var(--reasoning-text);
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+/* 思维链收缩状态 */
+.theme-adaptive .reasoning-content.collapsed {
+  max-height: 32px;
+  cursor: pointer;
+}
+
+/* 思维链展开状态 */
+.theme-adaptive .reasoning-content.expanded {
+  max-height: 1000px;
+}
+
+/* 思维链头部容器 */
+.theme-adaptive .reasoning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  color: var(--reasoning-text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* 思维链切换按钮 */
+.theme-adaptive .reasoning-toggle {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-adaptive .reasoning-toggle:hover {
+  opacity: 1;
+}
+
+/* 切换按钮图标 */
+.theme-adaptive .reasoning-toggle::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--reasoning-text);
+  border-bottom: 2px solid var(--reasoning-text);
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+}
+
+/* 收缩状态的图标 */
+.theme-adaptive .reasoning-content.collapsed .reasoning-toggle::before {
+  transform: rotate(-45deg);
+}
+
+/* 展开状态的图标 */
+.theme-adaptive .reasoning-content.expanded .reasoning-toggle::before {
+  transform: rotate(45deg);
+}
+
+/* 思维链内容容器 */
+.theme-adaptive .reasoning-content-inner {
+  padding: 4px 0;
+}
+
+/* 收缩状态下的文本省略 */
+.theme-adaptive .reasoning-content.collapsed .reasoning-content-inner {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
