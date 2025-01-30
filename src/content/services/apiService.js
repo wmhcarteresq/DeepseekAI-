@@ -143,7 +143,8 @@ export async function getAIResponse(
   iconContainer,
   aiResponseContainer,
   isRefresh = false,
-  onComplete
+  onComplete,
+  isGreeting = false  // 新增参数，用于标识是否是问候语
 ) {
   if (!text) return;
 
@@ -225,7 +226,10 @@ export async function getAIResponse(
     }
 
     const requestBody = {
-      model: model === "r1" ? "deepseek-reasoner" : "deepseek-chat",
+      // 当文本是 getGreeting() 生成的问候语时使用 V3 模型
+      model: (text === "Good morning 👋" || text === "Good afternoon 👋" || text === "Good evening 👋")
+        ? "deepseek-chat"
+        : (model === "r1" ? "deepseek-reasoner" : "deepseek-chat"),
       messages: [
         {
           role: "system",

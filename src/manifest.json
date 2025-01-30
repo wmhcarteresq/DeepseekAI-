@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "DeepSeek AI",
   "description": "DeepSeek AI Assistant is a free and open-source browser extension tool (unrelated to DeepSeek official).",
-  "version": "1.8.8",
+  "version": "1.8.10",
   "permissions": ["storage", "contextMenus", "scripting", "commands", "tabs"],
   "content_scripts": [
     {
